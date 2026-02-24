@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    container_name: ai_portfolio_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./portfolio.db:/app/portfolio.db
+    environment:
+      - DATABASE_URL=sqlite:///./portfolio.db
+      - SECRET_KEY=supersecretkey
+    restart: always
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    container_name: ai_portfolio_frontend
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend
+    environment:
+      - BASE_URL=http://backend:8000
+    restart: always
