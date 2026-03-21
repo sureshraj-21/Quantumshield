@@ -11,7 +11,7 @@ router = APIRouter()
 class AuthSchema(BaseModel):
     username: str
     password: str
-    email: str = None # Signup-ku mattum
+    email: str = None 
 
 def get_db():
     db = SessionLocal()
@@ -20,26 +20,45 @@ def get_db():
     finally:
         db.close()
 
-# REGISTER Fix
-@router.post("/signup") # Frontend-la /auth/signup nu call panna matching-ah irukum
+# ===============================
+# REGISTER Fix (With Error Handling)
+# ===============================
+@router.post("/signup")
 def register(user_data: AuthSchema, db: Session = Depends(get_db)):
+    # 1. Check if user already exists
     existing_user = db.query(User).filter(User.username == user_data.username).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already exists")
 
-    new_user = User(
-        username=user_data.username,
-        email=user_data.email,
-        password=user_data.password
-    )
-    db.add(new_user)
-    db.commit()
-    return {"message": "User registered successfully"}
+    try:
+        # 2. Create new user object
+        new_user = User(
+            username=user_data.username,
+            email=user_data.email,
+            password=user_data.password # Professional project-na inga hash pannanum (bcrypt)
+        )
+        
+        # 3. Save to Database
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        return {"message": "User registered successfully"}
+        
+    except Exception as e:
+        db.rollback() # Error vandha process-ai cancel pannum
+        print(f"Database Error: {e}") # Render Logs-la error kaatum
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Database Write Error: Check if disk is read-only. Error: {str(e)}"
+        )
 
+# ===============================
 # LOGIN Fix
+# ===============================
 @router.post("/login")
 def login(user_data: AuthSchema, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == user_data.username).first()
+    
     if not user or user.password != user_data.password:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
