@@ -38,7 +38,7 @@ CPS_THRESHOLD = 1.2
 # Database
 # ==============================
 
-DATABASE_URL = "mysql+pymysql://root:rajgaming%23123@localhost/portfolio_db"
+DATABASE_URL = "sqlite:///./portfolio.db"
 
 # ==============================
 # Security
