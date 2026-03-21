@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from database.db import SessionLocal
 from auth.models import User
-from auth.auth_utils import create_access_token
+from auth.auth_utils import create_access_token, hash_password, verify_password
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -31,18 +31,19 @@ def register(user_data: AuthSchema, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Username already exists")
 
     try:
-        # 2. Create new user object
+        # 2. Hash password and create new user object
+        hashed_password = hash_password(user_data.password)
         new_user = User(
             username=user_data.username,
             email=user_data.email,
-            password=user_data.password # Professional project-na inga hash pannanum (bcrypt)
+            password=hashed_password
         )
         
         # 3. Save to Database
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
-        return {"message": "User registered successfully"}
+        return {"message": "User registered successfully", "user_id": new_user.id}
         
     except Exception as e:
         db.rollback() # Error vandha process-ai cancel pannum
@@ -59,7 +60,7 @@ def register(user_data: AuthSchema, db: Session = Depends(get_db)):
 def login(user_data: AuthSchema, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == user_data.username).first()
     
-    if not user or user.password != user_data.password:
+    if not user or not verify_password(user_data.password, user.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = create_access_token({"sub": user.username})
