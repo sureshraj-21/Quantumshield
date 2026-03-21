@@ -40,12 +40,10 @@ CPS_THRESHOLD = 1.2
 if os.environ.get('RENDER'):
     db_path = "/tmp/portfolio.db"
 else:
-    # Local-la run aagumbodhu unga project folder-la ye save aagum
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     db_path = os.path.join(BASE_DIR, "portfolio.db")
 
 DATABASE_URL = f"sqlite:///{db_path}"
-
 # ==============================
 # Security
 # ==============================
