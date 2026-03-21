@@ -25,7 +25,12 @@ def analyze_risk_behavior(returns):
 @app.get("/api/analyze")
 async def get_portfolio_analysis(tickers: str = "RELIANCE.NS,TCS.NS"):
     try:
-        data = yf.download(tickers.split(","), period="1y")['Close']
+        # Download data with error handling
+        raw_data = yf.download(tickers.split(","), period="1y")
+        if raw_data is None or raw_data.empty:
+            return {"error": "Failed to download data for the specified tickers"}
+
+        data = raw_data['Close']
         if isinstance(data, pd.Series): data = data.to_frame()
         returns = data.pct_change().dropna()
 
