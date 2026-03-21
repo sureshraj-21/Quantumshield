@@ -626,142 +626,168 @@ const speakStatus = () => {
       </div>
     </>
   )}
-          {activeTab === "Analytics" && (
-  <div style={{ animation: 'fadeIn 0.5s ease-in-out' }}>
-    
-    {/* 📊 TOP 3 SUMMARY CARDS */}
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px', marginBottom: '20px' }}>
-      <MiniCard title="QUANTUM ACCURACY" value="94.2%" color="#00f2fe" />
-      <MiniCard title="TOTAL TRADES" value="128" color="#10b981" />
-      <MiniCard title="SUCCESS RATIO" value="82%" color="#f59e0b" />
-    </div>
-
-    {/* 🟢 QUANTUM HEALTH & ADVICE SECTION */}
-    <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '20px', marginBottom: '20px' }}>
-      <div style={{ 
-        background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', 
-        padding: '20px', borderRadius: '20px', border: '1px solid rgba(0, 242, 254, 0.2)', 
-        display: 'flex', alignItems: 'center', justifyContent: 'space-around' 
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <small style={{ color: '#94a3b8', fontWeight: 'bold', fontSize: '10px' }}>PORTFOLIO HEALTH</small>
-          <div style={{ fontSize: '42px', fontWeight: '900', color: '#10b981', margin: '5px 0' }}>88%</div>
-          <div style={{ padding: '3px 10px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', borderRadius: '20px', fontSize: '9px', fontWeight: 'bold' }}>OPTIMIZED</div>
-        </div>
-        <div style={{ height: '70px', width: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
-        <div style={{ fontSize: '11px', color: '#cbd5e1', maxWidth: '160px', lineHeight: '1.4' }}>
-          <b style={{ color: '#00f2fe' }}>AI Summary:</b> Sector distribution is stable. Low risk detected. <br/>
-          <b style={{ color: '#10b981' }}>🛡️ GHOST HEDGE ACTIVE</b>
-        </div>
-      </div>
-
-      <div style={{ background: '#1e293b', padding: '20px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
-        <small style={{ color: '#00f2fe', fontWeight: 'bold', fontSize: '10px' }}>🤖 QUANTUM OPTIMIZER ADVICE</small>
-        <ul style={{ color: '#94a3b8', fontSize: '10px', paddingLeft: '15px', marginTop: '10px', lineHeight: '1.6' }}>
-          <li>✅ Diversification well-balanced.</li>
-          <li>🟡 Rebalance: Consider <b>TCS</b>.</li>
-          <li>🛡️ Hedge active for volatility.</li>
-        </ul>
-      </div>
-    </div>
-    <div style={{ background: '#1e293b', padding: '20px', borderRadius: '20px', marginTop: '20px' }}>
-  <small style={{ color: '#00f2fe', fontWeight: 'bold' }}>📈 CUMULATIVE STRATEGY PERFORMANCE (30D)</small>
-  <div style={{ height: '200px', marginTop: '10px' }}>
-    <Line 
-      data={{
-        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-        datasets: [{
-          label: 'Strategy ROI',
-          data: [100000, 102500, 101800, 105400], // Example Growth
-          borderColor: '#10b981',
-          fill: true,
-          backgroundColor: 'rgba(16, 185, 129, 0.1)',
-          tension: 0.4
-        }]
-      }} 
-      options={{ maintainAspectRatio: false, plugins: { legend: { display: false } } }} 
-    />
-  </div>
-</div>
-
-    {/* 📋 BACKTESTING TABLE */}
-    <div style={{ background: '#1e293b', padding: '20px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '20px' }}>
-      <h4 style={{ color: '#f8fafc', marginBottom: '15px', fontSize: '14px' }}>📋 Backtesting Execution History</h4>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px', color: '#94a3b8' }}>
-        <thead>
-          <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', textAlign: 'left' }}>
-            <th style={{ padding: '10px' }}>Timestamp</th>
-            <th>Asset</th>
-            <th>Signal</th>
-            <th>Result</th>
-            <th>P&L</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style={{ padding: '10px' }}>17 Mar, 10:30</td>
-            <td style={{ color: '#fff', fontWeight: 'bold' }}>TCS.NS</td>
-            <td style={{ color: '#10b981' }}>BUY</td>
-            <td>Target Reached</td>
-            <td style={{ color: '#10b981', fontWeight: 'bold' }}>+₹12.40</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    {/* 🔍 ADDED: ASSET COMPARISON MATRIX (UPGRADE) */}
+        {activeTab === "Analytics" && (
     <div style={{ 
-      background: '#1e293b', padding: '25px', borderRadius: '25px', border: '1px solid rgba(0, 242, 254, 0.1)' 
+      animation: 'fadeIn 0.5s ease-in-out',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '20px',
+      maxWidth: '100%',
+      boxSizing: 'border-box'
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h4 style={{ color: '#fff', margin: 0, fontSize: '16px' }}>📊 Multi-Asset Comparison Matrix</h4>
-        <div style={{ padding: '4px 10px', background: 'rgba(0, 242, 254, 0.1)', color: '#00f2fe', borderRadius: '8px', fontSize: '10px', fontWeight: 'bold' }}>LIVE RANKING</div>
+      
+      {/* 📊 TOP 3 SUMMARY CARDS */}
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(3, 1fr)', 
+        gap: '20px' 
+      }}>
+        <MiniCard title="QUANTUM ACCURACY" value="94.2%" color="#00f2fe" />
+        <MiniCard title="TOTAL TRADES" value="128" color="#10b981" />
+        <MiniCard title="SUCCESS RATIO" value="82%" color="#f59e0b" />
       </div>
 
-      <table style={{ width: '100%', borderCollapse: 'collapse', color: '#94a3b8', fontSize: '11px' }}>
-        <thead>
-          <tr style={{ borderBottom: '2px solid rgba(255,255,255,0.05)', textAlign: 'left' }}>
-            <th style={{ padding: '12px' }}>STOCK</th>
-            <th>BSI Score</th>
-            <th>Volatility</th>
-            <th>Sharpe Ratio</th>
-            <th>Quantum Verdict</th>
-            <th style={{ textAlign: 'center' }}>Risk Gauge</th>
-          </tr>
-        </thead>
-        <tbody>
-          {stockList.slice(0, 5).map((s, index) => {
-            const bsi = (65 + index * 3.5).toFixed(1);
-            const vol = (18 + index * 6).toFixed(1);
-            const sharpe = (2.1 - index * 0.15).toFixed(2);
-            return (
-              <tr key={s.symbol} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
-                <td style={{ padding: '12px', color: '#fff', fontWeight: 'bold' }}>{s.symbol}</td>
-                <td style={{ color: bsi > 70 ? '#10b981' : '#fff' }}>{bsi}%</td>
-                <td style={{ color: vol > 35 ? '#ef4444' : '#fff' }}>{vol}%</td>
-                <td style={{ color: '#00f2fe' }}>{sharpe}</td>
-                <td>
-                  <span style={{ 
-                    padding: '2px 8px', borderRadius: '10px', fontSize: '9px', fontWeight: '900',
-                    background: bsi > 70 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
-                    color: bsi > 70 ? '#10b981' : '#f59e0b'
-                  }}>
-                    {bsi > 70 ? 'STRONG BUY' : 'HOLD'}
-                  </span>
-                </td>
-                <td>
-                  <div style={{ width: '60px', height: '4px', background: '#334155', borderRadius: '10px', margin: '0 auto', overflow: 'hidden' }}>
-                    <div style={{ width: `${vol}%`, height: '100%', background: vol > 35 ? '#ef4444' : '#10b981' }}></div>
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      {/* 🟢 QUANTUM HEALTH & ADVICE SECTION */}
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: '1.5fr 1fr', 
+        gap: '20px'
+      }}>
+        <div style={{ 
+          background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', 
+          padding: '25px', borderRadius: '20px', border: '1px solid rgba(0, 242, 254, 0.2)', 
+          display: 'flex', alignItems: 'center', justifyContent: 'space-around' 
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <small style={{ color: '#94a3b8', fontWeight: 'bold', fontSize: '10px' }}>PORTFOLIO HEALTH</small>
+            <div style={{ fontSize: '42px', fontWeight: '900', color: '#10b981', margin: '5px 0' }}>88%</div>
+            <div style={{ padding: '4px 12px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', borderRadius: '20px', fontSize: '9px', fontWeight: 'bold' }}>OPTIMIZED</div>
+          </div>
+          <div style={{ height: '70px', width: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
+          <div style={{ fontSize: '12px', color: '#cbd5e1', maxWidth: '180px', lineHeight: '1.5' }}>
+            <b style={{ color: '#00f2fe' }}>AI Summary:</b> Sector distribution is stable. Low risk detected. <br/>
+            <b style={{ color: '#10b981' }}>🛡️ GHOST HEDGE ACTIVE</b>
+          </div>
+        </div>
+
+        <div style={{ background: '#1e293b', padding: '25px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <small style={{ color: '#00f2fe', fontWeight: 'bold', fontSize: '10px' }}>🤖 QUANTUM OPTIMIZER ADVICE</small>
+          <ul style={{ color: '#94a3b8', fontSize: '11px', paddingLeft: '15px', marginTop: '15px', lineHeight: '1.8' }}>
+            <li>✅ Diversification well-balanced.</li>
+            <li>🟡 Rebalance: Consider <b>TCS</b>.</li>
+            <li>🛡️ Hedge active for volatility.</li>
+          </ul>
+        </div>
+      </div>
+
+      {/* 📈 PERFORMANCE CHART */}
+      <div style={{ background: '#1e293b', padding: '25px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <small style={{ color: '#00f2fe', fontWeight: 'bold' }}>📈 CUMULATIVE STRATEGY PERFORMANCE (30D)</small>
+        <div style={{ height: '200px', marginTop: '15px' }}>
+          <Line 
+            data={{
+              labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+              datasets: [{
+                label: 'Strategy ROI',
+                data: [100000, 102500, 101800, 105400],
+                borderColor: '#10b981',
+                fill: true,
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#10b981'
+              }]
+            }} 
+            options={{ 
+              maintainAspectRatio: false, 
+              plugins: { legend: { display: false } },
+              scales: {
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+              }
+            }} 
+          />
+        </div>
+      </div>
+
+      {/* 📋 BACKTESTING TABLE */}
+      <div style={{ background: '#1e293b', padding: '25px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <h4 style={{ color: '#f8fafc', marginBottom: '15px', fontSize: '15px' }}>📋 Backtesting Execution History</h4>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', color: '#94a3b8' }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left' }}>
+              <th style={{ padding: '12px' }}>Timestamp</th>
+              <th>Asset</th>
+              <th>Signal</th>
+              <th>Result</th>
+              <th>P&L</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
+              <td style={{ padding: '12px' }}>17 Mar, 10:30</td>
+              <td style={{ color: '#fff', fontWeight: 'bold' }}>TCS.NS</td>
+              <td style={{ color: '#10b981' }}>BUY</td>
+              <td>Target Reached</td>
+              <td style={{ color: '#10b981', fontWeight: 'bold' }}>+₹12.40</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* 🔍 ASSET COMPARISON MATRIX */}
+      <div style={{ 
+        background: '#1e293b', padding: '30px', borderRadius: '25px', border: '1px solid rgba(0, 242, 254, 0.1)' 
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h4 style={{ color: '#fff', margin: 0, fontSize: '16px' }}>📊 Multi-Asset Comparison Matrix</h4>
+          <div style={{ padding: '5px 12px', background: 'rgba(0, 242, 254, 0.1)', color: '#00f2fe', borderRadius: '8px', fontSize: '10px', fontWeight: 'bold' }}>LIVE RANKING</div>
+        </div>
+
+        <table style={{ width: '100%', borderCollapse: 'collapse', color: '#94a3b8', fontSize: '12px' }}>
+          <thead>
+            <tr style={{ borderBottom: '2px solid rgba(255,255,255,0.05)', textAlign: 'left' }}>
+              <th style={{ padding: '15px' }}>STOCK</th>
+              <th>BSI Score</th>
+              <th>Volatility</th>
+              <th>Sharpe Ratio</th>
+              <th>Quantum Verdict</th>
+              <th style={{ textAlign: 'center' }}>Risk Gauge</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stockList.slice(0, 5).map((s, index) => {
+              const bsi = (65 + index * 3.5).toFixed(1);
+              const vol = (18 + index * 6).toFixed(1);
+              const sharpe = (2.1 - index * 0.15).toFixed(2);
+              return (
+                <tr key={s.symbol} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
+                  <td style={{ padding: '15px', color: '#fff', fontWeight: 'bold' }}>{s.symbol}</td>
+                  <td style={{ color: bsi > 70 ? '#10b981' : '#fff' }}>{bsi}%</td>
+                  <td style={{ color: vol > 35 ? '#ef4444' : '#fff' }}>{vol}%</td>
+                  <td style={{ color: '#00f2fe' }}>{sharpe}</td>
+                  <td>
+                    <span style={{ 
+                      padding: '4px 10px', borderRadius: '10px', fontSize: '10px', fontWeight: '900',
+                      background: bsi > 70 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+                      color: bsi > 70 ? '#10b981' : '#f59e0b'
+                    }}>
+                      {bsi > 70 ? 'STRONG BUY' : 'HOLD'}
+                    </span>
+                  </td>
+                  <td>
+                    <div style={{ width: '80px', height: '6px', background: '#334155', borderRadius: '10px', margin: '0 auto', overflow: 'hidden' }}>
+                      <div style={{ width: `${vol}%`, height: '100%', background: vol > 35 ? '#ef4444' : '#10b981' }}></div>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
-)}
+  )}
           
 
           {activeTab === "Stocks" && (
