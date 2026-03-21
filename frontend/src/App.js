@@ -53,7 +53,7 @@ function App() {
 
     // 🟢 WhatsApp Alert (Background via FastAPI + Twilio)
     try {
-        await axios.post('http://localhost:8000/api/send-notification', {
+        await axios.post('https://quantumshield-3b12.onrender.com/api/send-notification', {
             msg: message,
             phone: MY_PHONE // Unga number: +919962126306
         });
@@ -243,7 +243,7 @@ function App() {
 };
   const fetchData = (symbol) => {
     setLoading(true);
-    axios.get(`http://localhost:8000/api/analyze?tickers=${symbol}`)
+    axios.get(`https://quantumshield-3b12.onrender.com/api/analyze?tickers=${symbol}`)
       .then(res => {
         setData(Array.isArray(res.data) ? res.data[0] : res.data);
         setLoading(false);
@@ -343,7 +343,7 @@ const speakStatus = () => {
               onClick={async () => {
                 const endpoint = isRegisterMode ? 'signup' : 'login';
                 try {
-                  const res = await axios.post(`http://localhost:8000/auth/${endpoint}`, authData);
+                  const res = await axios.post(`https://quantumshield-3b12.onrender.com/auth/${endpoint}`, authData);
                   if (res.data) {
                     setIsLoggedIn(true);
                     sendSilentAlert(`🔐 ${isRegisterMode ? "NEW USER" : "LOGIN"}: ${authData.username} has accessed the terminal.`);
