@@ -1,4 +1,5 @@
 import uvicorn
+import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from api.routes import router as api_router
@@ -7,46 +8,60 @@ from database.db import engine, Base
 from twilio.rest import Client 
 
 app = FastAPI(
-    title="AI Financial Complete Portfolio Optimizer",
+    title="QuantShield AI Optimizer",
     version="2.0"
 )
 
 # ===============================
-# 🔑 YOUR LIVE TWILIO CONFIGURATION
+# 🔑 TWILIO CONFIGURATION
 # ===============================
-TWILIO_ACCOUNT_SID = 'AC5a3cdd61a29ed82e3a5f2e54977fb072' 
-TWILIO_AUTH_TOKEN = '2d6ff54c561af6b0a868df61c9bffc43'
-TWILIO_WHATSAPP_NUMBER = 'whatsapp:+14155238886' # Twilio Sandbox Number
-MY_WHATSAPP_NUMBER = 'whatsapp:+919962126306'    # Unga Mobile Number
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID', 'AC5a3cdd61a29ed82e3a5f2e54977fb072')
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN', '2d6ff54c561af6b0a868df61c9bffc43')
+TWILIO_WHATSAPP_NUMBER = 'whatsapp:+14155238886' 
+MY_WHATSAPP_NUMBER = 'whatsapp:+919962126306'
 
-client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+# Safety check for Twilio
+try:
+    client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+except Exception as e:
+    print(f"Twilio Client Init Error: {e}")
+    client = None
 
 # ===============================
-# CORS (Allow Frontend Access)
+# CORS (Updated for Vercel & Render)
 # ===============================
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
+    allow_origins=["*"], # Inga unga Vercel URL-ai specify pannalaam for security
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # ===============================
-# Create Database Tables
+# 🗄️ Database Table Creation
 # ===============================
-Base.metadata.create_all(bind=engine)
+# Idhu app startup-la tables-ai create pannum
+@app.on_event("startup")
+def startup_event():
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("✅ Database tables created successfully!")
+    except Exception as e:
+        print(f"❌ Database Creation Error: {e}")
 
 # ===============================
-# 🟢 WHATSAPP NOTIFICATION ENDPOINT
+# 🟢 WHATSAPP NOTIFICATION
 # ===============================
 @app.post("/api/send-notification")
 async def send_notification(request: Request):
+    if not client:
+        return {"status": "error", "message": "Twilio not configured"}
+    
     data = await request.json()
     msg_content = data.get("msg", "QuantShield Alert Triggered")
     
     try:
-        # 🚀 Sending WhatsApp message to +919962126306
         message = client.messages.create(
             from_=TWILIO_WHATSAPP_NUMBER,
             body=msg_content,
@@ -54,12 +69,8 @@ async def send_notification(request: Request):
         )
         return {"status": "success", "sid": message.sid}
     except Exception as e:
-        print(f"Twilio Error: {e}")
         return {"status": "error", "message": str(e)}
 
-# ===============================
-# Root Health Check
-# ===============================
 @app.get("/")
 def root():
     return {"status": "API Running", "accuracy_mode": "Real-time NSE Sync"}
@@ -70,8 +81,7 @@ def root():
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 app.include_router(api_router, prefix="/api", tags=["Core API"])
 
-# ===============================
-# Windows Execution Fix
-# ===============================
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    # Render-la PORT variable dynamic-ah irukkum
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
