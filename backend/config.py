@@ -35,10 +35,15 @@ BSI_THRESHOLD = 2.5
 CPS_THRESHOLD = 1.2
 
 # ==============================
-# Database
+# Database (Render Cloud Path Fix)
 # ==============================
 
-DATABASE_URL = "sqlite:///./portfolio.db"
+# Idhu unga file yendha folder-la irukko andha path-ai kandupudikkum
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(BASE_DIR, "portfolio.db")
+
+# SQLite Database URL with Absolute Path
+DATABASE_URL = f"sqlite:///{db_path}"
 
 # ==============================
 # Security
