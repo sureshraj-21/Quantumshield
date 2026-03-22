@@ -420,7 +420,6 @@ const speakStatus = () => {
       fontFamily: "'Jakarta Sans', sans-serif"
     }}
   >
-
     {/* 🟢 SIDEBAR */}
     <div
       style={{
@@ -437,279 +436,124 @@ const speakStatus = () => {
         overflowX: window.innerWidth < 900 ? "auto" : "hidden"
       }}
     >
-
-      <h2
-        style={{
-          color: "#00f2fe",
-          fontWeight: "900",
-          marginBottom: "20px",
-          fontSize: "22px",
-          paddingLeft: "10px",
-          whiteSpace: "nowrap"
-        }}
-      >
+      <h2 style={{ color: "#00f2fe", fontWeight: "900", marginBottom: "20px", fontSize: "22px", paddingLeft: "10px", whiteSpace: "nowrap" }}>
         🛡️ QuantShield
       </h2>
 
-      {["Dashboard", "Analytics", "Stocks", "Monte Carlo", "Settings"].map(
-        (tab) => (
-          <div
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            style={{
-              background:
-                activeTab === tab
-                  ? "rgba(0,242,254,0.15)"
-                  : "transparent",
-              color:
-                activeTab === tab ? "#00f2fe" : "#94a3b8",
-              padding: "12px 16px",
-              borderRadius: "12px",
-              fontWeight: "600",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              borderLeft:
-                activeTab === tab
-                  ? "4px solid #00f2fe"
-                  : "4px solid transparent",
-              whiteSpace: "nowrap"
-            }}
-          >
-            {tab === "Dashboard"
-              ? "📊"
-              : tab === "Analytics"
-              ? "📈"
-              : tab === "Stocks"
-              ? "💹"
-              : tab === "Monte Carlo"
-              ? "🎲"
-              : "⚙️"}{" "}
-            {window.innerWidth > 900 && tab}
-          </div>
-        )
-      )}
+      {["Dashboard", "Analytics", "Stocks", "Monte Carlo", "Settings"].map((tab) => (
+        <div
+          key={tab}
+          onClick={() => setActiveTab(tab)}
+          style={{
+            background: activeTab === tab ? "rgba(0,242,254,0.15)" : "transparent",
+            color: activeTab === tab ? "#00f2fe" : "#94a3b8",
+            padding: "12px 16px",
+            borderRadius: "12px",
+            fontWeight: "600",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            borderLeft: activeTab === tab ? "4px solid #00f2fe" : "4px solid transparent",
+            whiteSpace: "nowrap"
+          }}
+        >
+          {tab === "Dashboard" ? "📊" : tab === "Analytics" ? "📈" : tab === "Stocks" ? "💹" : tab === "Monte Carlo" ? "🎲" : "⚙️"} 
+          {window.innerWidth > 900 && tab}
+        </div>
+      ))}
 
       <div
         onClick={() => setIsLoggedIn(false)}
-        style={{
-          marginTop: "auto",
-          color: "#f85149",
-          fontWeight: "bold",
-          cursor: "pointer",
-          padding: "12px",
-          borderRadius: "10px",
-          textAlign: "center",
-          background: "rgba(248,81,73,0.05)"
-        }}
+        style={{ marginTop: "auto", color: "#f85149", fontWeight: "bold", cursor: "pointer", padding: "12px", borderRadius: "10px", textAlign: "center", background: "rgba(248,81,73,0.05)" }}
       >
         🔒 Logout
       </div>
     </div>
 
     {/* 🔵 MAIN CONTENT AREA */}
-<div
-  style={{
-    width: window.innerWidth < 900 ? "100%" : "calc(100% - 260px)",
-    marginLeft: window.innerWidth < 900 ? "0" : "260px",
-    padding: window.innerWidth < 900 ? "15px" : "40px 50px",
-    boxSizing: "border-box",
-    minHeight: "100vh",
-    overflowX: "hidden"
-   
-  }}
->
-
-  <div
-    style={{
-      display: "flex",
-      flexDirection: window.innerWidth < 900 ? "column" : "row",
-      justifyContent: "space-between",
-      alignItems: window.innerWidth < 900 ? "flex-start" : "center",
-      gap: "15px",
-      marginBottom: "30px"
-    }}
-  >
-    
-    {/* LEFT TITLE */}
-    <div>
-      <h1
-        style={{
-          fontSize: window.innerWidth < 900 ? "22px" : "32px",
-          fontWeight: "900",
-          margin: 0
-        }}
-      >
-        {activeTab} Overview
-      </h1>
-
-      <p
-        style={{
-          color: "#64748b",
-          fontSize: "14px",
-          marginTop: "5px"
-        }}
-      >
-        Market Sync: Active (1s)
-      </p>
-    </div>
-
-    {/* RIGHT SIDE */}
     <div
       style={{
+        width: window.innerWidth < 900 ? "100%" : "calc(100% - 260px)",
+        marginLeft: window.innerWidth < 900 ? "0" : "260px",
+        padding: window.innerWidth < 900 ? "15px" : "40px 50px",
+        boxSizing: "border-box",
+        minHeight: "100vh",
         display: "flex",
-        flexDirection: window.innerWidth < 900 ? "column" : "row",
-        gap: "10px",
-        alignItems: window.innerWidth < 900 ? "flex-start" : "center",
-        width: window.innerWidth < 900 ? "100%" : "auto"
+        flexDirection: "column"
       }}
     >
-      
-      {/* WALLET */}
-      <div
-        style={{
-          background: "#1e293b",
-          padding: "12px 20px",
-          borderRadius: "18px",
-          border: "1px solid #28292a",
-          boxShadow: "0 4px 6px rgba(37,211,102,0.05)",
-          width: window.innerWidth < 900 ? "100%" : "auto"
-        }}
-      >
-        <span
-          style={{
-            fontSize: "13px",
-            color: "white",
-            fontWeight: "bold",
-            display: "block"
-          }}
-        >
-          ACCOUNT WALLET
-        </span>
+      {/* HEADER SECTION */}
+      <div style={{ display: "flex", flexDirection: window.innerWidth < 900 ? "column" : "row", justifyContent: "space-between", alignItems: window.innerWidth < 900 ? "flex-start" : "center", gap: "15px", marginBottom: "30px" }}>
+        <div>
+          <h1 style={{ fontSize: window.innerWidth < 900 ? "22px" : "32px", fontWeight: "900", margin: 0, color: "#1e293b" }}>
+            {activeTab} Overview
+          </h1>
+          <p style={{ color: "#64748b", fontSize: "14px", marginTop: "5px" }}>Market Sync: Active (1s)</p>
+        </div>
 
-        <b
-          style={{
-            color: "#14df62",
-            fontSize: "18px"
-          }}
-        >
-          ₹{wallet.toLocaleString()}
-        </b>
-      </div>
+        <div style={{ display: "flex", flexDirection: window.innerWidth < 900 ? "column" : "row", gap: "10px", alignItems: "center", width: window.innerWidth < 900 ? "100%" : "auto" }}>
+          {/* WALLET */}
+          <div style={{ background: "#1e293b", padding: "12px 20px", borderRadius: "18px", border: "1px solid #28292a", width: window.innerWidth < 900 ? "100%" : "auto" }}>
+            <span style={{ fontSize: "13px", color: "white", fontWeight: "bold", display: "block" }}>ACCOUNT WALLET</span>
+            <b style={{ color: "#14df62", fontSize: "18px" }}>₹{wallet.toLocaleString()}</b>
+          </div>
 
-      {/* PDF BUTTON */}
-      {activeTab === "Dashboard" && data && (
-        <button
-          onClick={downloadReport}
-          style={{
-            padding: "12px 20px",
-            background: "#1e293b",
-            color: "white",
-            borderRadius: "18px",
-            border: "none",
-            fontWeight: "bold",
-            cursor: "pointer",
-            width: window.innerWidth < 900 ? "100%" : "auto"
-          }}
-        >
-          📥 PDF Report
-        </button>
-      )}
-    </div>
-  </div>
-</div>
-      
-
-       <div id="report-area">
-  {activeTab === "Dashboard" && data && (
-    <div className="dashboard-content" style={{ color: 'white', fontFamily: "'Poppins', sans-serif" }}>
-     {/* 📋 ASSET SELECTOR BAR (Updated with Mute Toggle) */}
-<div style={{ 
-  background: '#1e293b', padding: '20px', borderRadius: '20px', marginBottom: '25px', 
-  display: 'flex', alignItems: 'center', gap: '15px', border: '1px solid rgba(0, 242, 254, 0.1)' 
-}}>
-  <label style={{ color: '#94a3b8', fontSize: '12px', fontWeight: 'bold' }}>CHOOSE STOCK:</label>
-  <select 
-    value={selectedStock} 
-    onChange={(e) => { setSelectedStock(e.target.value); fetchData(e.target.value); }}
-    style={{ background: '#0f172a', color: '#00f2fe', border: '1px solid #334155', padding: '10px', borderRadius: '10px', fontWeight: 'bold' }}
-  >
-    {stockList.map(s => <option key={s.symbol} value={s.symbol}>{s.name}</option>)}
-  </select>
-
-  {/* 🔊 VOICE ASSISTANT & 🔇 MUTE TOGGLE */}
-  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '5px 12px', borderRadius: '15px' }}>
-    <button 
-      onClick={speakStatus} 
-      disabled={isVoiceMuted}
-      style={{ background: 'none', border: 'none', cursor: isVoiceMuted ? 'not-allowed' : 'pointer', fontSize: '18px', opacity: isVoiceMuted ? 0.3 : 1 }}
-    >
-      🔊
-    </button>
-    <div 
-      onClick={() => {
-        setIsVoiceMuted(!isVoiceMuted);
-        if(!isVoiceMuted) window.speechSynthesis.cancel(); // Mute pannuna udane satham nikanum
-      }}
-      style={{ 
-        width: '40px', height: '20px', background: isVoiceMuted ? '#ef4444' : '#10b981', 
-        borderRadius: '20px', position: 'relative', cursor: 'pointer', transition: '0.3s' 
-      }}
-    >
-      <div style={{ 
-        width: '16px', height: '16px', background: '#fff', borderRadius: '50%', 
-        position: 'absolute', top: '2px', left: isVoiceMuted ? '22px' : '2px', transition: '0.3s' 
-      }} />
-    </div>
-    <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 'bold' }}>{isVoiceMuted ? 'MUTED' : 'VOICE ON'}</span>
-  </div>
-
-  
-
-
-        {/* 🔊 AI VOICE ASSISTANT BUTTON (New Upgrade) */}
-        <button 
-          onClick={speakStatus} 
-          title="Listen to AI Analysis"
-          style={{ 
-            padding: '10px 15px', 
-            background: 'rgba(59, 130, 246, 0.2)', 
-            border: '1px solid #3b82f6', 
-            borderRadius: '12px', 
-            cursor: 'pointer', 
-            fontSize: '18px',
-            transition: '0.3s'
-          }}
-        >
-          🔊
-        </button>
-        
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{ color: '#94a3b8', fontSize: '11px' }}>DECISION STATUS:</span>
-          <span style={{ 
-            color: data.decision === "BUY" ? "#10b981" : "#f59e0b", 
-            fontWeight: 'bold', 
-            fontSize: '11px',
-            padding: '4px 10px',
-            background: 'rgba(255,255,255,0.05)',
-            borderRadius: '6px'
-          }}>
-            {data.decision} RECOMMENDED
-          </span>
+          {activeTab === "Dashboard" && data && (
+            <button onClick={downloadReport} style={{ padding: "12px 20px", background: "#1e293b", color: "white", borderRadius: "18px", border: "none", fontWeight: "bold", cursor: "pointer", width: window.innerWidth < 900 ? "100%" : "auto" }}>
+              📥 PDF Report
+            </button>
+          )}
         </div>
       </div>
 
-      {/* 📊 MINI STAT CARDS (Now with 4 columns for Ghost Hedge) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '40px' }}>
-        <MiniCard title="UNREALIZED P&L" value={`₹${calculatePnL().toFixed(2)}`} color={calculatePnL() >= 0 ? "#10b981" : "#ef4444"} />
-        <MiniCard title="MARKET PRICE" value={`₹${livePrice.toFixed(2)}`} color="#3b82f6" />
-        <MiniCard title="QUANTUM DECISION" value={data.decision} color={data.decision === "BUY" ? "#10b981" : "#f59e0b"} />
-        <MiniCard 
-          title="GHOST HEDGE STATUS" 
-          value={wallet < 95000 ? "⚠️ PROTECTIVE FREEZE" : "🛡️ ACTIVE"} 
-          color={wallet < 95000 ? "#ef4444" : "#10b981"} 
-        />
+      {/* 🟢 REPORT AREA - ALIGNMENT FIXED */}
+      <div id="report-area" style={{ width: "100%" }}>
+        {activeTab === "Dashboard" && data && (
+          <div className="dashboard-content" style={{ display: "flex", flexDirection: "column", gap: "25px" }}>
+            
+            {/* 📋 ASSET SELECTOR BAR */}
+            <div style={{ background: '#1e293b', padding: '20px', borderRadius: '20px', display: 'flex', alignItems: 'center', flexWrap: "wrap", gap: '15px', border: '1px solid rgba(0, 242, 254, 0.1)' }}>
+              <label style={{ color: '#94a3b8', fontSize: '12px', fontWeight: 'bold' }}>CHOOSE STOCK:</label>
+              <select 
+                value={selectedStock} 
+                onChange={(e) => { setSelectedStock(e.target.value); fetchData(e.target.value); }}
+                style={{ background: '#0f172a', color: '#00f2fe', border: '1px solid #334155', padding: '10px', borderRadius: '10px', fontWeight: 'bold' }}
+              >
+                {stockList.map(s => <option key={s.symbol} value={s.symbol}>{s.name}</option>)}
+              </select>
+
+              {/* 🔊 VOICE ASSISTANT */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '5px 12px', borderRadius: '15px' }}>
+                <button onClick={speakStatus} disabled={isVoiceMuted} style={{ background: 'none', border: 'none', cursor: isVoiceMuted ? 'not-allowed' : 'pointer', fontSize: '18px', opacity: isVoiceMuted ? 0.3 : 1 }}>🔊</button>
+                <div 
+                  onClick={() => { setIsVoiceMuted(!isVoiceMuted); if(!isVoiceMuted) window.speechSynthesis.cancel(); }}
+                  style={{ width: '40px', height: '20px', background: isVoiceMuted ? '#ef4444' : '#10b981', borderRadius: '20px', position: 'relative', cursor: 'pointer', transition: '0.3s' }}
+                >
+                  <div style={{ width: '16px', height: '16px', background: '#fff', borderRadius: '50%', position: 'absolute', top: '2px', left: isVoiceMuted ? '22px' : '2px', transition: '0.3s' }} />
+                </div>
+                <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 'bold' }}>{isVoiceMuted ? 'MUTED' : 'VOICE ON'}</span>
+              </div>
+
+              <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ color: '#94a3b8', fontSize: '11px' }}>DECISION:</span>
+                <span style={{ color: data.decision === "BUY" ? "#10b981" : "#f59e0b", fontWeight: 'bold', fontSize: '11px', padding: '4px 10px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px' }}>
+                  {data.decision} RECOMMENDED
+                </span>
+              </div>
+            </div>
+
+            {/* 📊 MINI STAT CARDS - 4 COLUMNS FIXED */}
+            <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 900 ? '1fr 1fr' : 'repeat(4, 1fr)', gap: '15px' }}>
+              <MiniCard title="UNREALIZED P&L" value={`₹${calculatePnL().toFixed(2)}`} color={calculatePnL() >= 0 ? "#10b981" : "#ef4444"} />
+              <MiniCard title="MARKET PRICE" value={`₹${livePrice.toFixed(2)}`} color="#3b82f6" />
+              <MiniCard title="AI DECISION" value={data.decision} color={data.decision === "BUY" ? "#10b981" : "#f59e0b"} />
+              <MiniCard title="GHOST HEDGE" value={wallet < 95000 ? "⚠️ FREEZE" : "🛡️ ACTIVE"} color={wallet < 95000 ? "#ef4444" : "#10b981"} />
+            </div>
+
+          </div>
+        )}
+      </div>
       </div>
 
       {/* 🟢 COMPACT GAUGE & TRADE BOX */}
@@ -1293,11 +1137,7 @@ const speakStatus = () => {
     </div>
   </div>
 )}
-        </div>
         
-      </div>
-    );
-  }
 
 
 
