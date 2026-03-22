@@ -316,10 +316,10 @@ const speakStatus = () => {
   };
 
  
- if (!isLoggedIn) {
+if (!isLoggedIn) {
     return (
       <div style={{ 
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://i.ibb.co/XfXkY8C/rm373batch4-07.jpg')`, 
+        backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url('https://i.ibb.co/XfXkY8C/rm373batch4-07.jpg')`, 
         backgroundSize: 'cover', 
         backgroundPosition: 'center', 
         height: '100vh', 
@@ -329,73 +329,73 @@ const speakStatus = () => {
         fontFamily: "'Poppins', sans-serif" 
       }}>
         <div style={{ 
-          background: 'rgba(255, 255, 255, 0.1)', 
-          backdropFilter: 'blur(15px)', 
+          background: 'rgba(255, 255, 255, 0.03)', 
+          backdropFilter: 'blur(20px)', 
           padding: '50px', 
           borderRadius: '30px', 
-          width: '950px', 
+          width: '900px', 
           display: 'flex', 
           gap: '40px', 
           color: 'white', 
-          border: '1px solid rgba(255,255,255,0.2)',
-          boxShadow: '0 25px 50px rgba(0,0,0,0.3)'
+          border: '1px solid rgba(255,255,255,0.1)',
+          boxShadow: '0 25px 50px rgba(0,0,0,0.5)'
         }}>
           {/* Left Side: Branding */}
           <div style={{ flex: 1.2, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-             <h1 style={{ fontSize: '56px', fontWeight: '900', color: '#00f2fe', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '2px' }}>QuantShield</h1>
-             <p style={{ fontSize: '18px', opacity: 0.8, lineHeight: '1.6' }}>
-               Advanced AI-Driven Portfolio Optimization and Risk Forecasting System. 
-               <br/><span style={{ color: '#10b981', fontWeight: 'bold' }}>🛡️ Ghost Hedge Technology Active</span>
+             <h1 style={{ fontSize: '52px', fontWeight: '900', color: '#00f2fe', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '2px' }}>QuantShield</h1>
+             <p style={{ fontSize: '16px', opacity: 0.7, lineHeight: '1.6' }}>
+               Quantum-Driven Financial Portfolio Optimization and Risk Forecasting System. 
+               <br/><span style={{ color: '#10b981', fontWeight: 'bold' }}>🛡️ Secured Terminal Active</span>
              </p>
           </div>
 
           {/* Right Side: Auth Form */}
           <div style={{ flex: 0.8, background: 'rgba(0, 0, 0, 0.4)', padding: '40px', borderRadius: '25px', border: '1px solid rgba(255,255,255,0.1)' }}>
-            <h2 style={{ marginBottom: '25px', letterSpacing: '1px' }}>{isRegisterMode ? "REGISTER" : "LOGIN"}</h2>
+            <h2 style={{ marginBottom: '25px', letterSpacing: '1px', fontSize: '20px' }}>{isRegisterMode ? "CREATE ACCOUNT" : "SYSTEM LOGIN"}</h2>
             
-            <input 
-              type="text" 
-              placeholder="USERNAME" 
-              // 🛠️ FIX 1: AuthData state-ai direct-ah use pannuvom manual typing work aaga
-              value={authData.username}
-              onChange={(e) => setAuthData({...authData, username: e.target.value})} 
-              style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', borderRadius: '12px', outline: 'none' }} 
-            />
-            <input 
-              type="password" 
-              placeholder="PASSWORD" 
-              value={authData.password}
-              onChange={(e) => setAuthData({...authData, password: e.target.value})} 
-              style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', borderRadius: '12px', outline: 'none' }} 
-            />
-            
-            <button 
-              onClick={async () => {
-                const endpoint = isRegisterMode ? 'signup' : 'login';
-                try {
-                  const res = await axios.post(`https://quantumshield-3b12.onrender.com/auth/${endpoint}`, authData);
-                  
-                  if (res.data) {
-                    // 🛠️ FIX 2: Backend-la irundhu vara USERNAME-ai display panna save pannuvom
-                    const userToDisplay = res.data.username || authData.username;
-                    localStorage.setItem("userDisplayName", userToDisplay);
-                    setDisplayName(userToDisplay); 
-                    
-                    setIsLoggedIn(true);
-                    sendSilentAlert(`🔐 ${isRegisterMode ? "NEW USER" : "LOGIN"}: ${userToDisplay} has accessed the terminal.`);
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <input 
+                type="text" 
+                placeholder="USERNAME" 
+                // 🟢 State sync panni irukkaen, so blank-ah irukkaadhu
+                value={authData.username}
+                onChange={(e) => setAuthData({...authData, username: e.target.value})} 
+                style={{ width: '100%', padding: '14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', borderRadius: '12px', outline: 'none' }} 
+              />
+              <input 
+                type="password" 
+                placeholder="PASSWORD" 
+                value={authData.password}
+                onChange={(e) => setAuthData({...authData, password: e.target.value})} 
+                style={{ width: '100%', padding: '14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', borderRadius: '12px', outline: 'none' }} 
+              />
+              
+              <button 
+                onClick={async () => {
+                  const endpoint = isRegisterMode ? 'signup' : 'login';
+                  try {
+                    const res = await axios.post(`https://quantumshield-3b12.onrender.com/auth/${endpoint}`, authData);
+                    if (res.data) {
+                      // 🟢 Login user-oda name-ai fetch pannuvom
+                      const loginName = res.data.username || authData.username;
+                      setDisplayName(loginName);
+                      localStorage.setItem("userDisplayName", loginName);
+                      setIsLoggedIn(true);
+                      sendSilentAlert(`🔐 ACCESS: ${loginName} has accessed the terminal.`);
+                    }
+                  } catch (err) {
+                    alert(isRegisterMode ? "Username already exists!" : "Invalid Credentials!");
                   }
-                } catch (err) {
-                  alert(isRegisterMode ? "Registration Error! Username might exist." : "Invalid Credentials!");
-                }
-              }} 
-              style={{ width: '100%', padding: '16px', marginTop: '15px', background: 'linear-gradient(90deg, #00f2fe, #4facfe)', color: '#002f35', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', transition: '0.3s' }}
-            >
-              {isRegisterMode ? "CREATE ACCOUNT" : "SIGN IN"}
-            </button>
+                }} 
+                style={{ width: '100%', padding: '16px', marginTop: '10px', background: 'linear-gradient(90deg, #00f2fe, #4facfe)', color: '#0f172a', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer' }}
+              >
+                {isRegisterMode ? "REGISTER" : "AUTHORIZE"}
+              </button>
+            </div>
 
             {/* Toggle Link */}
-            <div style={{ marginTop: '25px', textAlign: 'center', fontSize: '14px', color: 'rgba(255,255,255,0.6)' }}>
-              {isRegisterMode ? "Already a Quant?" : "New to the system?"} 
+            <div style={{ marginTop: '25px', textAlign: 'center', fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>
+              {isRegisterMode ? "Already have access?" : "Request new terminal?"} 
               <span 
                 onClick={() => setIsRegisterMode(!isRegisterMode)} 
                 style={{ color: '#00f2fe', cursor: 'pointer', marginLeft: '8px', fontWeight: 'bold', textDecoration: 'underline' }}
@@ -408,7 +408,6 @@ const speakStatus = () => {
       </div>
     );
   }
-
   return (
   <div
     style={{
