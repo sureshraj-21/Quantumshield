@@ -11,8 +11,6 @@ import {
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler);
 
 function App() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -472,8 +470,8 @@ if (!isLoggedIn) {
     {/* 🔵 MAIN CONTENT AREA */}
     <div
       style={{
-        width: window.innerWidth < 900 ? "100%" : "calc(100% - 260px)",
         marginLeft: window.innerWidth < 900 ? "0" : "260px",
+        width: window.innerWidth < 900 ? "100%" : "calc(100% - 260px)",
         padding: window.innerWidth < 900 ? "15px" : "40px 50px",
         boxSizing: "border-box",
         minHeight: "100vh",
