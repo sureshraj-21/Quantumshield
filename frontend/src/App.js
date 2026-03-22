@@ -51,20 +51,22 @@ function App() {
   // ✅ Fixed the sendSilentAlert function
   // 🚀 PRIMARY NOTIFICATION: WHATSAPP ONLY (+919962126306)
   const sendSilentAlert = async (message) => {
+    // 1. Alerts enabled-ah nu check pannum
     if (!isAlertEnabled) return;
 
-    console.log("Dispatching WhatsApp Alert...");
+    console.log("Dispatching QuantShield WhatsApp Alert...");
 
     // 🟢 WhatsApp Alert (Background via FastAPI + Twilio)
     try {
-        // Localhost-ai thookittu Render URL-ai podunga
+        // Fix: Backend-la "msg" key dhaan use pannirukkom, adhai sariyaaga anuppuvom
         await axios.post('https://quantumshield-3b12.onrender.com/api/send-notification', {
-            msg: message,
-            phone: MY_PHONE // Unga number: +919962126306
+            msg: message, // Inga dhaan login user name-oda message varum
+            phone: "+919962126306" // Unga direct number fix aayiduchu
         });
-        console.log("WhatsApp Notification Sent Successfully!");
+        
+        console.log("✅ WhatsApp Notification Sent Successfully!");
     } catch (error) {
-        console.error("WhatsApp delivery failed. Check if Render/FastAPI is active.", error);
+        console.error("❌ WhatsApp delivery failed. Render/FastAPI check pannunga.", error);
     }
     // 🛑 Telegram logic removed as per your request.
   };
@@ -460,15 +462,69 @@ const speakStatus = () => {
     <div className="dashboard-content" style={{ color: 'white', fontFamily: "'Poppins', sans-serif" }}>
       
       {/* 🛰️ TOP WELCOME BAR */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', background: 'rgba(30, 41, 59, 0.5)', padding: '15px 20px', borderRadius: '15px', border: '1px solid rgba(255,255,255,0.05)' }}>
-        <div>
-           <h3 style={{ margin: 0, fontSize: '18px', color: '#00f2fe' }}>Live Terminal</h3>
-           <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Account: <span style={{ color: '#fff' }}>{displayName}</span></p>
-        </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-           <button onClick={() => { localStorage.clear(); window.location.reload(); }} style={{ padding: '8px 15px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid #ef4444', borderRadius: '8px', fontSize: '11px', cursor: 'pointer' }}>LOGOUT</button>
-        </div>
-      </div>
+     <div style={{ 
+  display: 'flex', 
+  justifyContent: 'space-between', 
+  alignItems: 'center', 
+  marginBottom: '25px', 
+  background: 'rgba(30, 41, 59, 0.4)', 
+  padding: '15px 25px', 
+  borderRadius: '20px', 
+  backdropFilter: 'blur(10px)',
+  border: '1px solid rgba(255,255,255,0.1)' 
+}}>
+  {/* Left: Branding */}
+  <div>
+     <h1 style={{ margin: 0, fontSize: '22px', color: '#00f2fe', fontWeight: '900', letterSpacing: '1px' }}>QUANT SHIELD</h1>
+     <p style={{ margin: 0, fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase' }}>Terminal v2.0 • Active</p>
+  </div>
+
+  {/* Right: Profile View (Dynamic) */}
+  <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+    <div style={{ textAlign: 'right' }}>
+       {/* 🟢 Inga dhaan login panna user name dynamic-ah varum */}
+       <p style={{ margin: 0, fontSize: '14px', fontWeight: 'bold', color: '#fff' }}>
+         {displayName || "User"}
+       </p>
+       <p style={{ margin: 0, fontSize: '10px', color: '#10b981', fontWeight: 'bold' }}>● ONLINE</p>
+    </div>
+    
+    {/* Profile Avatar with First Letter */}
+    <div style={{ 
+      width: '45px', 
+      height: '45px', 
+      background: 'linear-gradient(135deg, #00f2fe, #4facfe)', 
+      borderRadius: '12px', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center',
+      fontSize: '18px',
+      fontWeight: 'bold',
+      color: '#0f172a',
+      boxShadow: '0 0 15px rgba(0, 242, 254, 0.3)'
+    }}>
+      {displayName ? displayName.charAt(0).toUpperCase() : 'U'}
+    </div>
+
+    {/* Logout Button */}
+    <button 
+      onClick={() => { localStorage.clear(); window.location.reload(); }}
+      style={{ 
+        marginLeft: '10px',
+        padding: '8px 12px', 
+        background: 'rgba(239, 68, 68, 0.1)', 
+        color: '#ef4444', 
+        border: '1px solid rgba(239, 68, 68, 0.3)', 
+        borderRadius: '8px', 
+        cursor: 'pointer',
+        fontSize: '11px',
+        fontWeight: 'bold'
+      }}
+    >
+      EXIT
+    </button>
+  </div>
+</div>
      {/* 📋 ASSET SELECTOR BAR (Updated with Mute Toggle) */}
 <div style={{ 
   background: '#1e293b', padding: '20px', borderRadius: '20px', marginBottom: '25px', 
@@ -1031,7 +1087,7 @@ const speakStatus = () => {
       {/* 👤 PROFILE & ACCOUNT CARD (Working Status) */}
       <div style={{ background: '#1e293b', padding: '25px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
         <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(45deg, #00f2fe, #4facfe)', margin: '0 auto 15px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '30px', fontWeight: 'bold', color: '#0a0e17', boxShadow: '0 0 20px rgba(0,242,254,0.3)' }}>S</div>
-        <h3 style={{ margin: '10px 0 5px 0', color: '#f8fafc' }}>Suresh M</h3>
+        <h3 style={{ margin: '10px 0 5px 0', color: '#f8fafc' }}>{displayName || "User"}</h3>
         <p style={{ color: '#94a3b8', fontSize: '12px' }}>System Administrator</p>
         <div style={{ marginTop: '20px', padding: '8px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', borderRadius: '10px', fontSize: '10px', fontWeight: 'bold', border: '1px solid rgba(16, 185, 129, 0.2)' }}>ACCOUNT VERIFIED ✅</div>
         
