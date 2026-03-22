@@ -289,30 +289,26 @@ const speakStatus = () => {
     window.speechSynthesis.speak(msg);
   };
 const handleLogin = async (e) => {
-    if (e) e.preventDefault();
-    setLoading(true); // 🟢 Syncing screen vara idhu mukkkiyam
-    try {
-      // FIX 1: 'username' kku badhula 'authData.username' nu maathunga
-      const res = await axios.post("https://quantumshield-3b12.onrender.com/auth/login", {
-        username: authData.username, 
-        password: authData.password
-      });
+  if (e) e.preventDefault();
+  setLoading(true); // 🟢 Prevents blank screen by showing "Syncing..."
+  try {
+    // Use the exact Backend URL from your successful deployment
+    const res = await axios.post("https://quantumshield-3b12.onrender.com/auth/login", authData);
 
-      if (res.data.access_token) {
-        // FIX 2: Backend-la irundhu vara username-ai sariyaaga fetch pannunga
-        const nameFromDB = res.data.username || authData.username;
-        
-        setDisplayName(nameFromDB); 
-        localStorage.setItem("userDisplayName", nameFromDB);
-        
-        setIsLoggedIn(true);
-        sendSilentAlert(`🔐 ACCESS: ${nameFromDB} entered the terminal.`);
-      }
-    } catch (err) {
-      setLoading(false); // 🟢 Error vandha loading stop aaganum
-      alert("Invalid Credentials! Check your terminal login details.");
+    if (res.data && res.data.access_token) {
+      const nameFromDB = res.data.username || authData.username;
+      
+      setDisplayName(nameFromDB); 
+      localStorage.setItem("userDisplayName", nameFromDB);
+      
+      setIsLoggedIn(true); // 🟢 Switches to Dashboard
+      sendSilentAlert(`🔐 ACCESS: ${nameFromDB} entered the terminal.`);
     }
-  };
+  } catch (err) {
+    setLoading(false); // 🟢 Stops the loading screen on error
+    alert("Invalid Credentials! Please check your terminal login.");
+  }
+};
     const liveGraphData = {
     labels: priceHistory.map((_, i) => `${i}s`),
     datasets: [{ label: `Live Trend (₹)`, data: priceHistory, borderColor: '#00f2fe', backgroundColor: 'rgba(79, 172, 254, 0.1)', fill: true, tension: 0.4, pointRadius: 0 }]
