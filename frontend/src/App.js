@@ -462,69 +462,15 @@ const speakStatus = () => {
     <div className="dashboard-content" style={{ color: 'white', fontFamily: "'Poppins', sans-serif" }}>
       
       {/* 🛰️ TOP WELCOME BAR */}
-     <div style={{ 
-  display: 'flex', 
-  justifyContent: 'space-between', 
-  alignItems: 'center', 
-  marginBottom: '25px', 
-  background: 'rgba(30, 41, 59, 0.4)', 
-  padding: '15px 25px', 
-  borderRadius: '20px', 
-  backdropFilter: 'blur(10px)',
-  border: '1px solid rgba(255,255,255,0.1)' 
-}}>
-  {/* Left: Branding */}
-  <div>
-     <h1 style={{ margin: 0, fontSize: '22px', color: '#00f2fe', fontWeight: '900', letterSpacing: '1px' }}>QUANT SHIELD</h1>
-     <p style={{ margin: 0, fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase' }}>Terminal v2.0 • Active</p>
-  </div>
-
-  {/* Right: Profile View (Dynamic) */}
-  <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-    <div style={{ textAlign: 'right' }}>
-       {/* 🟢 Inga dhaan login panna user name dynamic-ah varum */}
-       <p style={{ margin: 0, fontSize: '14px', fontWeight: 'bold', color: '#fff' }}>
-         {displayName || "User"}
-       </p>
-       <p style={{ margin: 0, fontSize: '10px', color: '#10b981', fontWeight: 'bold' }}>● ONLINE</p>
-    </div>
-    
-    {/* Profile Avatar with First Letter */}
-    <div style={{ 
-      width: '45px', 
-      height: '45px', 
-      background: 'linear-gradient(135deg, #00f2fe, #4facfe)', 
-      borderRadius: '12px', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center',
-      fontSize: '18px',
-      fontWeight: 'bold',
-      color: '#0f172a',
-      boxShadow: '0 0 15px rgba(0, 242, 254, 0.3)'
-    }}>
-      {displayName ? displayName.charAt(0).toUpperCase() : 'U'}
-    </div>
-
-    {/* Logout Button */}
-    <button 
-      onClick={() => { localStorage.clear(); window.location.reload(); }}
-      style={{ 
-        marginLeft: '10px',
-        padding: '8px 12px', 
-        background: 'rgba(239, 68, 68, 0.1)', 
-        color: '#ef4444', 
-        border: '1px solid rgba(239, 68, 68, 0.3)', 
-        borderRadius: '8px', 
-        cursor: 'pointer',
-        fontSize: '11px',
-        fontWeight: 'bold'
-      }}
-    >
-      EXIT
-    </button>
-  </div>
-</div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', background: 'rgba(30, 41, 59, 0.5)', padding: '15px 20px', borderRadius: '15px', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <div>
+           <h3 style={{ margin: 0, fontSize: '18px', color: '#00f2fe' }}>Live Terminal</h3>
+           <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Account: <span style={{ color: '#fff' }}>{displayName}</span></p>
+        </div>
+        <div style={{ display: 'flex', gap: '10px' }}>
+           <button onClick={() => { localStorage.clear(); window.location.reload(); }} style={{ padding: '8px 15px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid #ef4444', borderRadius: '8px', fontSize: '11px', cursor: 'pointer' }}>LOGOUT</button>
+        </div>
+      </div>
      {/* 📋 ASSET SELECTOR BAR (Updated with Mute Toggle) */}
 <div style={{ 
   background: '#1e293b', padding: '20px', borderRadius: '20px', marginBottom: '25px', 
