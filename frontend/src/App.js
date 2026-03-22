@@ -11,6 +11,7 @@ import {
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler);
 
 function App() {
+  const isMobile = window.innerWidth < 900;
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -409,52 +410,214 @@ const speakStatus = () => {
   }
 
   return (
-    <div style={{ display: 'flex', backgroundColor: '#f4f7fe', minHeight: '100vh', fontFamily: "'Jakarta Sans', sans-serif" }}>
-      
-      {/* 🟢 SIDEBAR */}
-      <div style={{ 
-        width: '280px', background: '#1e293b', padding: '40px 20px', position: 'fixed', 
-        height: '100vh', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '10px', borderRight: '1px solid rgba(255,255,255,0.05)' 
-      }}>
-        <h2 style={{ color: '#00f2fe', fontWeight: '900', marginBottom: '40px', fontSize: '24px', paddingLeft: '15px' }}>🛡️ QuantShield</h2>
-        {["Dashboard", "Analytics", "Stocks", "Monte Carlo","Settings"].map(tab => (
-          <div key={tab} onClick={() => setActiveTab(tab)} style={{ 
-            background: activeTab === tab ? 'rgba(0, 242, 254, 0.15)' : 'transparent', 
-            color: activeTab === tab ? '#00f2fe' : '#94a3b8', padding: '16px 20px', borderRadius: '12px', 
-            fontWeight: '600', cursor: 'pointer', transition: '0.3s all ease', display: 'flex', alignItems: 'center', gap: '12px',
-            borderLeft: activeTab === tab ? '4px solid #00f2fe' : '4px solid transparent'
-          }}>
-             {tab === "Dashboard" ? "📊 " : tab === "Analytics" ? "📈 " : tab === "Stocks" ? "💹 " :tab === "Monte Carlo" ? "🎲 " : "⚙️ "}{tab}
+return (
+  <div
+    style={{
+      display: window.innerWidth < 900 ? "block" : "flex",
+      backgroundColor: "#f4f7fe",
+      minHeight: "100vh",
+      width: "100%",
+      overflowX: "hidden",
+      fontFamily: "'Jakarta Sans', sans-serif"
+    }}
+  >
+
+    {/* 🟢 SIDEBAR */}
+    <div
+      style={{
+        width: window.innerWidth < 900 ? "100%" : "260px",
+        background: "#1e293b",
+        padding: window.innerWidth < 900 ? "10px" : "40px 20px",
+        position: window.innerWidth < 900 ? "relative" : "fixed",
+        height: window.innerWidth < 900 ? "auto" : "100vh",
+        zIndex: 10,
+        display: "flex",
+        flexDirection: window.innerWidth < 900 ? "row" : "column",
+        gap: "10px",
+        borderRight: "1px solid rgba(255,255,255,0.05)",
+        overflowX: window.innerWidth < 900 ? "auto" : "hidden"
+      }}
+    >
+
+      <h2
+        style={{
+          color: "#00f2fe",
+          fontWeight: "900",
+          marginBottom: "20px",
+          fontSize: "22px",
+          paddingLeft: "10px",
+          whiteSpace: "nowrap"
+        }}
+      >
+        🛡️ QuantShield
+      </h2>
+
+      {["Dashboard", "Analytics", "Stocks", "Monte Carlo", "Settings"].map(
+        (tab) => (
+          <div
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            style={{
+              background:
+                activeTab === tab
+                  ? "rgba(0,242,254,0.15)"
+                  : "transparent",
+              color:
+                activeTab === tab ? "#00f2fe" : "#94a3b8",
+              padding: "12px 16px",
+              borderRadius: "12px",
+              fontWeight: "600",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              borderLeft:
+                activeTab === tab
+                  ? "4px solid #00f2fe"
+                  : "4px solid transparent",
+              whiteSpace: "nowrap"
+            }}
+          >
+            {tab === "Dashboard"
+              ? "📊"
+              : tab === "Analytics"
+              ? "📈"
+              : tab === "Stocks"
+              ? "💹"
+              : tab === "Monte Carlo"
+              ? "🎲"
+              : "⚙️"}{" "}
+            {window.innerWidth > 900 && tab}
           </div>
-        ))}
-        <div style={{ 
-          position: 'absolute', bottom: '30px', left: '20px', right: '20px', color: '#f85149', fontWeight: 'bold', 
-          cursor: 'pointer', padding: '15px', borderRadius: '10px', textAlign: 'center', background: 'rgba(248, 81, 73, 0.05)' 
-        }} onClick={() => setIsLoggedIn(false)}>🔒 Logout</div>
+        )
+      )}
+
+      <div
+        onClick={() => setIsLoggedIn(false)}
+        style={{
+          marginTop: "auto",
+          color: "#f85149",
+          fontWeight: "bold",
+          cursor: "pointer",
+          padding: "12px",
+          borderRadius: "10px",
+          textAlign: "center",
+          background: "rgba(248,81,73,0.05)"
+        }}
+      >
+        🔒 Logout
+      </div>
+    </div>
+
+    {/* 🔵 MAIN CONTENT AREA */}
+<div
+  style={{
+    flex: 1,
+    padding: window.innerWidth < 900 ? "15px" : "40px 50px",
+    marginLeft: window.innerWidth < 900 ? "0px" : "280px",
+    width: "100%",
+    boxSizing: "border-box"
+  }}
+>
+
+  <div
+    style={{
+      display: "flex",
+      flexDirection: window.innerWidth < 900 ? "column" : "row",
+      justifyContent: "space-between",
+      alignItems: window.innerWidth < 900 ? "flex-start" : "center",
+      gap: "15px",
+      marginBottom: "30px"
+    }}
+  >
+    
+    {/* LEFT TITLE */}
+    <div>
+      <h1
+        style={{
+          fontSize: window.innerWidth < 900 ? "22px" : "32px",
+          fontWeight: "900",
+          margin: 0
+        }}
+      >
+        {activeTab} Overview
+      </h1>
+
+      <p
+        style={{
+          color: "#64748b",
+          fontSize: "14px",
+          marginTop: "5px"
+        }}
+      >
+        Market Sync: Active (1s)
+      </p>
+    </div>
+
+    {/* RIGHT SIDE */}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: window.innerWidth < 900 ? "column" : "row",
+        gap: "10px",
+        alignItems: window.innerWidth < 900 ? "flex-start" : "center",
+        width: window.innerWidth < 900 ? "100%" : "auto"
+      }}
+    >
+      
+      {/* WALLET */}
+      <div
+        style={{
+          background: "#1e293b",
+          padding: "12px 20px",
+          borderRadius: "18px",
+          border: "1px solid #28292a",
+          boxShadow: "0 4px 6px rgba(37,211,102,0.05)",
+          width: window.innerWidth < 900 ? "100%" : "auto"
+        }}
+      >
+        <span
+          style={{
+            fontSize: "13px",
+            color: "white",
+            fontWeight: "bold",
+            display: "block"
+          }}
+        >
+          ACCOUNT WALLET
+        </span>
+
+        <b
+          style={{
+            color: "#14df62",
+            fontSize: "18px"
+          }}
+        >
+          ₹{wallet.toLocaleString()}
+        </b>
       </div>
 
-      {/* 🔵 MAIN CONTENT AREA */}
-      <div style={{ flex: 1, padding: '40px 50px', marginLeft: '280px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
-          <div>
-            <h1 style={{ fontSize: '32px', fontWeight: '900', margin: 0, paddingLeft: '20px' }}>{activeTab} Overview</h1>
-            <p style={{ paddingLeft: '20px', color: '#64748b', fontSize: '14px' }}>Market Sync: Active (1s)</p>
-          </div>
-          <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-            <div style={{ background: '#1e293b', padding: '12px 30px', borderRadius: '18px', border: '1px solid #28292a',  boxShadow: '0 4px 6px rgba(37, 211, 102, 0.05)' }}>
-              <span style={{ fontSize: '15px', color: 'white', fontWeight: 'bold', display: 'block' }}>ACCOUNT WALLET</span>
-              <b style={{ paddingLeft: '20px', color: '#14df62', fontSize: '18px' }}>₹{wallet.toLocaleString()}</b>
-            </div>
-            {/* 📥 DOWNLOAD REPORT BUTTON FIXED */}
-            {activeTab === "Dashboard" && data && (
-              <button onClick={downloadReport} style={{ 
-                padding: '14px 28px', background: '#1e293b', color: 'white', borderRadius: '18px', 
-                border: 'none', fontWeight: 'bold', cursor: 'pointer' 
-              }}>📥 PDF Report</button>
-            )}
-          </div>
-        </div>
-        </div>
+      {/* PDF BUTTON */}
+      {activeTab === "Dashboard" && data && (
+        <button
+          onClick={downloadReport}
+          style={{
+            padding: "12px 20px",
+            background: "#1e293b",
+            color: "white",
+            borderRadius: "18px",
+            border: "none",
+            fontWeight: "bold",
+            cursor: "pointer",
+            width: window.innerWidth < 900 ? "100%" : "auto"
+          }}
+        >
+          📥 PDF Report
+        </button>
+      )}
+    </div>
+  </div>
+</div>
       
 
        <div id="report-area">
