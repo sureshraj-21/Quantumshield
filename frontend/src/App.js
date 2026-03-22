@@ -288,29 +288,32 @@ const speakStatus = () => {
     msg.rate = 0.9; 
     window.speechSynthesis.speak(msg);
   };
- const handleLogin = async (e) => {
-    e.preventDefault();
+const handleLogin = async (e) => {
+    if (e) e.preventDefault();
+    setLoading(true); // 🟢 Syncing screen vara idhu mukkkiyam
     try {
-      // 🛠️ manual-ah type pandra variables-ai anuppuvom
-      const res = await axios.post("https://quantumshield-backend.onrender.com/auth/login", {
-        username: username,
-        password: password
+      // FIX 1: 'username' kku badhula 'authData.username' nu maathunga
+      const res = await axios.post("https://quantumshield-3b12.onrender.com/auth/login", {
+        username: authData.username, 
+        password: authData.password
       });
 
       if (res.data.access_token) {
-        const nameFromDB = res.data.username;
+        // FIX 2: Backend-la irundhu vara username-ai sariyaaga fetch pannunga
+        const nameFromDB = res.data.username || authData.username;
         
-        // 🟢 Error fix: State update using the value from backend
         setDisplayName(nameFromDB); 
-        
         localStorage.setItem("userDisplayName", nameFromDB);
+        
         setIsLoggedIn(true);
+        sendSilentAlert(`🔐 ACCESS: ${nameFromDB} entered the terminal.`);
       }
     } catch (err) {
-      alert("Invalid Credentials! Check your manual username/password.");
+      setLoading(false); // 🟢 Error vandha loading stop aaganum
+      alert("Invalid Credentials! Check your terminal login details.");
     }
   };
-  const liveGraphData = {
+    const liveGraphData = {
     labels: priceHistory.map((_, i) => `${i}s`),
     datasets: [{ label: `Live Trend (₹)`, data: priceHistory, borderColor: '#00f2fe', backgroundColor: 'rgba(79, 172, 254, 0.1)', fill: true, tension: 0.4, pointRadius: 0 }]
   };
@@ -415,12 +418,24 @@ if (!isLoggedIn) {
   }
   if (loading && !data) {
     return (
-      <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#0f172a', color: '#00f2fe', flexDirection: 'column' }}>
-        <h1 style={{ fontSize: '30px', fontWeight: 'bold' }}>🛡️ QUANT SHIELD</h1>
-        <p style={{ color: '#94a3b8' }}>Syncing Quantum Terminal...</p>
+      <div style={{ 
+        height: '100vh', 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        background: '#0f172a', 
+        color: '#00f2fe', 
+        flexDirection: 'column',
+        fontFamily: "'Poppins', sans-serif"
+      }}>
+        <h1 style={{ fontSize: '30px', fontWeight: 'bold', letterSpacing: '2px' }}>🛡️ QUANT SHIELD</h1>
+        <p style={{ color: '#94a3b8', marginTop: '10px' }}>Syncing Quantum Terminal...</p>
+        <div style={{ marginTop: '20px', width: '50px', height: '50px', border: '3px solid rgba(0,242,254,0.1)', borderTop: '3px solid #00f2fe', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
+  
   return (
   <div
     style={{
