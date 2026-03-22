@@ -12,15 +12,16 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarEleme
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [displayName, setDisplayName] = useState('');
+  const [authData, setAuthData] = useState({ username: '', password: '' });
   const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [displayName, setDisplayName] = useState("");
+
+  // 🛰️ NAVIGATION & DATA
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [data, setData] = useState(null);
   const [selectedStock, setSelectedStock] = useState("HDFCBANK.NS");
   const [loading, setLoading] = useState(false);
-  const [authData, setAuthData] = useState({ username: '', password: '' });
-  
-  const [isVoiceMuted, setIsVoiceMuted] = useState(false); // Default-ah Unmute-la irukkum
+  const [isVoiceMuted, setIsVoiceMuted] = useState(false);
   
 
   // 💰 CORE LOGIC STATES
@@ -28,7 +29,6 @@ function App() {
   const [holdings, setHoldings] = useState({}); 
   const [livePrice, setLivePrice] = useState(0); 
   const [priceHistory, setPriceHistory] = useState([]); 
-  const prevDecisionRef = useRef(null);
   // 🎲 MONTE CARLO STATES
   const [investment, setInvestment] = useState(10000); // Default ₹10,000
   const [mcResult, setMcResult] = useState(null);
@@ -133,6 +133,14 @@ function App() {
     }, 1000);
   }; // 🟢 LIVE SIMULATION: AUTO-SELL ONLY (₹10 GAP)// 🟢 FIXED: PRICE SYNC & SIMULATION
  // 🛡️ UNIFIED RISK ENGINE: MANUAL BUY / AUTO EXIT
+ useEffect(() => {
+    if (localStorage.getItem("userDisplayName")) setIsLoggedIn(true);
+  }, []);
+
+  useEffect(() => {
+    if (isLoggedIn) fetchData(selectedStock);
+  }, [selectedStock, isLoggedIn]);
+
   useEffect(() => {
     if (isLoggedIn && data) {
       // 🚀 Sync initial price when stock changes
@@ -402,6 +410,14 @@ if (!isLoggedIn) {
             </div>
           </div>
         </div>
+      </div>
+    );
+  }
+  if (loading && !data) {
+    return (
+      <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#0f172a', color: '#00f2fe', flexDirection: 'column' }}>
+        <h1 style={{ fontSize: '30px', fontWeight: 'bold' }}>🛡️ QUANT SHIELD</h1>
+        <p style={{ color: '#94a3b8' }}>Syncing Quantum Terminal...</p>
       </div>
     );
   }
