@@ -410,7 +410,6 @@ const speakStatus = () => {
   }
 
   return (
-return (
   <div
     style={{
       display: window.innerWidth < 900 ? "block" : "flex",
@@ -512,11 +511,13 @@ return (
     {/* 🔵 MAIN CONTENT AREA */}
 <div
   style={{
-    flex: 1,
+    width: window.innerWidth < 900 ? "100%" : "calc(100% - 260px)",
+    marginLeft: window.innerWidth < 900 ? "0" : "260px",
     padding: window.innerWidth < 900 ? "15px" : "40px 50px",
-    marginLeft: window.innerWidth < 900 ? "0px" : "280px",
-    width: "100%",
-    boxSizing: "border-box"
+    boxSizing: "border-box",
+    minHeight: "100vh",
+    overflowX: "hidden"
+   
   }}
 >
 
