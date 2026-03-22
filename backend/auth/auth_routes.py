@@ -4,13 +4,14 @@ from database.db import SessionLocal
 from auth.models import User
 from auth.auth_utils import create_access_token, hash_password, verify_password
 from pydantic import BaseModel
+from typing import Optional
 
 router = APIRouter()
 
 class AuthSchema(BaseModel):
     username: str
     password: str
-    email: str = None 
+    email: Optional[str] = None 
 
 def get_db():
     db = SessionLocal()

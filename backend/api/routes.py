@@ -3,6 +3,7 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
+from typing import cast
 
 router = APIRouter()
 
@@ -21,17 +22,20 @@ async def analyze_portfolio(tickers: str = "HDFCBANK.NS"):
             else:
                 current_price = stock.info.get('currentPrice') or stock.fast_info.last_price
             
+            if current_price is None:
+                continue
+            
             # 🟢 Step 2: Download Data
             df = yf.download(symbol, period="1mo", interval="1d", progress=False)
-            if df.empty: continue
+            if df is None or df.empty: continue
 
             # Handle Multi-index or Single index columns
             if isinstance(df['Close'], pd.DataFrame):
-                close_prices = df['Close'].iloc[:, 0]
+                close_prices = cast(pd.DataFrame, df['Close']).iloc[:, 0]
             else:
                 close_prices = df['Close']
                 
-            y_values = close_prices.values
+            y_values = close_prices.to_numpy()
             returns = close_prices.pct_change().dropna()
 
             # 🟢 Step 3: AI Prediction

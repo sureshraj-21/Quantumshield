@@ -452,17 +452,10 @@ const speakStatus = () => {
             )}
           </div>
         </div>
+        </div>
+      
 
        <div id="report-area">
-  {activeTab === "Dashboard" && data && (
-    <>
-    Puriyudhu Suresh! Unga code-la id="report-area" kulla indha logic-ai fix panna, neenga antha if (isLoggedIn) block-ai remove pannittu, andha moththa dashboard UI-aiyum oru single Variable-ah munnadiye define panni, apram report-area kulla call pannanum.
-
-Indha method-la replace pannunga, ippo unga custom dashboard sariyaaga andha area-kulla load aagum:
-
-🛠️ Corrected Dashboard Integration (Inside id="report-area")
-JavaScript
-<div id="report-area">
   {activeTab === "Dashboard" && data && (
     <div className="dashboard-content" style={{ color: 'white', fontFamily: "'Poppins', sans-serif" }}>
       
@@ -664,6 +657,7 @@ JavaScript
                       </button>
                     </td>
                   </tr>
+                
                 );
               })}
             </tbody>
@@ -672,7 +666,7 @@ JavaScript
           <p style={{ textAlign: 'center', fontSize: '12px', color: '#64748b', margin: '20px 0' }}>No active trades in portfolio.</p>
         )}
       </div>
-    </>
+    </div>
   )}
         {activeTab === "Analytics" && (
     <div style={{ 
@@ -1145,10 +1139,13 @@ JavaScript
   </div>
 )}
         </div>
+        
       </div>
-    </div>
-  );
-}
+    );
+  }
+
+
+
 
 function MiniCard({ title, value, color }) {
   return (
