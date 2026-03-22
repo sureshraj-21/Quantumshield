@@ -11,13 +11,17 @@ import {
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler);
 
 function App() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [displayName, setDisplayName] = useState('');
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [data, setData] = useState(null);
   const [selectedStock, setSelectedStock] = useState("HDFCBANK.NS");
   const [loading, setLoading] = useState(false);
   const [authData, setAuthData] = useState({ username: '', password: '' });
+  
   const [isVoiceMuted, setIsVoiceMuted] = useState(false); // Default-ah Unmute-la irukkum
   
 
@@ -276,11 +280,28 @@ const speakStatus = () => {
     msg.rate = 0.9; 
     window.speechSynthesis.speak(msg);
   };
-  const handleAuth = async () => {
-    if(authData.username && authData.password) setIsLoggedIn(true);
-    else alert("Please enter credentials");
-  };
+ const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      // 🛠️ manual-ah type pandra variables-ai anuppuvom
+      const res = await axios.post("https://quantumshield-backend.onrender.com/auth/login", {
+        username: username,
+        password: password
+      });
 
+      if (res.data.access_token) {
+        const nameFromDB = res.data.username;
+        
+        // 🟢 Error fix: State update using the value from backend
+        setDisplayName(nameFromDB); 
+        
+        localStorage.setItem("userDisplayName", nameFromDB);
+        setIsLoggedIn(true);
+      }
+    } catch (err) {
+      alert("Invalid Credentials! Check your manual username/password.");
+    }
+  };
   const liveGraphData = {
     labels: priceHistory.map((_, i) => `${i}s`),
     datasets: [{ label: `Live Trend (₹)`, data: priceHistory, borderColor: '#00f2fe', backgroundColor: 'rgba(79, 172, 254, 0.1)', fill: true, tension: 0.4, pointRadius: 0 }]
@@ -292,7 +313,7 @@ const speakStatus = () => {
   };
 
  
-  if (!isLoggedIn) {
+ if (!isLoggedIn) {
     return (
       <div style={{ 
         backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://i.ibb.co/XfXkY8C/rm373batch4-07.jpg')`, 
@@ -332,12 +353,15 @@ const speakStatus = () => {
             <input 
               type="text" 
               placeholder="USERNAME" 
+              // 🛠️ FIX 1: AuthData state-ai direct-ah use pannuvom manual typing work aaga
+              value={authData.username}
               onChange={(e) => setAuthData({...authData, username: e.target.value})} 
               style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', borderRadius: '12px', outline: 'none' }} 
             />
             <input 
               type="password" 
               placeholder="PASSWORD" 
+              value={authData.password}
               onChange={(e) => setAuthData({...authData, password: e.target.value})} 
               style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', borderRadius: '12px', outline: 'none' }} 
             />
@@ -346,13 +370,17 @@ const speakStatus = () => {
               onClick={async () => {
                 const endpoint = isRegisterMode ? 'signup' : 'login';
                 try {
-          // Localhost-ai thookittu Render Production URL-ai podunga
-          const res = await axios.post(`https://quantumshield-3b12.onrender.com/auth/${endpoint}`, authData);
-          
-          if (res.data) {
-            setIsLoggedIn(true);
-            sendSilentAlert(`🔐 ${isRegisterMode ? "NEW USER" : "LOGIN"}: ${authData.username} has accessed the terminal.`);
-          }
+                  const res = await axios.post(`https://quantumshield-3b12.onrender.com/auth/${endpoint}`, authData);
+                  
+                  if (res.data) {
+                    // 🛠️ FIX 2: Backend-la irundhu vara USERNAME-ai display panna save pannuvom
+                    const userToDisplay = res.data.username || authData.username;
+                    localStorage.setItem("userDisplayName", userToDisplay);
+                    setDisplayName(userToDisplay); 
+                    
+                    setIsLoggedIn(true);
+                    sendSilentAlert(`🔐 ${isRegisterMode ? "NEW USER" : "LOGIN"}: ${userToDisplay} has accessed the terminal.`);
+                  }
                 } catch (err) {
                   alert(isRegisterMode ? "Registration Error! Username might exist." : "Invalid Credentials!");
                 }
@@ -428,6 +456,26 @@ const speakStatus = () => {
        <div id="report-area">
   {activeTab === "Dashboard" && data && (
     <>
+    Puriyudhu Suresh! Unga code-la id="report-area" kulla indha logic-ai fix panna, neenga antha if (isLoggedIn) block-ai remove pannittu, andha moththa dashboard UI-aiyum oru single Variable-ah munnadiye define panni, apram report-area kulla call pannanum.
+
+Indha method-la replace pannunga, ippo unga custom dashboard sariyaaga andha area-kulla load aagum:
+
+🛠️ Corrected Dashboard Integration (Inside id="report-area")
+JavaScript
+<div id="report-area">
+  {activeTab === "Dashboard" && data && (
+    <div className="dashboard-content" style={{ color: 'white', fontFamily: "'Poppins', sans-serif" }}>
+      
+      {/* 🛰️ TOP WELCOME BAR */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', background: 'rgba(30, 41, 59, 0.5)', padding: '15px 20px', borderRadius: '15px', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <div>
+           <h3 style={{ margin: 0, fontSize: '18px', color: '#00f2fe' }}>Live Terminal</h3>
+           <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Account: <span style={{ color: '#fff' }}>{displayName}</span></p>
+        </div>
+        <div style={{ display: 'flex', gap: '10px' }}>
+           <button onClick={() => { localStorage.clear(); window.location.reload(); }} style={{ padding: '8px 15px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid #ef4444', borderRadius: '8px', fontSize: '11px', cursor: 'pointer' }}>LOGOUT</button>
+        </div>
+      </div>
      {/* 📋 ASSET SELECTOR BAR (Updated with Mute Toggle) */}
 <div style={{ 
   background: '#1e293b', padding: '20px', borderRadius: '20px', marginBottom: '25px', 

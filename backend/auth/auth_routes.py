@@ -7,7 +7,6 @@ from pydantic import BaseModel
 
 router = APIRouter()
 
-# Schema for JSON Request
 class AuthSchema(BaseModel):
     username: str
     password: str
@@ -20,48 +19,35 @@ def get_db():
     finally:
         db.close()
 
-# ===============================
-# REGISTER Fix (With Error Handling)
-# ===============================
 @router.post("/signup")
 def register(user_data: AuthSchema, db: Session = Depends(get_db)):
-    # 1. Check if user already exists
     existing_user = db.query(User).filter(User.username == user_data.username).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already exists")
-
     try:
-        # 2. Hash password and create new user object
-        hashed_password = hash_password(user_data.password)
-        new_user = User(
-            username=user_data.username,
-            email=user_data.email,
-            password=hashed_password
-        )
-        
-        # 3. Save to Database
+        hashed_pw = hash_password(user_data.password)
+        new_user = User(username=user_data.username, email=user_data.email, password=hashed_pw)
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
-        return {"message": "User registered successfully", "user_id": new_user.id}
-        
+        return {"message": "User registered successfully"}
     except Exception as e:
-        db.rollback() # Error vandha process-ai cancel pannum
-        print(f"Database Error: {e}") # Render Logs-la error kaatum
-        raise HTTPException(
-            status_code=500, 
-            detail=f"Database Write Error: Check if disk is read-only. Error: {str(e)}"
-        )
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
 
-# ===============================
-# LOGIN Fix
-# ===============================
 @router.post("/login")
 def login(user_data: AuthSchema, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == user_data.username).first()
     
+    # Password verify pannum bodhu manual input empty-ah irundha fail aagum
     if not user or not verify_password(user_data.password, user.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = create_access_token({"sub": user.username})
-    return {"access_token": token, "token_type": "bearer"}
+    
+    # 🟢 IMPORTANT: Returning username to display in Frontend
+    return {
+        "access_token": token, 
+        "token_type": "bearer",
+        "username": user.username 
+    }
