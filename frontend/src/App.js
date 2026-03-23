@@ -342,23 +342,20 @@ const speakStatus = () => {
             <h2 style={{ marginBottom: '25px', letterSpacing: '1px' }}>{isRegisterMode ? "REGISTER" : "LOGIN"}</h2>
             
            <input 
-  type="text" 
-  placeholder="USERNAME" 
-  value={authData.username} // 🟢 Manual typing update aaga idhu mukkkiyam
-  onChange={(e) => setAuthData({ ...authData, username: e.target.value })} 
-  autoComplete="username"
-   // Unga original style apdiye vachukonga
-/>
+    type="text" 
+    placeholder="USERNAME" 
+    value={authData.username} // 👈 Idhu mukkkiyam
+    onChange={(e) => setAuthData({...authData, username: e.target.value})} 
+    style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', color: 'white', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)' }} 
+  />
 
-// 2. Password Input
-<input 
-  type="password" 
-  placeholder="PASSWORD" 
-  value={authData.password} // 🟢 State sync aaga idhu mukkkiyam
-  onChange={(e) => setAuthData({ ...authData, password: e.target.value })} 
-  autoComplete="current-password"
- // Unga original style apdiye vachukonga
-/>
+  <input 
+    type="password" 
+    placeholder="PASSWORD" 
+    value={authData.password} // 👈 Idhu mukkkiyam
+    onChange={(e) => setAuthData({...authData, password: e.target.value})} 
+    style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', color: 'white', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)' }} 
+  />
             
             <button 
               onClick={async () => {
@@ -1007,7 +1004,7 @@ const speakStatus = () => {
       {/* 👤 PROFILE & ACCOUNT CARD (Working Status) */}
       <div style={{ background: '#1e293b', padding: '25px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
         <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(45deg, #00f2fe, #4facfe)', margin: '0 auto 15px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '30px', fontWeight: 'bold', color: '#0a0e17', boxShadow: '0 0 20px rgba(0,242,254,0.3)' }}>S</div>
-        <h3 style={{ margin: '10px 0 5px 0', color: '#f8fafc' }}>{displayName || "user"}</h3>
+        <h3 style={{ margin: '10px 0 5px 0', color: '#f8fafc' }}>{displayName || authData.username || "Guest"}</h3>
         <p style={{ color: '#94a3b8', fontSize: '12px' }}>System Administrator</p>
         <div style={{ marginTop: '20px', padding: '8px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', borderRadius: '10px', fontSize: '10px', fontWeight: 'bold', border: '1px solid rgba(16, 185, 129, 0.2)' }}>ACCOUNT VERIFIED ✅</div>
         
