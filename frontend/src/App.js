@@ -30,7 +30,7 @@ function App() {
   const [isAlertEnabled, setIsAlertEnabled] = useState(true);
   const [investment, setInvestment] = useState(10000);
   const [mcResult, setMcResult] = useState(null);
-  const [simulationData, setSimulationData] = useState(null);
+  
 
   // ⚙️ SETTINGS & NOTIFICATION STATES (FIXED: All variables defined correctly)
   const [isGhostHedgeActive, setIsGhostHedgeActive] = useState(true);
