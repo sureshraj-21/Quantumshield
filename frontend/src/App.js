@@ -1021,19 +1021,62 @@ const speakStatus = () => {
 
         {/* 📊 PROBABILITY METRICS (After Run) */}
          {/* 📊 PROBABILITY METRICS (After Run) */}
-        {mcResult && (
-    <div style={{ background: '#1e293b', padding: '20px', borderRadius: '25px', borderLeft: `8px solid ${mcResult.color}` }}>
-       <small style={{ color: '#94a3b8' }}>WIN PROBABILITY</small>
-       <h2 style={{ color: mcResult.color, margin: '5px 0' }}>
-         {data?.bsi_score ? (parseFloat(data.bsi_score) + (Math.random() * 5)).toFixed(1) + '%' : '42.1%'}
-       </h2>
-       <div style={{ fontSize: '11px', color: '#fff', marginTop: '10px', padding: '10px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
-         <b>Verdict:</b> {mcResult.verdict}
-       </div>
-    </div>
-  )}
-</div>
+       {mcResult && (
+  <div style={{ 
+    background: '#1e293b', 
+    padding: '20px', 
+    borderRadius: '25px', 
+    // 🎨 Dynamic Border Color Logic
+    borderLeft: `8px solid ${
+      parseFloat(data?.bsi_score) >= 70 ? '#10b981' : // Green
+      parseFloat(data?.bsi_score) >= 50 ? '#fbbf24' : // Yellow
+      '#ef4444' // Red
+    }`,
+    transition: '0.3s'
+  }}>
+    <small style={{ color: '#94a3b8' }}>WIN PROBABILITY</small>
+    
+    {/* 📈 Probability Percentage (Based on BSI) */}
+    <h2 style={{ 
+      margin: '5px 0',
+      color: 
+        parseFloat(data?.bsi_score) >= 70 ? '#10b981' : 
+        parseFloat(data?.bsi_score) >= 50 ? '#fbbf24' : 
+        '#ef4444' 
+    }}>
+      {data?.bsi_score ? parseFloat(data.bsi_score).toFixed(1) + '%' : '0.0%'}
+    </h2>
 
+    {/* 🛡️ Recommendation Badge */}
+    <div style={{ 
+      display: 'inline-block',
+      padding: '4px 12px',
+      borderRadius: '8px',
+      fontSize: '12px',
+      fontWeight: 'bold',
+      background: 'rgba(255,255,255,0.05)',
+      color: 
+        parseFloat(data?.bsi_score) >= 70 ? '#10b981' : 
+        parseFloat(data?.bsi_score) >= 50 ? '#fbbf24' : 
+        '#ef4444' 
+    }}>
+      {
+        parseFloat(data?.bsi_score) >= 70 ? '🟢 STRONG BUY' : 
+        parseFloat(data?.bsi_score) >= 50 ? '🟡 NEUTRAL HOLD' : 
+        '🔴 AVOID BUYING'
+      }
+    </div>
+
+    <div style={{ fontSize: '11px', color: '#fff', marginTop: '10px', padding: '10px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
+      <b>Verdict:</b> {
+        parseFloat(data?.bsi_score) >= 70 ? 'Quantum Engine confirms bullish breakout.' : 
+        parseFloat(data?.bsi_score) >= 50 ? 'Market consolidation detected. Wait for signal.' : 
+        'High risk zone. Probability of loss is significant.'
+      }
+    </div>
+  </div>
+)}
+</div>
 
       {/* 📉 VISUAL SIMULATION GRAPH */}
       <div style={{ background: '#1e293b', padding: '25px', borderRadius: '25px', border: '1px solid rgba(255,255,255,0.05)' }}>
