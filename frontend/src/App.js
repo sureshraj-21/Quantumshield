@@ -97,44 +97,53 @@ function App() {
     if (!data) return;
     setMcResult(null);
     setLoading(true);
+
     setTimeout(() => {
-      // Backend data values
       const bsiVal = parseFloat(data.bsi_score); 
       const volVal = parseFloat(data.volatility);
       
-      // Simulation calculation: Profit and Loss
-      let projectedProfit = investment * (bsiVal / 100) * 1.3; // 30% upside simulation
-      let projectedLoss = investment * (volVal / 100) * 0.6;
-      
       let verdict = "";
       let color = "";
+      let finalProb = 30.5; // Default Red
 
-      // 🎯 DEMO MODE LOGIC: Easily triggers "MUST BUY"
-      
-      // 1. MUST BUY: BSI 50% mela irundhaale (Majority of stocks)
-      if (bsiVal >= 50 && volVal < 50) {
-        verdict = "BUY ";
+      // 🎯 FIXED RANGES LOGIC
+      // 1. MUST BUY (Green) - BSI 40 mela irundhale 50% range
+      if (bsiVal >= 40) {
+        finalProb = (51.5 + Math.random() * 7).toFixed(1); // 51% to 58%
+        verdict = "STRONG BUY";
         color = "#10b981"; // Green
       } 
-      // 2. AVOID: High Volatility stocks (e.g., > 60%)
-      else if (volVal >= 60 || bsiVal < 35) {
-        verdict = "AVOID";
-        color = "#ef4444"; // Red
+      // 2. HOLD (Yellow) - BSI 30 to 40 kulla irundha 40% range
+      else if (bsiVal >= 30) {
+        finalProb = (41.2 + Math.random() * 6).toFixed(1); // 41% to 47%
+        verdict = "NEUTRAL HOLD";
+        color = "#fbbf24"; // Yellow/Orange
       } 
-      // 3. HOLD: For everything else
+      // 3. AVOID (Red) - BSI 30 kukkulla pona 30% range
       else {
-        verdict = "HOLD";
-        color = "#f59e0b"; // Orange
+        finalProb = (31.4 + Math.random() * 6).toFixed(1); // 31% to 37%
+        verdict = "AVOID BUYING";
+        color = "#ef4444"; // Red
       }
 
       setMcResult({
-        profit: projectedProfit.toFixed(2),
-        loss: projectedLoss.toFixed(2),
+        probability: finalProb, // 👈 Idhu dhaan UI-la theriya vendiya percentage
         verdict: verdict,
         color: color,
         ghostHedgeStatus: volVal > 30 ? "ACTIVE (Shielding Capital)" : "STANDBY"
       });
+
+      // Simulation Paths generate panra logic (If you have it)
+      if(typeof generatePath === 'function') {
+        setSimulationData({
+          optimistic: generatePath('up'),
+          expected: generatePath('neutral'),
+          pessimistic: generatePath('down')
+        });
+      }
+
       setLoading(false);
+      sendSilentAlert(`📊 Simulation: ${selectedStock} | Win Prob: ${finalProb}%`);
     }, 1000);
   }; // 🟢 LIVE SIMULATION: AUTO-SELL ONLY (₹10 GAP)// 🟢 FIXED: PRICE SYNC & SIMULATION
  // 🛡️ UNIFIED RISK ENGINE: MANUAL BUY / AUTO EXIT
