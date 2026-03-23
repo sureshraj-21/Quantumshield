@@ -571,38 +571,59 @@ const speakStatus = () => {
   <div style={{ height: '400px' }}>
     <Chart
       options={{
-        chart: { 
-          type: 'candlestick', 
-          height: 400, 
-          background: 'transparent', 
-          toolbar: { show: false },
-          animations: { enabled: true, easing: 'linear', speed: 800 } 
+    chart: { 
+      type: 'candlestick', 
+      background: 'transparent', 
+      toolbar: { show: false },
+      animations: { enabled: true, easing: 'linear', speed: 800 }
+    },
+    xaxis: { type: 'datetime', labels: { style: { colors: '#94a3b8' } } },
+    yaxis: { labels: { style: { colors: '#94a3b8' } } },
+    grid: { borderColor: 'rgba(255,255,255,0.05)' },
+    
+    // 🎯 BUY/SELL MARKERS (Annotations)
+    annotations: {
+      points: [
+        {
+          x: new Date().getTime() - 4000,
+          y: priceHistory[priceHistory.length - 2] || 0,
+          marker: { size: 6, fillColor: '#10b981', strokeColor: '#fff' },
+          label: { text: 'BUY', style: { background: '#10b981', color: '#fff' } }
         },
-        xaxis: { type: 'datetime', labels: { style: { colors: '#94a3b8' } } },
-        yaxis: { labels: { style: { colors: '#94a3b8' } } },
-        grid: { borderColor: 'rgba(255,255,255,0.05)' },
-        
-        // 🟢🔴 INDHA LOGIC DHAAN CANDLE COLORS-AI CONTROL PANNUM
-        plotOptions: {
-          candlestick: {
-            colors: {
-              upward: '#10b981',   // Price mela pona Green (Bullish)
-              downward: '#ef4444'  // Price keela pona Red (Bearish)
-            },
-            wick: { useFillColor: true } // Kuchi (wick) kooda adhae color-la irukkum
-          }
-        },
-        tooltip: { theme: 'dark' }
-      }}
+        {
+          x: new Date().getTime() - 10000,
+          y: priceHistory[priceHistory.length - 5] || 0,
+          marker: { size: 6, fillColor: '#ef4444', strokeColor: '#fff' },
+          label: { text: 'SELL', style: { background: '#ef4444', color: '#fff' } }
+        }
+      ]
+    },
+
+    // 🟢🔴 CANDLE COLOR LOGIC
+    plotOptions: {
+      candlestick: {
+        colors: { upward: '#10b981', downward: '#ef4444' },
+        wick: { useFillColor: true }
+      }
+    },
+    tooltip: { theme: 'dark' }
+  }}
       series={[{
-        data: priceHistory.map((p, i) => ({
-          x: new Date().getTime() - (20 - i) * 1000,
-          // [Open, High, Low, Close] - Simulation logic
-          y: [p - 0.5, p + 1.2, p - 1.5, p] 
-        }))
+        data: priceHistory.map((p, i) => {
+          const isUp = Math.random() > 0.5; 
+          const open = isUp ? p - 1.5 : p + 1.5; 
+          const close = p;
+          const high = Math.max(open, close) + 1.2;
+          const low = Math.min(open, close) - 1.3;
+
+          return {
+            x: new Date().getTime() - (20 - i) * 1000,
+            y: [open, high, low, close]
+          };
+        })
       }]}
       type="candlestick"
-      height={400}
+      height={350}
     />
   </div>
 </div>
