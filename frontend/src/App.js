@@ -72,22 +72,6 @@ function App() {
   };
 
   const stockList = [
-
-    { name: "HDFC Bank (₹816 Proof)", symbol: "HDFCBANK.NS" },
-
-    { name: "SBI", symbol: "SBIN.NS" },
-
-    { name: "ICICI Bank", symbol: "ICICIBANK.NS" },
-
-    { name: "Reliance Industries", symbol: "RELIANCE.NS" },
-
-    { name: "TCS", symbol: "TCS.NS" },
-
-    { name: "Infosys", symbol: "INFY.NS" },
-
-    { name: "Adani Enterprises", symbol: "ADANIENT.NS" },
-
-    { name: "ITC", symbol: "ITC.NS" }const stockList = [
   // 🏦 BANKING & FINANCE
   { name: "HDFC Bank (₹816 Proof)", symbol: "HDFCBANK.NS" },
   { name: "SBI", symbol: "SBIN.NS" },
@@ -123,8 +107,6 @@ function App() {
   { name: "Paytm", symbol: "PAYTM.NS" },
   { name: "Adani Enterprises", symbol: "ADANIENT.NS" }
 ];
-
-  ];
  // 📉 MONTE CARLO ENGINE
   
 
