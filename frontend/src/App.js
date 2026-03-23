@@ -1040,8 +1040,8 @@ const speakStatus = () => {
     borderRadius: '25px', 
     // 🎨 Dynamic Border Color Logic
     borderLeft: `8px solid ${
-      parseFloat(data?.bsi_score) >= 70 ? '#10b981' : // Green
-      parseFloat(data?.bsi_score) >= 50 ? '#fbbf24' : // Yellow
+      parseFloat(data?.bsi_score) >= 50 ? '#10b981' : // Green
+      parseFloat(data?.bsi_score) >= 40 ? '#fbbf24' : // Yellow
       '#ef4444' // Red
     }`,
     transition: '0.3s'
