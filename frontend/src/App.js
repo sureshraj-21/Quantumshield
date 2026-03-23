@@ -322,24 +322,26 @@ const speakStatus = () => {
 
     try {
       const endpoint = isRegisterMode ? 'signup' : 'login';
+      // 🚀 Direct call to Render Backend
       const res = await axios.post(`https://quantumshield-3b12.onrender.com/auth/${endpoint}`, authData);
       
       if (res.data) {
-        // 🚀 USERNAME SYNC: Name-ai global-ah set pannuvom
         const typedUsername = authData.username.trim();
         setDisplayName(typedUsername);
         localStorage.setItem("userDisplayName", typedUsername);
 
-        // ✅ SWITCH TO DASHBOARD
+        // ✅ LOGIN SUCCESS
         setIsLoggedIn(true);
 
-        // 🛡️ WHATSAPP ALERT: Login success aana udane trigger aagum
-        const msg = `🔐 *QuantShield Access Alert*%0AUser: *${typedUsername}*%0AStatus: Terminal Access Granted.%0AMode: ${isRegisterMode ? "Registration" : "Existing User"}`;
+        // 🛡️ WHATSAPP NOTIFICATION TRIGGER
+        const msg = `🔐 *QuantShield Access Alert*%0AUser: *${typedUsername}*%0AStatus: Terminal Access Granted.`;
         sendSilentAlert(msg);
       }
     } catch (err) {
       console.error("Login Fail:", err);
-      alert(isRegisterMode ? "Registration Error! Username already taken." : "Invalid Credentials! Access Denied.");
+      // Detailed error message for better debugging
+      const errorMsg = err.response?.data?.message || "Invalid Credentials! Access Denied.";
+      alert(errorMsg);
     } finally {
       setLoading(false);
     }
