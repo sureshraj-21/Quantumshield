@@ -565,29 +565,52 @@ const speakStatus = () => {
       </div>
 
       {/* 📈 MOMENTUM & HEATMAP COMPACT */}
-      <div style={{ background: '#1e293b', padding: '25px', borderRadius: '25px', border: '1px solid rgba(0, 242, 254, 0.1)' }}>
-  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-    <h4 style={{ color: 'white', margin: 0 }}>📊 Candlestick Momentum Index</h4>
-    <span style={{ color: '#00f2fe', fontSize: '10px' }}>LIVE FEED</span>
-  </div>
+      <div style={{ background: '#1e293b', padding: '30px', borderRadius: '30px', border: '1px solid rgba(0, 242, 254, 0.2)', marginTop: '20px' }}>
+  <h4 style={{ color: 'white', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+    💹 AI Momentum Terminal <span style={{ fontSize: '10px', color: '#10b981' }}>● LIVE ANALYSIS</span>
+  </h4>
 
-  <div style={{ height: '350px' }}>
+  <div style={{ height: '400px' }}>
     <Chart
       options={{
-        chart: { type: 'candlestick', height: 350, background: 'transparent', toolbar: { show: false } },
+        chart: { type: 'candlestick', height: 400, background: 'transparent', toolbar: { show: false } },
         xaxis: { type: 'datetime', labels: { style: { colors: '#94a3b8' } } },
-        yaxis: { tooltip: { enabled: true }, labels: { style: { colors: '#94a3b8' } } },
-        grid: { borderColor: 'rgba(255,255,255,0.05)' }
+        yaxis: { labels: { style: { colors: '#94a3b8' } }, tooltip: { enabled: true } },
+        grid: { borderColor: 'rgba(255,255,255,0.05)' },
+        annotations: {
+          points: [
+            // 🟢 BUY Signal Marker
+            {
+              x: new Date().getTime() - 5000,
+              y: data?.current_price - 2,
+              marker: { size: 6, fillColor: '#10b981', strokeColor: '#fff', radius: 2 },
+              label: { borderColor: '#10b981', style: { color: '#fff', background: '#10b981' }, text: 'BUY' }
+            },
+            // 🔴 SELL Signal Marker
+            {
+              x: new Date().getTime() - 15000,
+              y: data?.current_price + 2,
+              marker: { size: 6, fillColor: '#ef4444', strokeColor: '#fff', radius: 2 },
+              label: { borderColor: '#ef4444', style: { color: '#fff', background: '#ef4444' }, text: 'SELL' }
+            }
+          ]
+        },
+        plotOptions: {
+          candlestick: {
+            colors: { upward: '#10b981', downward: '#ef4444' },
+            wick: { useFillColor: true }
+          }
+        },
+        tooltip: { theme: 'dark' }
       }}
       series={[{
-        data: [
-          // 🟢 Inga dhaan unga backend data varanum. Sample format:
-          { x: new Date().getTime(), y: [livePrice, livePrice + 2, livePrice - 1, livePrice + 0.5] },
-          // [Open, High, Low, Close]
-        ]
+        data: priceHistory.map((p, i) => ({
+          x: new Date().getTime() - (20 - i) * 1000,
+          y: [p - 1.2, p + 2.5, p - 2.8, p] // [Open, High, Low, Close] Simulation
+        }))
       }]}
       type="candlestick"
-      height={350}
+      height={400}
     />
   </div>
 </div>
