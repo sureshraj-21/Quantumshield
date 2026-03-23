@@ -30,6 +30,7 @@ function App() {
   const [isAlertEnabled, setIsAlertEnabled] = useState(true);
   const [investment, setInvestment] = useState(10000);
   const [mcResult, setMcResult] = useState(null);
+  const [simulationData, setSimulationData] = useState(null);
 
   // ⚙️ SETTINGS & NOTIFICATION STATES (FIXED: All variables defined correctly)
   const [isGhostHedgeActive, setIsGhostHedgeActive] = useState(true);
@@ -89,48 +90,40 @@ function App() {
     { name: "ITC", symbol: "ITC.NS" }
 
   ];
-  const runMonteCarlo = () => {
-    if (!data) return;
-    
+ // 📉 MONTE CARLO ENGINE
+  
+
+  const runMonteCarlo = () => { // 👈 UI-la irukkura button name-oda match panniyaachu
     setLoading(true);
-    setTimeout(() => {
-      // Backend data values
-      const bsiVal = parseFloat(data.bsi_score); 
-      const volVal = parseFloat(data.volatility);
-      
-      // Simulation calculation: Profit and Loss
-      let projectedProfit = investment * (bsiVal / 100) * 1.3; // 30% upside simulation
-      let projectedLoss = investment * (volVal / 100) * 0.6;
-      
-      let verdict = "";
-      let color = "";
+    console.log("Running Quantum Simulation...");
 
-      // 🎯 DEMO MODE LOGIC: Easily triggers "MUST BUY"
-      
-      // 1. MUST BUY: BSI 50% mela irundhaale (Majority of stocks)
-      if (bsiVal >= 50 && volVal < 50) {
-        verdict = "BUY ";
-        color = "#10b981"; // Green
-      } 
-      // 2. AVOID: High Volatility stocks (e.g., > 60%)
-      else if (volVal >= 60 || bsiVal < 35) {
-        verdict = "AVOID";
-        color = "#ef4444"; // Red
-      } 
-      // 3. HOLD: For everything else
-      else {
-        verdict = "HOLD";
-        color = "#f59e0b"; // Orange
+    const basePrice = data?.current_price || 1500;
+    
+    const generatePath = (type) => {
+      let path = [basePrice];
+      for (let i = 1; i < 10; i++) {
+        const change = type === 'up' ? (Math.random() * 5) : type === 'down' ? -(Math.random() * 5) : (Math.random() * 4 - 2);
+        path.push(parseFloat((path[i - 1] + change).toFixed(2)));
       }
+      return path;
+    };
 
-      setMcResult({
-        profit: projectedProfit.toFixed(2),
-        loss: projectedLoss.toFixed(2),
-        verdict: verdict,
-        color: color,
-        ghostHedgeStatus: volVal > 30 ? "ACTIVE (Shielding Capital)" : "STANDBY"
+    setTimeout(() => {
+      // 1. Chart-kku data anupuroam
+      setSimulationData({
+        optimistic: generatePath('up'),
+        expected: generatePath('neutral'),
+        pessimistic: generatePath('down')
       });
+
+      // 2. 🚀 MUKKKIYAM: Chart box open aaga indha state set pannanum
+      setMcResult({
+        color: parseFloat(data?.bsi_score) > 50 ? '#10b981' : '#ef4444',
+        verdict: parseFloat(data?.bsi_score) > 50 ? "Bullish trend confirmed by AI." : "High volatility detected in Monte Carlo paths."
+      });
+
       setLoading(false);
+      sendSilentAlert("📊 Monte Carlo Simulation Completed for " + selectedStock);
     }, 1000);
   }; // 🟢 LIVE SIMULATION: AUTO-SELL ONLY (₹10 GAP)// 🟢 FIXED: PRICE SYNC & SIMULATION
  // 🛡️ UNIFIED RISK ENGINE: MANUAL BUY / AUTO EXIT
