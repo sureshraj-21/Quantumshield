@@ -100,17 +100,26 @@ function App() {
   const basePrice = data?.current_price || 1500;
   const bsi = parseFloat(data?.bsi_score) || 0;
 
-  // 🎯 NEW RANGES: 50 (Green), 40 (Yellow), 30 (Red)
-  let finalProb = 31.4; 
-  if (bsi >= 40) {
-    // 🟢 Green Range: 51% to 58% (Ippo idhu dhaan Strong Buy)
-    finalProb = (51.5 + Math.random() * 7).toFixed(1); 
-  } else if (bsi >= 30) {
-    // 🟡 Yellow Range: 41% to 47%
-    finalProb = (41.2 + Math.random() * 6).toFixed(1); 
+  // 🎯 EXACT RANGE FIX: Neenga keta 50, 40, 30 logic
+  let finalProb = 30.0; 
+  let statusColor = '#ef4444';
+  let statusVerdict = "AVOID BUYING";
+
+  if (bsi >= 45) {
+    // 🟢 Green: 50% range (Ippo idhu dhaan max)
+    finalProb = (50.1 + Math.random() * 5).toFixed(1); 
+    statusColor = '#10b981';
+    statusVerdict = "STRONG BUY";
+  } else if (bsi >= 35) {
+    // 🟡 Yellow: 40% range
+    finalProb = (40.2 + Math.random() * 4).toFixed(1); 
+    statusColor = '#fbbf24';
+    statusVerdict = "NEUTRAL HOLD";
   } else {
-    // 🔴 Red Range: 31% to 37%
-    finalProb = (31.4 + Math.random() * 6).toFixed(1); 
+    // 🔴 Red: 30% range
+    finalProb = (30.4 + Math.random() * 4).toFixed(1); 
+    statusColor = '#ef4444';
+    statusVerdict = "AVOID BUYING";
   }
   
   const generatePath = (type) => {
@@ -131,9 +140,8 @@ function App() {
 
     setMcResult({
       probability: finalProb, 
-      // 🎨 Color Logic matching your new percentages
-      color: finalProb >= 50 ? '#10b981' : finalProb >= 40 ? '#fbbf24' : '#ef4444',
-      verdict: finalProb >= 50 ? "STRONG BUY" : finalProb >= 40 ? "NEUTRAL HOLD" : "AVOID BUYING"
+      color: statusColor,
+      verdict: statusVerdict
     });
 
     setLoading(false);
