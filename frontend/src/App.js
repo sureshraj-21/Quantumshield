@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Line, Bar, Pie, Doughnut } from 'react-chartjs-2'; 
 import { jsPDF } from "jspdf"; 
 import html2canvas from 'html2canvas';
+import Chart from 'react-apexcharts';
 import {
   Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, 
   BarElement, ArcElement, Title, Tooltip, Legend, Filler
@@ -45,22 +46,28 @@ function App() {
   // ✅ Fixed the sendSilentAlert function
   // 🚀 PRIMARY NOTIFICATION: WHATSAPP ONLY (+919962126306)
   const sendSilentAlert = async (message) => {
-    if (!isAlertEnabled) return;
-
-    console.log("Dispatching WhatsApp Alert...");
-
-    // 🟢 WhatsApp Alert (Background via FastAPI + Twilio)
-    try {
-        // Localhost-ai thookittu Render URL-ai podunga
-        await axios.post('https://quantumshield-3b12.onrender.com/api/send-notification', {
-            msg: message,
-            phone: MY_PHONE // Unga number: +919962126306
-        });
-        console.log("WhatsApp Notification Sent Successfully!");
-    } catch (error) {
-        console.error("WhatsApp delivery failed. Check if Render/FastAPI is active.", error);
+    // 🛡️ Alert enabled-ah nu check pannum
+    if (!isAlertEnabled) {
+      console.log("Alerts are disabled in settings.");
+      return;
     }
-    // 🛑 Telegram logic removed as per your request.
+
+    console.log("🚀 Dispatching WhatsApp Alert...");
+
+    try {
+        // 🟢 Async call to Render Backend
+        const response = await axios.post('https://quantumshield-3b12.onrender.com/api/send-notification', {
+            msg: message,
+            phone: "+919962126306" // ✅ Direct-ah number kudunga, mistake varaadhu
+        });
+
+        if (response.status === 200) {
+            console.log("✅ WhatsApp Notification Sent Successfully!");
+        }
+    } catch (error) {
+        // ❌ Render/Twilio error-ai inga paarkalam
+        console.error("❌ WhatsApp delivery failed:", error.response ? error.response.data : error.message);
+    }
   };
 
   const stockList = [
@@ -304,10 +311,10 @@ const speakStatus = () => {
   };
 
  
-  if (!isLoggedIn) {
+ if (!isLoggedIn) {
     return (
       <div style={{ 
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://i.ibb.co/XfXkY8C/rm373batch4-07.jpg')`, 
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1611974717482-753ee5a4cc4b?q=80&w=2070')`, 
         backgroundSize: 'cover', 
         backgroundPosition: 'center', 
         height: '100vh', 
@@ -341,33 +348,37 @@ const speakStatus = () => {
           <div style={{ flex: 0.8, background: 'rgba(0, 0, 0, 0.4)', padding: '40px', borderRadius: '25px', border: '1px solid rgba(255,255,255,0.1)' }}>
             <h2 style={{ marginBottom: '25px', letterSpacing: '1px' }}>{isRegisterMode ? "REGISTER" : "LOGIN"}</h2>
             
-           <input 
-    type="text" 
-    placeholder="USERNAME" 
-    value={authData.username} // 👈 Idhu mukkkiyam
-    onChange={(e) => setAuthData({...authData, username: e.target.value})} 
-    style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', color: 'white', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)' }} 
-  />
+            <input 
+              type="text" 
+              placeholder="USERNAME" 
+              value={authData.username} 
+              onChange={(e) => setAuthData({...authData, username: e.target.value})} 
+              style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', color: 'white', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)' }} 
+            />
 
-  <input 
-    type="password" 
-    placeholder="PASSWORD" 
-    value={authData.password} // 👈 Idhu mukkkiyam
-    onChange={(e) => setAuthData({...authData, password: e.target.value})} 
-    style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', color: 'white', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)' }} 
-  />
+            <input 
+              type="password" 
+              placeholder="PASSWORD" 
+              value={authData.password} 
+              onChange={(e) => setAuthData({...authData, password: e.target.value})} 
+              style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', color: 'white', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)' }} 
+            />
             
             <button 
               onClick={async () => {
                 const endpoint = isRegisterMode ? 'signup' : 'login';
                 try {
-          // Localhost-ai thookittu Render Production URL-ai podunga
-          const res = await axios.post(`https://quantumshield-3b12.onrender.com/auth/${endpoint}`, authData);
-          
-          if (res.data) {
-            setIsLoggedIn(true);
-            sendSilentAlert(`🔐 ${isRegisterMode ? "NEW USER" : "LOGIN"}: ${authData.username} has accessed the terminal.`);
-          }
+                  const res = await axios.post(`https://quantumshield-3b12.onrender.com/auth/${endpoint}`, authData);
+                  
+                  if (res.data) {
+                    // 🚀 USERNAME SYNC FIX: Login panna name-ai global state-kku ethurom
+                    const typedUsername = authData.username.trim();
+                    setDisplayName(typedUsername);
+                    localStorage.setItem("userDisplayName", typedUsername);
+
+                    setIsLoggedIn(true);
+                    sendSilentAlert(`🔐 ${isRegisterMode ? "NEW USER" : "LOGIN"}: ${typedUsername} has accessed the terminal.`);
+                  }
                 } catch (err) {
                   alert(isRegisterMode ? "Registration Error! Username might exist." : "Invalid Credentials!");
                 }
@@ -554,19 +565,32 @@ const speakStatus = () => {
       </div>
 
       {/* 📈 MOMENTUM & HEATMAP COMPACT */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr', gap: '15px' }}>
-        <div style={{ background: '#1e293b', padding: '20px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <small style={{ color: '#f8fafc', fontWeight: '800', display: 'block', marginBottom: '10px' }}>Momentum Index</small>
-          <div style={{ height: '220px' }}>
-             <Line data={liveGraphData} options={{ maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { fontSize: 10 } } } }} />
-          </div>
-        </div>
-        <div style={{ background: '#1e293b', padding: '20px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
-          <small style={{ color: '#f8fafc', fontWeight: '800', display: 'block', marginBottom: '10px' }}>Allocation</small>
-          <div style={{ height: '160px', display: 'flex', justifyContent: 'center' }}><Pie data={pieData} options={{ plugins: { legend: { display: false } } }} /></div>
-          <p style={{ marginTop: '10px', fontWeight: 'bold', color: '#00f2fe', fontSize: '11px' }}>Regime: {data.regime}</p>
-        </div>
-      </div>
+      <div style={{ background: '#1e293b', padding: '25px', borderRadius: '25px', border: '1px solid rgba(0, 242, 254, 0.1)' }}>
+  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
+    <h4 style={{ color: 'white', margin: 0 }}>📊 Candlestick Momentum Index</h4>
+    <span style={{ color: '#00f2fe', fontSize: '10px' }}>LIVE FEED</span>
+  </div>
+
+  <div style={{ height: '350px' }}>
+    <Chart
+      options={{
+        chart: { type: 'candlestick', height: 350, background: 'transparent', toolbar: { show: false } },
+        xaxis: { type: 'datetime', labels: { style: { colors: '#94a3b8' } } },
+        yaxis: { tooltip: { enabled: true }, labels: { style: { colors: '#94a3b8' } } },
+        grid: { borderColor: 'rgba(255,255,255,0.05)' }
+      }}
+      series={[{
+        data: [
+          // 🟢 Inga dhaan unga backend data varanum. Sample format:
+          { x: new Date().getTime(), y: [livePrice, livePrice + 2, livePrice - 1, livePrice + 0.5] },
+          // [Open, High, Low, Close]
+        ]
+      }]}
+      type="candlestick"
+      height={350}
+    />
+  </div>
+</div>
 
       {/* 💼 ACTIVE PORTFOLIO TRACKER (% Return Method) */}
       <div style={{ 
