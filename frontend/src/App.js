@@ -71,25 +71,42 @@ function App() {
     }
   };
 
-  const stockList = [
+  const stocks = [
+  // 🏦 BANKING & FINANCE
+  { symbol: "HDFCBANK.NS", name: "HDFC Bank Ltd." },
+  { symbol: "ICICIBANK.NS", name: "ICICI Bank Ltd." },
+  { symbol: "SBIN.NS", name: "State Bank of India" },
+  { symbol: "AXISBANK.NS", name: "Axis Bank Ltd." },
+  { symbol: "KOTAKBANK.NS", name: "Kotak Mahindra Bank" },
+  { symbol: "BAJFINANCE.NS", name: "Bajaj Finance Ltd." },
 
-    { name: "HDFC Bank (₹816 Proof)", symbol: "HDFCBANK.NS" },
+  // 💻 IT SERVICES
+  { symbol: "TCS.NS", name: "Tata Consultancy Services" },
+  { symbol: "INFY.NS", name: "Infosys Ltd." },
+  { symbol: "WIPRO.NS", name: "Wipro Ltd." },
+  { symbol: "HCLTECH.NS", name: "HCL Technologies" },
 
-    { name: "SBI", symbol: "SBIN.NS" },
+  // ⚡ ENERGY & OIL
+  { symbol: "RELIANCE.NS", name: "Reliance Industries" },
+  { symbol: "ONGC.NS", name: "Oil & Natural Gas Corp" },
+  { symbol: "NTPC.NS", name: "NTPC Ltd." },
+  { symbol: "ADANIGREEN.NS", name: "Adani Green Energy" },
 
-    { name: "ICICI Bank", symbol: "ICICIBANK.NS" },
+  // 🚗 AUTOMOBILE
+  { symbol: "TATAMOTORS.NS", name: "Tata Motors Ltd." },
+  { symbol: "M&M.NS", name: "Mahindra & Mahindra" },
+  { symbol: "MARUTI.NS", name: "Maruti Suzuki India" },
 
-    { name: "Reliance Industries", symbol: "RELIANCE.NS" },
+  // 🛒 FMCG & CONSUMABLES
+  { symbol: "ITC.NS", name: "ITC Ltd." },
+  { symbol: "HINDUNILVR.NS", name: "Hindustan Unilever" },
+  { symbol: "TITAN.NS", name: "Titan Company Ltd." },
 
-    { name: "TCS", symbol: "TCS.NS" },
-
-    { name: "Infosys", symbol: "INFY.NS" },
-
-    { name: "Adani Enterprises", symbol: "ADANIENT.NS" },
-
-    { name: "ITC", symbol: "ITC.NS" }
-
-  ];
+  // 🚀 HIGH VOLATILITY (For Red/Yellow Analysis)
+  { symbol: "ZOMATO.NS", name: "Zomato Ltd." },
+  { symbol: "PAYTM.NS", name: "One 97 Communications" },
+  { symbol: "ADANIENT.NS", name: "Adani Enterprises" }
+];
  // 📉 MONTE CARLO ENGINE
   
 
