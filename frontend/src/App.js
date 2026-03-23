@@ -361,7 +361,7 @@ const speakStatus = () => {
 if (!isLoggedIn) {
     return (
       <div style={{ 
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1611974717482-753ee5a4cc4b?q=80&w=2070')`, 
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://i.ibb.co/XfXkY8C/rm373batch4-07.jpg')`, 
         backgroundSize: 'cover', 
         backgroundPosition: 'center', 
         height: '100vh', 
@@ -395,22 +395,21 @@ if (!isLoggedIn) {
           <div style={{ flex: 0.8, background: 'rgba(0, 0, 0, 0.4)', padding: '40px', borderRadius: '25px', border: '1px solid rgba(255,255,255,0.1)' }}>
             <h2 style={{ marginBottom: '25px', letterSpacing: '1px' }}>{isRegisterMode ? "REGISTER" : "LOGIN"}</h2>
             
-            <form onSubmit={handleLogin}> {/* 👈 Form onSubmit-la handleLogin-ai sethuttaen */}
+            <form onSubmit={handleLogin}> {/* 👈 handleLogin function-ai inga connect pannittaen */}
               <input 
                 type="text" 
                 placeholder="USERNAME" 
-                value={authData.username} 
+                value={authData.username}
                 onChange={(e) => setAuthData({...authData, username: e.target.value})} 
-                style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', color: 'white', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)' }} 
+                style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', borderRadius: '12px', outline: 'none' }} 
                 required
               />
-
               <input 
                 type="password" 
                 placeholder="PASSWORD" 
-                value={authData.password} 
+                value={authData.password}
                 onChange={(e) => setAuthData({...authData, password: e.target.value})} 
-                style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', color: 'white', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)' }} 
+                style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', borderRadius: '12px', outline: 'none' }} 
                 required
               />
               
