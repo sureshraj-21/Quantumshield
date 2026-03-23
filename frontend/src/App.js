@@ -157,7 +157,13 @@ function App() {
     }, 1000);
   }; // 🟢 LIVE SIMULATION: AUTO-SELL ONLY (₹10 GAP)// 🟢 FIXED: PRICE SYNC & SIMULATION
  // 🛡️ UNIFIED RISK ENGINE: MANUAL BUY / AUTO EXIT
-  const interval = setInterval(() => {
+  useEffect(() => {
+    if (isLoggedIn && data) {
+      // 🚀 Sync initial price when stock changes
+      setLivePrice(data.current_price);
+      setPriceHistory([data.current_price]);
+
+      const interval = setInterval(() => {
         setLivePrice(prevPrice => {
           const fluctuation = (Math.random() - 0.5) * 4.0; 
           const newPrice = prevPrice + fluctuation;
