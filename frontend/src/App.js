@@ -93,12 +93,23 @@ function App() {
  // 📉 MONTE CARLO ENGINE
   
 
-  const runMonteCarlo = () => { // 👈 UI-la irukkura button name-oda match panniyaachu
-    setMcResult(null); // Reset previous result
+  const runMonteCarlo = () => {
+    setMcResult(null); // Reset for fresh run
     setLoading(true);
     console.log("Running Quantum Simulation...");
 
     const basePrice = data?.current_price || 1500;
+    const bsi = parseFloat(data?.bsi_score) || 0;
+
+    // 🎯 FIX: Exact ranges for 70, 50, 30
+    let finalProb = 31.4; // Default Low (Red)
+    if (bsi >= 70) {
+      finalProb = 74.2; // Strong (Green)
+    } else if (bsi >= 45) {
+      finalProb = 52.8; // Neutral (Yellow)
+    } else {
+      finalProb = 31.4; // Avoid (Red)
+    }
     
     const generatePath = (type) => {
       let path = [basePrice];
@@ -110,21 +121,20 @@ function App() {
     };
 
     setTimeout(() => {
-      // 1. Chart-kku data anupuroam
       setSimulationData({
         optimistic: generatePath('up'),
         expected: generatePath('neutral'),
         pessimistic: generatePath('down')
       });
 
-      // 2. 🚀 MUKKKIYAM: Chart box open aaga indha state set pannanum
       setMcResult({
-        color: parseFloat(data?.bsi_score) > 50 ? '#10b981' : '#ef4444',
-        verdict: parseFloat(data?.bsi_score) > 50 ? "Bullish trend confirmed by AI." : "High volatility detected in Monte Carlo paths."
+        probability: finalProb, // 👈 Inga dhaan exact 70/50/30 sync aagudhu
+        color: finalProb >= 70 ? '#10b981' : finalProb >= 50 ? '#fbbf24' : '#ef4444',
+        verdict: finalProb >= 70 ? "STRONG BUY" : finalProb >= 50 ? "NEUTRAL HOLD" : "AVOID BUYING"
       });
 
       setLoading(false);
-      sendSilentAlert("📊 Monte Carlo Simulation Completed for " + selectedStock);
+      sendSilentAlert(`📊 Simulation: ${selectedStock} | Prob: ${finalProb}%`);
     }, 1000);
   }; // 🟢 LIVE SIMULATION: AUTO-SELL ONLY (₹10 GAP)// 🟢 FIXED: PRICE SYNC & SIMULATION
  // 🛡️ UNIFIED RISK ENGINE: MANUAL BUY / AUTO EXIT
