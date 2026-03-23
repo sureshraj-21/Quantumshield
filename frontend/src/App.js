@@ -207,6 +207,9 @@ function App() {
           return newPrice;
         });
       }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [data, isLoggedIn, isAutoExecutionActive, holdings]);
 
   // 🤖 AI AUTO TRIGGER (SILENT)
   // 🛑 AI DECISION-A MONITOR PANRA CODE-A DELETE PANNIDUNGA
