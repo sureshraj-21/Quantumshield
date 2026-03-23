@@ -14,28 +14,26 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [activeTab, setActiveTab] = useState("Dashboard");
-  const [data, setData] = useState(null);
-  const [selectedStock, setSelectedStock] = useState("HDFCBANK.NS");
-  const [loading, setLoading] = useState(false);
+  const [displayName, setDisplayName] = useState(localStorage.getItem("userDisplayName") || '');
   const [authData, setAuthData] = useState({ username: '', password: '' });
-  const [isVoiceMuted, setIsVoiceMuted] = useState(false); // Default-ah Unmute-la irukkum
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState(null);
   
-
-  // 💰 CORE LOGIC STATES
+  // 💰 CORE LOGIC STATES (ORIGINAL)
   const [wallet, setWallet] = useState(100000); 
   const [holdings, setHoldings] = useState({}); 
   const [livePrice, setLivePrice] = useState(0); 
   const [priceHistory, setPriceHistory] = useState([]); 
-  const prevDecisionRef = useRef(null);
-  // 🎲 MONTE CARLO STATES
-  const [investment, setInvestment] = useState(10000); // Default ₹10,000
+  const [selectedStock, setSelectedStock] = useState("HDFCBANK.NS");
+  const [isVoiceMuted, setIsVoiceMuted] = useState(false);
+  const [isAlertEnabled, setIsAlertEnabled] = useState(true);
+  const [investment, setInvestment] = useState(10000);
   const [mcResult, setMcResult] = useState(null);
 
   // ⚙️ SETTINGS & NOTIFICATION STATES (FIXED: All variables defined correctly)
   const [isGhostHedgeActive, setIsGhostHedgeActive] = useState(true);
   const [isAutoExecutionActive, setIsAutoExecutionActive] = useState(true);
   const [isWhatsappEnabled, setIsWhatsappEnabled] = useState(true); 
-  const [isAlertEnabled, setIsAlertEnabled] = useState(true); 
   const [sensitivity, setSensitivity] = useState(85);
   
 
@@ -276,9 +274,23 @@ const speakStatus = () => {
     msg.rate = 0.9; 
     window.speechSynthesis.speak(msg);
   };
-  const handleAuth = async () => {
-    if(authData.username && authData.password) setIsLoggedIn(true);
-    else alert("Please enter credentials");
+  const handleLogin = async (e) => {
+    if (e) e.preventDefault();
+    setLoading(true); // 🟢 Idhu blank screen varaama thadukkum
+    try {
+      const endpoint = isRegisterMode ? 'signup' : 'login';
+      const res = await axios.post("https://quantumshield-3b12.onrender.com/auth/" + endpoint, authData);
+      
+      if (res.data && res.data.access_token) {
+        const loginName = res.data.username || authData.username;
+        setDisplayName(loginName);
+        localStorage.setItem("userDisplayName", loginName);
+        setIsLoggedIn(true);
+      }
+    } catch (err) {
+      setLoading(false);
+      alert("Terminal Access Denied!");
+    }
   };
 
   const liveGraphData = {
@@ -329,18 +341,24 @@ const speakStatus = () => {
           <div style={{ flex: 0.8, background: 'rgba(0, 0, 0, 0.4)', padding: '40px', borderRadius: '25px', border: '1px solid rgba(255,255,255,0.1)' }}>
             <h2 style={{ marginBottom: '25px', letterSpacing: '1px' }}>{isRegisterMode ? "REGISTER" : "LOGIN"}</h2>
             
-            <input 
-              type="text" 
-              placeholder="USERNAME" 
-              onChange={(e) => setAuthData({...authData, username: e.target.value})} 
-              style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', borderRadius: '12px', outline: 'none' }} 
-            />
-            <input 
-              type="password" 
-              placeholder="PASSWORD" 
-              onChange={(e) => setAuthData({...authData, password: e.target.value})} 
-              style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', borderRadius: '12px', outline: 'none' }} 
-            />
+           <input 
+  type="text" 
+  placeholder="USERNAME" 
+  value={authData.username} // 🟢 Manual typing update aaga idhu mukkkiyam
+  onChange={(e) => setAuthData({ ...authData, username: e.target.value })} 
+  autoComplete="username"
+   // Unga original style apdiye vachukonga
+/>
+
+// 2. Password Input
+<input 
+  type="password" 
+  placeholder="PASSWORD" 
+  value={authData.password} // 🟢 State sync aaga idhu mukkkiyam
+  onChange={(e) => setAuthData({ ...authData, password: e.target.value })} 
+  autoComplete="current-password"
+ // Unga original style apdiye vachukonga
+/>
             
             <button 
               onClick={async () => {
@@ -989,7 +1007,7 @@ const speakStatus = () => {
       {/* 👤 PROFILE & ACCOUNT CARD (Working Status) */}
       <div style={{ background: '#1e293b', padding: '25px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
         <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(45deg, #00f2fe, #4facfe)', margin: '0 auto 15px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '30px', fontWeight: 'bold', color: '#0a0e17', boxShadow: '0 0 20px rgba(0,242,254,0.3)' }}>S</div>
-        <h3 style={{ margin: '10px 0 5px 0', color: '#f8fafc' }}>Suresh M</h3>
+        <h3 style={{ margin: '10px 0 5px 0', color: '#f8fafc' }}>{displayName || "user"}</h3>
         <p style={{ color: '#94a3b8', fontSize: '12px' }}>System Administrator</p>
         <div style={{ marginTop: '20px', padding: '8px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', borderRadius: '10px', fontSize: '10px', fontWeight: 'bold', border: '1px solid rgba(16, 185, 129, 0.2)' }}>ACCOUNT VERIFIED ✅</div>
         
