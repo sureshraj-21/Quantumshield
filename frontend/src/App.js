@@ -98,20 +98,19 @@ function App() {
   setLoading(true);
 
   const basePrice = data?.current_price || 1500;
-  // BSI score-ai eduthukkurom
   const bsi = parseFloat(data?.bsi_score) || 0;
 
-  // 🎯 NEW BOUNDARY: 50 mela irundhale 70% range (Green) vara fix panniyachu
+  // 🎯 NEW RANGES: 50 (Green), 40 (Yellow), 30 (Red)
   let finalProb = 31.4; 
-  if (bsi >= 50) {
-    // Bullish Trend (Green) - 72% to 78% range
-    finalProb = (72.5 + Math.random() * 6).toFixed(1); 
-  } else if (bsi >= 35) {
-    // Neutral Trend (Yellow) - 51% to 57% range
-    finalProb = (51.2 + Math.random() * 6).toFixed(1); 
+  if (bsi >= 40) {
+    // 🟢 Green Range: 51% to 58% (Ippo idhu dhaan Strong Buy)
+    finalProb = (51.5 + Math.random() * 7).toFixed(1); 
+  } else if (bsi >= 30) {
+    // 🟡 Yellow Range: 41% to 47%
+    finalProb = (41.2 + Math.random() * 6).toFixed(1); 
   } else {
-    // Bearish Trend (Red) - 31% to 36% range
-    finalProb = (31.4 + Math.random() * 5).toFixed(1); 
+    // 🔴 Red Range: 31% to 37%
+    finalProb = (31.4 + Math.random() * 6).toFixed(1); 
   }
   
   const generatePath = (type) => {
@@ -132,8 +131,9 @@ function App() {
 
     setMcResult({
       probability: finalProb, 
-      color: finalProb >= 70 ? '#10b981' : finalProb >= 50 ? '#fbbf24' : '#ef4444',
-      verdict: finalProb >= 70 ? "STRONG BUY" : finalProb >= 50 ? "NEUTRAL HOLD" : "AVOID BUYING"
+      // 🎨 Color Logic matching your new percentages
+      color: finalProb >= 50 ? '#10b981' : finalProb >= 40 ? '#fbbf24' : '#ef4444',
+      verdict: finalProb >= 50 ? "STRONG BUY" : finalProb >= 40 ? "NEUTRAL HOLD" : "AVOID BUYING"
     });
 
     setLoading(false);
