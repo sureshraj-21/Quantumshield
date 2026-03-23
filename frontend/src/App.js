@@ -627,6 +627,32 @@ const speakStatus = () => {
     />
   </div>
 </div>
+{/* 🔥 HEATMAP SECTION */}
+<div style={{ marginTop: '30px', background: '#1e293b', padding: '30px', borderRadius: '30px', border: '1px solid rgba(0, 242, 254, 0.1)' }}>
+  <h4 style={{ color: 'white', marginBottom: '20px' }}>🌡️ Sector Risk Heatmap</h4>
+  
+  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
+    {[
+      { s: 'BANK', v: '+2.4%', r: 'LOW' },
+      { s: 'IT', v: '-1.2%', r: 'HIGH' },
+      { s: 'AUTO', v: '+0.8%', r: 'MED' },
+      { s: 'PHARMA', v: '+1.5%', r: 'LOW' },
+      { s: 'ENERGY', v: '-3.4%', r: 'CRIT' }
+    ].map((item, idx) => (
+      <div key={idx} style={{ 
+        background: item.r === 'CRIT' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.1)', 
+        padding: '20px', 
+        borderRadius: '15px', 
+        textAlign: 'center',
+        border: `1px solid ${item.r === 'CRIT' ? '#ef4444' : '#10b981'}`
+      }}>
+        <div style={{ fontSize: '12px', color: '#94a3b8' }}>{item.s}</div>
+        <div style={{ fontSize: '18px', fontWeight: 'bold', color: 'white', margin: '5px 0' }}>{item.v}</div>
+        <div style={{ fontSize: '10px', color: item.r === 'CRIT' ? '#ef4444' : '#10b981' }}>{item.r} RISK</div>
+      </div>
+    ))}
+  </div>
+</div>
 
       {/* 💼 ACTIVE PORTFOLIO TRACKER (% Return Method) */}
       <div style={{ 
