@@ -432,103 +432,147 @@ if (!isLoggedIn) {
     );
   }
   
+  // 🔵 MAIN DASHBOARD RENDER
   return (
-  <div
-    style={{
-      display: window.innerWidth < 900 ? "block" : "flex",
-      backgroundColor: "#f4f7fe",
-      minHeight: "100vh",
-      width: "100%",
-      overflowX: "hidden",
-      fontFamily: "'Jakarta Sans', sans-serif"
-    }}
-  >
-    {/* 🟢 SIDEBAR */}
     <div
       style={{
-        width: window.innerWidth < 900 ? "100%" : "260px",
-        background: "#1e293b",
-        padding: window.innerWidth < 900 ? "10px" : "40px 20px",
-        position: window.innerWidth < 900 ? "relative" : "fixed",
-        height: window.innerWidth < 900 ? "auto" : "100vh",
-        zIndex: 10,
-        display: "flex",
-        flexDirection: window.innerWidth < 900 ? "row" : "column",
-        gap: "10px",
-        borderRight: "1px solid rgba(255,255,255,0.05)",
-        overflowX: window.innerWidth < 900 ? "auto" : "hidden"
-      }}
-    >
-      <h2 style={{ color: "#00f2fe", fontWeight: "900", marginBottom: "20px", fontSize: "22px", paddingLeft: "10px", whiteSpace: "nowrap" }}>
-        🛡️ QuantShield
-      </h2>
-
-      {["Dashboard", "Analytics", "Stocks", "Monte Carlo", "Settings"].map((tab) => (
-        <div
-          key={tab}
-          onClick={() => setActiveTab(tab)}
-          style={{
-            background: activeTab === tab ? "rgba(0,242,254,0.15)" : "transparent",
-            color: activeTab === tab ? "#00f2fe" : "#94a3b8",
-            padding: "12px 16px",
-            borderRadius: "12px",
-            fontWeight: "600",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            borderLeft: activeTab === tab ? "4px solid #00f2fe" : "4px solid transparent",
-            whiteSpace: "nowrap"
-          }}
-        >
-          {tab === "Dashboard" ? "📊" : tab === "Analytics" ? "📈" : tab === "Stocks" ? "💹" : tab === "Monte Carlo" ? "🎲" : "⚙️"} 
-          {window.innerWidth > 900 && tab}
-        </div>
-      ))}
-
-      <div
-        onClick={() => setIsLoggedIn(false)}
-        style={{ marginTop: "auto", color: "#f85149", fontWeight: "bold", cursor: "pointer", padding: "12px", borderRadius: "10px", textAlign: "center", background: "rgba(248,81,73,0.05)" }}
-      >
-        🔒 Logout
-      </div>
-    </div>
-
-    {/* 🔵 MAIN CONTENT AREA */}
-    <div
-      style={{
-        marginLeft: window.innerWidth < 900 ? "0" : "260px",
-        width: window.innerWidth < 900 ? "100%" : "calc(100% - 260px)",
-        padding: window.innerWidth < 900 ? "15px" : "40px 50px",
-        boxSizing: "border-box",
+        display: window.innerWidth < 900 ? "block" : "flex",
+        backgroundColor: "#f4f7fe",
         minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column"
+        width: "100%",
+        overflowX: "hidden",
+        fontFamily: "'Jakarta Sans', sans-serif"
       }}
     >
-      {/* HEADER SECTION */}
-      <div style={{ display: "flex", flexDirection: window.innerWidth < 900 ? "column" : "row", justifyContent: "space-between", alignItems: window.innerWidth < 900 ? "flex-start" : "center", gap: "15px", marginBottom: "30px" }}>
-        <div>
-          <h1 style={{ fontSize: window.innerWidth < 900 ? "22px" : "32px", fontWeight: "900", margin: 0, color: "#1e293b" }}>
-            {activeTab} Overview
-          </h1>
-          <p style={{ color: "#64748b", fontSize: "14px", marginTop: "5px" }}>Market Sync: Active (1s)</p>
-        </div>
+      {/* 🟢 SIDEBAR */}
+      <div
+        style={{
+          width: window.innerWidth < 900 ? "100%" : "260px",
+          background: "#1e293b",
+          padding: window.innerWidth < 900 ? "10px" : "40px 20px",
+          position: window.innerWidth < 900 ? "relative" : "fixed",
+          height: window.innerWidth < 900 ? "auto" : "100vh",
+          zIndex: 10,
+          display: "flex",
+          flexDirection: window.innerWidth < 900 ? "row" : "column",
+          gap: "10px",
+          borderRight: "1px solid rgba(255,255,255,0.05)",
+          overflowX: window.innerWidth < 900 ? "auto" : "hidden"
+        }}
+      >
+        <h2 style={{ color: "#00f2fe", fontWeight: "900", marginBottom: "20px", fontSize: "22px", paddingLeft: "10px", whiteSpace: "nowrap" }}>
+          🛡️ QuantShield
+        </h2>
 
-        <div style={{ display: "flex", flexDirection: window.innerWidth < 900 ? "column" : "row", gap: "10px", alignItems: "center", width: window.innerWidth < 900 ? "100%" : "auto" }}>
-          {/* WALLET */}
-          <div style={{ background: "#1e293b", padding: "12px 20px", borderRadius: "18px", border: "1px solid #28292a", width: window.innerWidth < 900 ? "100%" : "auto" }}>
-            <span style={{ fontSize: "13px", color: "white", fontWeight: "bold", display: "block" }}>ACCOUNT WALLET</span>
-            <b style={{ color: "#14df62", fontSize: "18px" }}>₹{wallet.toLocaleString()}</b>
+        {["Dashboard", "Analytics", "Stocks", "Monte Carlo", "Settings"].map((tab) => (
+          <div
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            style={{
+              background: activeTab === tab ? "rgba(0,242,254,0.15)" : "transparent",
+              color: activeTab === tab ? "#00f2fe" : "#94a3b8",
+              padding: "12px 16px",
+              borderRadius: "12px",
+              fontWeight: "600",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              borderLeft: activeTab === tab ? "4px solid #00f2fe" : "4px solid transparent",
+              whiteSpace: "nowrap"
+            }}
+          >
+            {tab === "Dashboard" ? "📊" : tab === "Analytics" ? "📈" : tab === "Stocks" ? "💹" : tab === "Monte Carlo" ? "🎲" : "⚙️"} 
+            {window.innerWidth > 900 && tab}
+          </div>
+        ))}
+
+        <div
+          onClick={() => { localStorage.clear(); window.location.reload(); }}
+          style={{ marginTop: "auto", color: "#f85149", fontWeight: "bold", cursor: "pointer", padding: "12px", borderRadius: "10px", textAlign: "center", background: "rgba(248,81,73,0.05)" }}
+        >
+          🔒 Logout
+        </div>
+      </div>
+
+      {/* 🔵 MAIN CONTENT AREA */}
+      <div
+        style={{
+          marginLeft: window.innerWidth < 900 ? "0" : "260px",
+          width: window.innerWidth < 900 ? "100%" : "calc(100% - 260px)",
+          padding: window.innerWidth < 900 ? "15px" : "40px 50px",
+          boxSizing: "border-box",
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column"
+        }}
+      >
+        {/* HEADER SECTION */}
+        <div style={{ display: "flex", flexDirection: window.innerWidth < 900 ? "column" : "row", justifyContent: "space-between", alignItems: window.innerWidth < 900 ? "flex-start" : "center", gap: "15px", marginBottom: "30px" }}>
+          <div>
+            <h1 style={{ fontSize: window.innerWidth < 900 ? "22px" : "32px", fontWeight: "900", margin: 0, color: "#1e293b" }}>
+              {activeTab} Overview
+            </h1>
+            <p style={{ color: "#64748b", fontSize: "14px", marginTop: "5px" }}>Market Sync: Active (1s)</p>
           </div>
 
-          {activeTab === "Dashboard" && data && (
-            <button onClick={downloadReport} style={{ padding: "12px 20px", background: "#1e293b", color: "white", borderRadius: "18px", border: "none", fontWeight: "bold", cursor: "pointer", width: window.innerWidth < 900 ? "100%" : "auto" }}>
-              📥 PDF Report
-            </button>
-          )}
+          <div style={{ display: "flex", flexDirection: window.innerWidth < 900 ? "column" : "row", gap: "10px", alignItems: "center", width: window.innerWidth < 900 ? "100%" : "auto" }}>
+            <div style={{ background: "#1e293b", padding: "12px 20px", borderRadius: "18px", border: "1px solid #28292a", width: window.innerWidth < 900 ? "100%" : "auto" }}>
+              <span style={{ fontSize: "13px", color: "white", fontWeight: "bold", display: "block" }}>ACCOUNT WALLET</span>
+              <b style={{ color: "#14df62", fontSize: "18px" }}>₹{wallet.toLocaleString()}</b>
+            </div>
+          </div>
+        </div>
+
+        {/* Dynamic Tab Content Area */}
+        <div style={{ flex: 1 }}>
+           {activeTab === "Dashboard" && data && (
+             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px' }}>
+                <div style={{ background: 'white', padding: '20px', borderRadius: '15px', borderLeft: '6px solid #00f2fe' }}>
+                   <small style={{ color: '#64748b', fontWeight: 'bold' }}>QUANTUM SCORE</small>
+                   <h2 style={{ margin: '10px 0 0 0' }}>{data.bsi_score}%</h2>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', width: '100%' }}>
+  
+  {/* Card 1: Live Profit/Loss */}
+  <div style={{ background: 'white', padding: '20px', borderRadius: '15px', borderLeft: '6px solid #10b981', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+    <small style={{ color: '#64748b', fontWeight: 'bold', fontSize: '11px' }}>UNREALIZED P&L</small>
+    <h2 style={{ margin: '10px 0 0 0', color: calculatePnL() >= 0 ? "#10b981" : "#ef4444" }}>
+      ₹{calculatePnL().toFixed(2)}
+    </h2>
+  </div>
+
+  {/* Card 2: Market Price */}
+  <div style={{ background: 'white', padding: '20px', borderRadius: '15px', borderLeft: '6px solid #3b82f6', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+    <small style={{ color: '#64748b', fontWeight: 'bold', fontSize: '11px' }}>MARKET PRICE</small>
+    <h2 style={{ margin: '10px 0 0 0', color: '#1e293b' }}>₹{livePrice.toFixed(2)}</h2>
+  </div>
+
+  {/* Card 3: Quantum Decision */}
+  <div style={{ background: 'white', padding: '20px', borderRadius: '15px', borderLeft: '6px solid #00f2fe', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+    <small style={{ color: '#64748b', fontWeight: 'bold', fontSize: '11px' }}>QUANTUM DECISION</small>
+    <h2 style={{ margin: '10px 0 0 0', color: data.decision === "BUY" ? "#10b981" : "#f59e0b" }}>
+      {data.decision}
+    </h2>
+  </div>
+
+  {/* Card 4: Ghost Hedge Status */}
+  <div style={{ background: 'white', padding: '20px', borderRadius: '15px', borderLeft: '6px solid #10b981', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+    <small style={{ color: '#64748b', fontWeight: 'bold', fontSize: '11px' }}>GHOST HEDGE</small>
+    <h2 style={{ margin: '10px 0 0 0', color: wallet < 95000 ? "#ef4444" : "#10b981" }}>
+      {wallet < 95000 ? "⚠️ FREEZE" : "🛡️ ACTIVE"}
+    </h2>
+  </div>
+
+</div>
+             </div>
+           )}
         </div>
       </div>
+    </div>
+  ); // 👈 Correct Closing
+} // 👈 End of App Function
+
 
       {/* 🟢 REPORT AREA - ALIGNMENT FIXED */}
       <div id="report-area" style={{ width: "100%" }}>
@@ -577,7 +621,7 @@ if (!isLoggedIn) {
           </div>
         )}
       </div>
-      </div>
+      
 
       {/* 🟢 COMPACT GAUGE & TRADE BOX */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '15px', marginBottom: '25px' }}>
@@ -688,8 +732,7 @@ if (!isLoggedIn) {
           <p style={{ textAlign: 'center', fontSize: '12px', color: '#64748b', margin: '20px 0' }}>No active trades in portfolio.</p>
         )}
       </div>
-    </div>
-  )}
+    
         {activeTab === "Analytics" && (
     <div style={{ 
       animation: 'fadeIn 0.5s ease-in-out',
@@ -1046,7 +1089,7 @@ if (!isLoggedIn) {
     </div>
   </div>
 )}
-    {activeTab === "Settings" && (
+    {activeTab === "Settings" && (<>
   <div style={{ animation: 'fadeIn 0.5s ease-in-out' }}>
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '20px' }}>
       
@@ -1159,8 +1202,9 @@ if (!isLoggedIn) {
       </div>
     </div>
   </div>
-)}
-        
+  </>) }
+    
+  
 
 
 
