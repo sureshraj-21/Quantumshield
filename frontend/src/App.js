@@ -294,11 +294,7 @@ const speakStatus = () => {
     msg.rate = 0.9; 
     window.speechSynthesis.speak(msg);
   };
-  const handleStockChange = (newStock) => {
-  setSelectedStock(newStock);
-  setMcResult(null); // 👈 Idhu dhaan mukkkiyam! Reset panna dhaan thirumba run aagum.
-  setSimulationData(null);
-};
+ 
   const handleLogin = async (e) => {
     if (e) e.preventDefault();
     setLoading(true); // 🟢 Idhu blank screen varaama thadukkum
