@@ -47,27 +47,20 @@ function App() {
   // ✅ Fixed the sendSilentAlert function
   // 🚀 PRIMARY NOTIFICATION: WHATSAPP ONLY (+919962126306)
   const sendSilentAlert = async (message) => {
-    // 🛡️ Alert enabled-ah nu check pannum
-    if (!isAlertEnabled) {
-      console.log("Alerts are disabled in settings.");
+    // 🛡️ WhatsApp enabled-ah nu check pannum
+    if (!isAlertEnabled || !isWhatsappEnabled) {
+      console.log("WhatsApp Alerts are disabled in settings.");
       return;
     }
 
-    console.log("🚀 Dispatching WhatsApp Alert...");
-
     try {
-        // 🟢 Async call to Render Backend
-        const response = await axios.post('https://quantumshield-3b12.onrender.com/api/send-notification', {
+        await axios.post('https://quantumshield-3b12.onrender.com/api/send-notification', {
             msg: message,
-            MY_PHONE: "+919962126306" // ✅ Direct-ah number kudunga, mistake varaadhu
+            phone: "+919962126306" // API-ku 'phone' key-ah anupunga (Backend logic-padi)
         });
-
-        if (response.status === 200) {
-            console.log("✅ WhatsApp Notification Sent Successfully!");
-        }
+        console.log("✅ WhatsApp Notification Sent!");
     } catch (error) {
-        // ❌ Render/Twilio error-ai inga paarkalam
-        console.error("❌ WhatsApp delivery failed:", error.response ? error.response.data : error.message);
+        console.error("❌ WhatsApp delivery failed:", error.message);
     }
   };
 
@@ -322,29 +315,23 @@ const speakStatus = () => {
 
     try {
       const endpoint = isRegisterMode ? 'signup' : 'login';
-      // 🚀 Direct call to Render Backend
-      const res = await axios.post(`https://quantumshield-3b12.onrender.com/auth/${endpoint}`, authData);
+      const res = await axios.post("https://quantumshield-3b12.onrender.com/auth/" + endpoint, authData);
       
-      if (res.data) {
-        const typedUsername = authData.username.trim();
-        setDisplayName(typedUsername);
-        localStorage.setItem("userDisplayName", typedUsername);
+      if (res.data && res.data.access_token) {
+        const loginName = res.data.username || authData.username;
+        setDisplayName(loginName);
+        localStorage.setItem("userDisplayName", loginName);
+        
+        // 🚀 WHATSAPP NOTIFICATION TRIGGER (Fixed)
+        sendSilentAlert(`🛡️ *QuantumShield Login Alert*%0AUser: ${loginName}%0AStatus: Terminal Access Granted.`);
 
-        // ✅ LOGIN SUCCESS
         setIsLoggedIn(true);
-
-        // 🛡️ WHATSAPP NOTIFICATION TRIGGER
-        const msg = `🔐 *QuantShield Access Alert*%0AUser: *${typedUsername}*%0AStatus: Terminal Access Granted.`;
-        sendSilentAlert(msg);
       }
+      setLoading(false); // ✅ Loading-ai off panna marakkaadhiga
     } catch (err) {
-      console.error("Login Fail:", err);
-      // Detailed error message for better debugging
-      const errorMsg = err.response?.data?.message || "Invalid Credentials! Access Denied.";
-      alert(errorMsg);
-    } finally {
       setLoading(false);
-    }
+      alert("Terminal Access Denied!");
+    }  
   };
 
   const liveGraphData = {
@@ -358,10 +345,10 @@ const speakStatus = () => {
   };
 
  
-if (!isLoggedIn) {
+ if (!isLoggedIn) {
     return (
       <div style={{ 
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://i.ibb.co/XfXkY8C/rm373batch4-07.jpg')`, 
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1611974717482-753ee5a4cc4b?q=80&w=2070')`, 
         backgroundSize: 'cover', 
         backgroundPosition: 'center', 
         height: '100vh', 
@@ -395,45 +382,45 @@ if (!isLoggedIn) {
           <div style={{ flex: 0.8, background: 'rgba(0, 0, 0, 0.4)', padding: '40px', borderRadius: '25px', border: '1px solid rgba(255,255,255,0.1)' }}>
             <h2 style={{ marginBottom: '25px', letterSpacing: '1px' }}>{isRegisterMode ? "REGISTER" : "LOGIN"}</h2>
             
-            <form onSubmit={handleLogin}> {/* 👈 handleLogin function-ai inga connect pannittaen */}
-              <input 
-                type="text" 
-                placeholder="USERNAME" 
-                value={authData.username}
-                onChange={(e) => setAuthData({...authData, username: e.target.value})} 
-                style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', borderRadius: '12px', outline: 'none' }} 
-                required
-              />
-              <input 
-                type="password" 
-                placeholder="PASSWORD" 
-                value={authData.password}
-                onChange={(e) => setAuthData({...authData, password: e.target.value})} 
-                style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', borderRadius: '12px', outline: 'none' }} 
-                required
-              />
-              
-              <button 
-                type="submit"
-                onClick={handleLogin} // 🚀 Change to submit to trigger handleLogin
-                disabled={loading}
-                style={{ 
-                  width: '100%', 
-                  padding: '16px', 
-                  marginTop: '15px', 
-                  background: 'linear-gradient(90deg, #00f2fe, #4facfe)', 
-                  color: '#002f35', 
-                  border: 'none', 
-                  borderRadius: '12px', 
-                  fontWeight: '900', 
-                  cursor: 'pointer', 
-                  transition: '0.3s',
-                  opacity: loading ? 0.7 : 1
-                }}
-              >
-                {loading ? "AUTHENTICATING..." : (isRegisterMode ? "CREATE ACCOUNT" : "SIGN IN")}
-              </button>
-            </form>
+            <input 
+              type="text" 
+              placeholder="USERNAME" 
+              value={authData.username} 
+              onChange={(e) => setAuthData({...authData, username: e.target.value})} 
+              style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', color: 'white', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)' }} 
+            />
+
+            <input 
+              type="password" 
+              placeholder="PASSWORD" 
+              value={authData.password} 
+              onChange={(e) => setAuthData({...authData, password: e.target.value})} 
+              style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', color: 'white', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)' }} 
+            />
+            
+            <button 
+              onClick={async () => {
+                const endpoint = isRegisterMode ? 'signup' : 'login';
+                try {
+                  const res = await axios.post(`https://quantumshield-3b12.onrender.com/auth/${endpoint}`, authData);
+                  
+                  if (res.data) {
+                    // 🚀 USERNAME SYNC FIX: Login panna name-ai global state-kku ethurom
+                    const typedUsername = authData.username.trim();
+                    setDisplayName(typedUsername);
+                    localStorage.setItem("userDisplayName", typedUsername);
+
+                    setIsLoggedIn(true);
+                    sendSilentAlert(`🔐 ${isRegisterMode ? "NEW USER" : "LOGIN"}: ${typedUsername} has accessed the terminal.`);
+                  }
+                } catch (err) {
+                  alert(isRegisterMode ? "Registration Error! Username might exist." : "Invalid Credentials!");
+                }
+              }} 
+              style={{ width: '100%', padding: '16px', marginTop: '15px', background: 'linear-gradient(90deg, #00f2fe, #4facfe)', color: '#002f35', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', transition: '0.3s' }}
+            >
+              {isRegisterMode ? "CREATE ACCOUNT" : "SIGN IN"}
+            </button>
 
             {/* Toggle Link */}
             <div style={{ marginTop: '25px', textAlign: 'center', fontSize: '14px', color: 'rgba(255,255,255,0.6)' }}>
