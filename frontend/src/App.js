@@ -94,49 +94,51 @@ function App() {
   
 
   const runMonteCarlo = () => {
-    setMcResult(null); // Reset for fresh run
-    setLoading(true);
-    console.log("Running Quantum Simulation...");
+  setMcResult(null); 
+  setLoading(true);
 
-    const basePrice = data?.current_price || 1500;
-    const bsi = parseFloat(data?.bsi_score) || 0;
+  const basePrice = data?.current_price || 1500;
+  // BSI score-ai eduthukkurom
+  const bsi = parseFloat(data?.bsi_score) || 0;
 
-    // 🎯 FIX: Exact ranges for 70, 50, 30
-    let finalProb = 31.4; // Default Low (Red)
-    if (bsi >= 70) {
-      finalProb = 74.2; // Strong (Green)
-    } else if (bsi >= 45) {
-      finalProb = 52.8; // Neutral (Yellow)
-    } else {
-      finalProb = 31.4; // Avoid (Red)
+  // 🎯 NEW BOUNDARY: 50 mela irundhale 70% range (Green) vara fix panniyachu
+  let finalProb = 31.4; 
+  if (bsi >= 50) {
+    // Bullish Trend (Green) - 72% to 78% range
+    finalProb = (72.5 + Math.random() * 6).toFixed(1); 
+  } else if (bsi >= 35) {
+    // Neutral Trend (Yellow) - 51% to 57% range
+    finalProb = (51.2 + Math.random() * 6).toFixed(1); 
+  } else {
+    // Bearish Trend (Red) - 31% to 36% range
+    finalProb = (31.4 + Math.random() * 5).toFixed(1); 
+  }
+  
+  const generatePath = (type) => {
+    let path = [basePrice];
+    for (let i = 1; i < 10; i++) {
+      const change = type === 'up' ? (Math.random() * 5) : type === 'down' ? -(Math.random() * 5) : (Math.random() * 4 - 2);
+      path.push(parseFloat((path[i - 1] + change).toFixed(2)));
     }
-    
-    const generatePath = (type) => {
-      let path = [basePrice];
-      for (let i = 1; i < 10; i++) {
-        const change = type === 'up' ? (Math.random() * 5) : type === 'down' ? -(Math.random() * 5) : (Math.random() * 4 - 2);
-        path.push(parseFloat((path[i - 1] + change).toFixed(2)));
-      }
-      return path;
-    };
+    return path;
+  };
 
-    setTimeout(() => {
-      setSimulationData({
-        optimistic: generatePath('up'),
-        expected: generatePath('neutral'),
-        pessimistic: generatePath('down')
-      });
+  setTimeout(() => {
+    setSimulationData({
+      optimistic: generatePath('up'),
+      expected: generatePath('neutral'),
+      pessimistic: generatePath('down')
+    });
 
-      setMcResult({
-        probability: finalProb, // 👈 Inga dhaan exact 70/50/30 sync aagudhu
-        color: finalProb >= 70 ? '#10b981' : finalProb >= 50 ? '#fbbf24' : '#ef4444',
-        verdict: finalProb >= 70 ? "STRONG BUY" : finalProb >= 50 ? "NEUTRAL HOLD" : "AVOID BUYING"
-      });
+    setMcResult({
+      probability: finalProb, 
+      color: finalProb >= 70 ? '#10b981' : finalProb >= 50 ? '#fbbf24' : '#ef4444',
+      verdict: finalProb >= 70 ? "STRONG BUY" : finalProb >= 50 ? "NEUTRAL HOLD" : "AVOID BUYING"
+    });
 
-      setLoading(false);
-      sendSilentAlert(`📊 Simulation: ${selectedStock} | Prob: ${finalProb}%`);
-    }, 1000);
-  }; // 🟢 LIVE SIMULATION: AUTO-SELL ONLY (₹10 GAP)// 🟢 FIXED: PRICE SYNC & SIMULATION
+    setLoading(false);
+  }, 1000);
+}; // 🟢 LIVE SIMULATION: AUTO-SELL ONLY (₹10 GAP)// 🟢 FIXED: PRICE SYNC & SIMULATION
  // 🛡️ UNIFIED RISK ENGINE: MANUAL BUY / AUTO EXIT
   useEffect(() => {
     if (isLoggedIn && data) {
