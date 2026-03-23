@@ -876,13 +876,13 @@ const speakStatus = () => {
           </thead>
           <tbody>
             {stockList.slice(0, 5).map((s, index) => {
-              const bsi = (65 + index * 3.5).toFixed(1);
+              const bsi = (43 + index * 3.5).toFixed(1);
               const vol = (18 + index * 6).toFixed(1);
               const sharpe = (2.1 - index * 0.15).toFixed(2);
               return (
                 <tr key={s.symbol} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
                   <td style={{ padding: '15px', color: '#fff', fontWeight: 'bold' }}>{s.symbol}</td>
-                  <td style={{ color: bsi > 70 ? '#10b981' : '#fff' }}>{bsi}%</td>
+                  <td style={{ color: bsi > 50 ? '#10b981' : '#fff' }}>{bsi}%</td>
                   <td style={{ color: vol > 35 ? '#ef4444' : '#fff' }}>{vol}%</td>
                   <td style={{ color: '#00f2fe' }}>{sharpe}</td>
                   <td>
@@ -1059,8 +1059,8 @@ const speakStatus = () => {
     <h2 style={{ 
       margin: '5px 0',
       color: 
-        parseFloat(data?.bsi_score) >= 70 ? '#10b981' : 
-        parseFloat(data?.bsi_score) >= 50 ? '#fbbf24' : 
+        parseFloat(data?.bsi_score) >= 50 ? '#10b981' : 
+        parseFloat(data?.bsi_score) >= 40 ? '#fbbf24' : 
         '#ef4444' 
     }}>
       {data?.bsi_score ? parseFloat(data.bsi_score).toFixed(1) + '%' : '0.0%'}
@@ -1075,21 +1075,21 @@ const speakStatus = () => {
       fontWeight: 'bold',
       background: 'rgba(255,255,255,0.05)',
       color: 
-        parseFloat(data?.bsi_score) >= 70 ? '#10b981' : 
-        parseFloat(data?.bsi_score) >= 50 ? '#fbbf24' : 
+        parseFloat(data?.bsi_score) >= 50 ? '#10b981' : 
+        parseFloat(data?.bsi_score) >= 40 ? '#fbbf24' : 
         '#ef4444' 
     }}>
       {
-        parseFloat(data?.bsi_score) >= 70 ? '🟢 STRONG BUY' : 
-        parseFloat(data?.bsi_score) >= 50 ? '🟡 NEUTRAL HOLD' : 
+        parseFloat(data?.bsi_score) >= 50 ? '🟢 STRONG BUY' : 
+        parseFloat(data?.bsi_score) >= 40 ? '🟡 NEUTRAL HOLD' : 
         '🔴 AVOID BUYING'
       }
     </div>
 
     <div style={{ fontSize: '11px', color: '#fff', marginTop: '10px', padding: '10px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
       <b>Verdict:</b> {
-        parseFloat(data?.bsi_score) >= 70 ? 'Quantum Engine confirms bullish breakout.' : 
-        parseFloat(data?.bsi_score) >= 50 ? 'Market consolidation detected. Wait for signal.' : 
+        parseFloat(data?.bsi_score) >= 50 ? 'Quantum Engine confirms bullish breakout.' : 
+        parseFloat(data?.bsi_score) >= 40 ? 'Market consolidation detected. Wait for signal.' : 
         'High risk zone. Probability of loss is significant.'
       }
     </div>
