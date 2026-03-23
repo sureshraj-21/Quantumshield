@@ -319,26 +319,26 @@ const speakStatus = () => {
   const handleLogin = async (e) => {
     if (e) e.preventDefault();
     setLoading(true); 
-
     try {
       const endpoint = isRegisterMode ? 'signup' : 'login';
-      const res = await axios.post("https://quantumshield-3b12.onrender.com/auth/" + endpoint, authData);
+      const res = await axios.post(`https://quantumshield-3b12.onrender.com/auth/${endpoint}`, authData);
       
-      if (res.data && res.data.access_token) {
-        const loginName = res.data.username || authData.username;
-        setDisplayName(loginName);
-        localStorage.setItem("userDisplayName", loginName);
-        
-        // 🚀 WHATSAPP NOTIFICATION TRIGGER (Fixed)
-        sendSilentAlert(`🛡️ *QuantumShield Login Alert*%0AUser: ${loginName}%0AStatus: Terminal Access Granted.`);
+      if (res.data) {
+        // 🚀 USERNAME SYNC: Login panna name-ai global state-kku ethurom
+        const typedUsername = authData.username.trim();
+        setDisplayName(typedUsername);
+        localStorage.setItem("userDisplayName", typedUsername);
 
         setIsLoggedIn(true);
+
+        // 🛡️ WHATSAPP NOTIFICATION
+        sendSilentAlert(`🔐 ${isRegisterMode ? "NEW USER" : "LOGIN"}: ${typedUsername} accessed the terminal.`);
       }
-      setLoading(false); // ✅ Loading-ai off panna marakkaadhiga
     } catch (err) {
+      alert(isRegisterMode ? "Registration Error!" : "Invalid Credentials!");
+    } finally {
       setLoading(false);
-      alert("Terminal Access Denied!");
-    }  
+    }
   };
 
   const liveGraphData = {
