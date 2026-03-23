@@ -30,7 +30,7 @@ function App() {
   const [isAlertEnabled, setIsAlertEnabled] = useState(true);
   const [investment, setInvestment] = useState(10000);
   const [mcResult, setMcResult] = useState(null);
-  
+  const [simulationData, setSimulationData] = useState(null);
 
   // ⚙️ SETTINGS & NOTIFICATION STATES (FIXED: All variables defined correctly)
   const [isGhostHedgeActive, setIsGhostHedgeActive] = useState(true);
@@ -94,52 +94,49 @@ function App() {
   
 
   const runMonteCarlo = () => {
-  setMcResult(null); 
-  setLoading(true);
+    if (!data) return;
+    setMcResult(null);
+    setLoading(true);
+    setTimeout(() => {
+      // Backend data values
+      const bsiVal = parseFloat(data.bsi_score); 
+      const volVal = parseFloat(data.volatility);
+      
+      // Simulation calculation: Profit and Loss
+      let projectedProfit = investment * (bsiVal / 100) * 1.3; // 30% upside simulation
+      let projectedLoss = investment * (volVal / 100) * 0.6;
+      
+      let verdict = "";
+      let color = "";
 
-  const basePrice = data?.current_price || 1500;
-  const bsi = parseFloat(data?.bsi_score) || 0;
+      // 🎯 DEMO MODE LOGIC: Easily triggers "MUST BUY"
+      
+      // 1. MUST BUY: BSI 50% mela irundhaale (Majority of stocks)
+      if (bsiVal >= 50 && volVal < 50) {
+        verdict = "BUY ";
+        color = "#10b981"; // Green
+      } 
+      // 2. AVOID: High Volatility stocks (e.g., > 60%)
+      else if (volVal >= 60 || bsiVal < 35) {
+        verdict = "AVOID";
+        color = "#ef4444"; // Red
+      } 
+      // 3. HOLD: For everything else
+      else {
+        verdict = "HOLD";
+        color = "#f59e0b"; // Orange
+      }
 
-  // 🎯 STRICT FORCE LOGIC: BSI 40 mela ponaale 50%+ Green-ku thallura maadhiri fix
-  let finalProb = 31.4; 
-
-  if (bsi >= 40) {
-    // 🟢 Green Range: 50% to 58% range
-    finalProb = (50.5 + Math.random() * 8).toFixed(1); 
-  } else if (bsi >= 30) {
-    // 🟡 Yellow Range: 40% to 48% range
-    finalProb = (40.2 + Math.random() * 8).toFixed(1); 
-  } else {
-    // 🔴 Red Range: 30% to 38% range
-    finalProb = (30.1 + Math.random() * 8).toFixed(1); 
-  }
-  
-  const generatePath = (type) => {
-    let path = [basePrice];
-    for (let i = 1; i < 10; i++) {
-      const change = type === 'up' ? (Math.random() * 5) : type === 'down' ? -(Math.random() * 5) : (Math.random() * 4 - 2);
-      path.push(parseFloat((path[i - 1] + change).toFixed(2)));
-    }
-    return path;
-  };
-
-  setTimeout(() => {
-    setSimulationData({
-      optimistic: generatePath('up'),
-      expected: generatePath('neutral'),
-      pessimistic: generatePath('down')
-    });
-
-    setMcResult({
-      probability: finalProb, 
-      // 🎨 Exact color matching your new 50-40-30 rule
-      color: finalProb >= 50 ? '#10b981' : finalProb >= 40 ? '#fbbf24' : '#ef4444',
-      verdict: finalProb >= 50 ? "STRONG BUY" : finalProb >= 40 ? "NEUTRAL HOLD" : "AVOID BUYING"
-    });
-
-    setLoading(false);
-  }, 1000);
-}; // 🟢 LIVE SIMULATION: AUTO-SELL ONLY (₹10 GAP)// 🟢 FIXED: PRICE SYNC & SIMULATION
+      setMcResult({
+        profit: projectedProfit.toFixed(2),
+        loss: projectedLoss.toFixed(2),
+        verdict: verdict,
+        color: color,
+        ghostHedgeStatus: volVal > 30 ? "ACTIVE (Shielding Capital)" : "STANDBY"
+      });
+      setLoading(false);
+    }, 1000);
+  }; // 🟢 LIVE SIMULATION: AUTO-SELL ONLY (₹10 GAP)// 🟢 FIXED: PRICE SYNC & SIMULATION
  // 🛡️ UNIFIED RISK ENGINE: MANUAL BUY / AUTO EXIT
   useEffect(() => {
     if (isLoggedIn && data) {
