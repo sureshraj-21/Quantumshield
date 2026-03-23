@@ -1027,7 +1027,7 @@ const speakStatus = () => {
       
       {/* 👤 PROFILE & ACCOUNT CARD (Working Status) */}
       <div style={{ background: '#1e293b', padding: '25px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
-        <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(45deg, #00f2fe, #4facfe)', margin: '0 auto 15px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '30px', fontWeight: 'bold', color: '#0a0e17', boxShadow: '0 0 20px rgba(0,242,254,0.3)' }}>S</div>
+        <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(45deg, #00f2fe, #4facfe)', margin: '0 auto 15px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '30px', fontWeight: 'bold', color: '#0a0e17', boxShadow: '0 0 20px rgba(0,242,254,0.3)' }}> </div>
         <h3 style={{ margin: '10px 0 5px 0', color: '#f8fafc' }}>{displayName || authData.username || "Guest"}</h3>
         <p style={{ color: '#94a3b8', fontSize: '12px' }}>System Administrator</p>
         <div style={{ marginTop: '20px', padding: '8px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', borderRadius: '10px', fontSize: '10px', fontWeight: 'bold', border: '1px solid rgba(16, 185, 129, 0.2)' }}>ACCOUNT VERIFIED ✅</div>
