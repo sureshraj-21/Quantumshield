@@ -157,52 +157,50 @@ function App() {
     }, 1000);
   }; // 🟢 LIVE SIMULATION: AUTO-SELL ONLY (₹10 GAP)// 🟢 FIXED: PRICE SYNC & SIMULATION
  // 🛡️ UNIFIED RISK ENGINE: MANUAL BUY / AUTO EXIT
-  useEffect(() => {
-    if (isLoggedIn && data) {
-      // 🚀 Sync initial price when stock changes
-      setLivePrice(data.current_price);
-      setPriceHistory([data.current_price]);
-
-      const interval = setInterval(() => {
+  const interval = setInterval(() => {
         setLivePrice(prevPrice => {
-          // Fluctuations
           const fluctuation = (Math.random() - 0.5) * 4.0; 
           const newPrice = prevPrice + fluctuation;
 
-          // 🎯 AUTO-SELL CHECK
+          // 🎯 AUTO-SELL CHECK (Fixed for Wallet Update)
           if (isAutoExecutionActive) {
-            Object.keys(holdings).forEach(symbol => {
-              if (symbol === data.symbol) {
-                const holding = holdings[symbol];
-                if (holding && holding.qty > 0) {
-                  const buyPrice = holding.avgPrice;
-                  
-                  // 🔥 NEENGA KEKURA THRESHOLDS (4.5 for Profit, 10.0 for Loss)
-                  const targetPrice = buyPrice + 4.5;   
-                  const stopLossPrice = buyPrice - 10.0; 
+            const symbol = data.symbol;
+            const holding = holdings[symbol];
 
-                  if (newPrice >= targetPrice || newPrice <= stopLossPrice) {
-                    clearInterval(interval); // Multi-sell glitch-a thadukka
-                    
-                    executeTrade("SELL", true); // Auto-sell trigger
-                    
-                    const status = newPrice >= targetPrice ? "PROFIT ✅ (+₹4.5)" : "STOP-LOSS 🛡️ (-₹4.5)";
-                    const alertMsg = `🚨 QuantShield AUTO-SELL\nStock: ${symbol}\nStatus: ${status}\nExit Price: ₹${newPrice.toFixed(2)}`;
-                    
-                    sendSilentAlert(alertMsg); // Notification trigger
-                  }
-                }
+            if (holding && holding.qty > 0) {
+              const buyPrice = holding.avgPrice;
+              const targetPrice = buyPrice + 4.5;   
+              const stopLossPrice = buyPrice - 10.0; 
+
+              if (newPrice >= targetPrice || newPrice <= stopLossPrice) {
+                // 🛑 Multi-sell glitch-ai thadukka interval-ai stop panrom
+                clearInterval(interval); 
+
+                // 💰 WALLET-LA KAASHU YETHURA LOGIC (Direct Update)
+                const saleAmount = newPrice * holding.qty;
+                setWallet(prevWallet => prevWallet + saleAmount);
+
+                // 📉 HOLDINGS-AI CLEAR PANRA LOGIC
+                setHoldings(prevHoldings => {
+                  const updated = { ...prevHoldings };
+                  delete updated[symbol];
+                  return updated;
+                });
+
+                // 🔔 NOTIFICATION
+                const isProfit = newPrice >= targetPrice;
+                const status = isProfit ? "PROFIT ✅ (+₹4.5)" : "STOP-LOSS 🛡️ (-₹10.0)";
+                const alertMsg = `🚨 QuantShield AUTO-SELL\nStock: ${symbol}\nStatus: ${status}\nExit Price: ₹${newPrice.toFixed(2)}`;
+                
+                sendSilentAlert(alertMsg);
               }
-            });
+            }
           }
 
           setPriceHistory(history => [...history, newPrice].slice(-20));
           return newPrice;
         });
       }, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [data, isLoggedIn, isAutoExecutionActive, holdings]);
 
   // 🤖 AI AUTO TRIGGER (SILENT)
   // 🛑 AI DECISION-A MONITOR PANRA CODE-A DELETE PANNIDUNGA
