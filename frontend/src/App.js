@@ -316,26 +316,30 @@ const speakStatus = () => {
   setMcResult(null); // 👈 Idhu dhaan mukkkiyam! Reset panna dhaan thirumba run aagum.
   setSimulationData(null);
 };
-  const handleLogin = async (e) => {
+ const handleLogin = async (e) => {
     if (e) e.preventDefault();
     setLoading(true); 
+
     try {
       const endpoint = isRegisterMode ? 'signup' : 'login';
       const res = await axios.post(`https://quantumshield-3b12.onrender.com/auth/${endpoint}`, authData);
       
       if (res.data) {
-        // 🚀 USERNAME SYNC: Login panna name-ai global state-kku ethurom
+        // 🚀 USERNAME SYNC: Name-ai global-ah set pannuvom
         const typedUsername = authData.username.trim();
         setDisplayName(typedUsername);
         localStorage.setItem("userDisplayName", typedUsername);
 
+        // ✅ SWITCH TO DASHBOARD
         setIsLoggedIn(true);
 
-        // 🛡️ WHATSAPP NOTIFICATION
-        sendSilentAlert(`🔐 ${isRegisterMode ? "NEW USER" : "LOGIN"}: ${typedUsername} accessed the terminal.`);
+        // 🛡️ WHATSAPP ALERT: Login success aana udane trigger aagum
+        const msg = `🔐 *QuantShield Access Alert*%0AUser: *${typedUsername}*%0AStatus: Terminal Access Granted.%0AMode: ${isRegisterMode ? "Registration" : "Existing User"}`;
+        sendSilentAlert(msg);
       }
     } catch (err) {
-      alert(isRegisterMode ? "Registration Error!" : "Invalid Credentials!");
+      console.error("Login Fail:", err);
+      alert(isRegisterMode ? "Registration Error! Username already taken." : "Invalid Credentials! Access Denied.");
     } finally {
       setLoading(false);
     }
@@ -409,7 +413,8 @@ if (!isLoggedIn) {
               />
               
               <button 
-                type="submit" // 🚀 Change to submit to trigger handleLogin
+                type="submit"
+                onClick={handleLogin} // 🚀 Change to submit to trigger handleLogin
                 disabled={loading}
                 style={{ 
                   width: '100%', 
