@@ -109,19 +109,19 @@ function App() {
       // 🎯 FIXED RANGES LOGIC
       // 1. MUST BUY (Green) - BSI 40 mela irundhale 50% range
       if (bsiVal >= 40) {
-        finalProb = (51.5 + Math.random() * 7).toFixed(1); // 51% to 58%
+        finalProb = (43.5 + Math.random() * 7).toFixed(1); // 51% to 58%
         verdict = "STRONG BUY";
         color = "#10b981"; // Green
       } 
       // 2. HOLD (Yellow) - BSI 30 to 40 kulla irundha 40% range
       else if (bsiVal >= 30) {
-        finalProb = (41.2 + Math.random() * 6).toFixed(1); // 41% to 47%
+        finalProb = (33.2 + Math.random() * 6).toFixed(1); // 41% to 47%
         verdict = "NEUTRAL HOLD";
         color = "#fbbf24"; // Yellow/Orange
       } 
       // 3. AVOID (Red) - BSI 30 kukkulla pona 30% range
       else {
-        finalProb = (31.4 + Math.random() * 6).toFixed(1); // 31% to 37%
+        finalProb = (23.4 + Math.random() * 6).toFixed(1); // 31% to 37%
         verdict = "AVOID BUYING";
         color = "#ef4444"; // Red
       }
@@ -294,7 +294,11 @@ const speakStatus = () => {
     msg.rate = 0.9; 
     window.speechSynthesis.speak(msg);
   };
- 
+  const handleStockChange = (newStock) => {
+  setSelectedStock(newStock);
+  setMcResult(null); // 👈 Idhu dhaan mukkkiyam! Reset panna dhaan thirumba run aagum.
+  setSimulationData(null);
+};
   const handleLogin = async (e) => {
     if (e) e.preventDefault();
     setLoading(true); // 🟢 Idhu blank screen varaama thadukkum
