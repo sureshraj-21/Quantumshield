@@ -12,16 +12,13 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarEleme
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [authData, setAuthData] = useState({ username: '', password: '' });
   const [isRegisterMode, setIsRegisterMode] = useState(false);
-  const [displayName, setDisplayName] = useState("");
-
-  // 🛰️ NAVIGATION & DATA
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [data, setData] = useState(null);
   const [selectedStock, setSelectedStock] = useState("HDFCBANK.NS");
   const [loading, setLoading] = useState(false);
-  const [isVoiceMuted, setIsVoiceMuted] = useState(false);
+  const [authData, setAuthData] = useState({ username: '', password: '' });
+  const [isVoiceMuted, setIsVoiceMuted] = useState(false); // Default-ah Unmute-la irukkum
   
 
   // 💰 CORE LOGIC STATES
@@ -29,6 +26,7 @@ function App() {
   const [holdings, setHoldings] = useState({}); 
   const [livePrice, setLivePrice] = useState(0); 
   const [priceHistory, setPriceHistory] = useState([]); 
+  const prevDecisionRef = useRef(null);
   // 🎲 MONTE CARLO STATES
   const [investment, setInvestment] = useState(10000); // Default ₹10,000
   const [mcResult, setMcResult] = useState(null);
@@ -49,22 +47,20 @@ function App() {
   // ✅ Fixed the sendSilentAlert function
   // 🚀 PRIMARY NOTIFICATION: WHATSAPP ONLY (+919962126306)
   const sendSilentAlert = async (message) => {
-    // 1. Alerts enabled-ah nu check pannum
     if (!isAlertEnabled) return;
 
-    console.log("Dispatching QuantShield WhatsApp Alert...");
+    console.log("Dispatching WhatsApp Alert...");
 
     // 🟢 WhatsApp Alert (Background via FastAPI + Twilio)
     try {
-        // Fix: Backend-la "msg" key dhaan use pannirukkom, adhai sariyaaga anuppuvom
+        // Localhost-ai thookittu Render URL-ai podunga
         await axios.post('https://quantumshield-3b12.onrender.com/api/send-notification', {
-            msg: message, // Inga dhaan login user name-oda message varum
-            phone: "+919962126306" // Unga direct number fix aayiduchu
+            msg: message,
+            phone: MY_PHONE // Unga number: +919962126306
         });
-        
-        console.log("✅ WhatsApp Notification Sent Successfully!");
+        console.log("WhatsApp Notification Sent Successfully!");
     } catch (error) {
-        console.error("❌ WhatsApp delivery failed. Render/FastAPI check pannunga.", error);
+        console.error("WhatsApp delivery failed. Check if Render/FastAPI is active.", error);
     }
     // 🛑 Telegram logic removed as per your request.
   };
@@ -133,14 +129,6 @@ function App() {
     }, 1000);
   }; // 🟢 LIVE SIMULATION: AUTO-SELL ONLY (₹10 GAP)// 🟢 FIXED: PRICE SYNC & SIMULATION
  // 🛡️ UNIFIED RISK ENGINE: MANUAL BUY / AUTO EXIT
- useEffect(() => {
-    if (localStorage.getItem("userDisplayName")) setIsLoggedIn(true);
-  }, []);
-
-  useEffect(() => {
-    if (isLoggedIn) fetchData(selectedStock);
-  }, [selectedStock, isLoggedIn]);
-
   useEffect(() => {
     if (isLoggedIn && data) {
       // 🚀 Sync initial price when stock changes
@@ -288,28 +276,12 @@ const speakStatus = () => {
     msg.rate = 0.9; 
     window.speechSynthesis.speak(msg);
   };
-const handleLogin = async (e) => {
-  if (e) e.preventDefault();
-  setLoading(true); // 🟢 Prevents blank screen by showing "Syncing..."
-  try {
-    // Use the exact Backend URL from your successful deployment
-    const res = await axios.post("https://quantumshield-3b12.onrender.com/auth/login", authData);
+  const handleAuth = async () => {
+    if(authData.username && authData.password) setIsLoggedIn(true);
+    else alert("Please enter credentials");
+  };
 
-    if (res.data && res.data.access_token) {
-      const nameFromDB = res.data.username || authData.username;
-      
-      setDisplayName(nameFromDB); 
-      localStorage.setItem("userDisplayName", nameFromDB);
-      
-      setIsLoggedIn(true); // 🟢 Switches to Dashboard
-      sendSilentAlert(`🔐 ACCESS: ${nameFromDB} entered the terminal.`);
-    }
-  } catch (err) {
-    setLoading(false); // 🟢 Stops the loading screen on error
-    alert("Invalid Credentials! Please check your terminal login.");
-  }
-};
-    const liveGraphData = {
+  const liveGraphData = {
     labels: priceHistory.map((_, i) => `${i}s`),
     datasets: [{ label: `Live Trend (₹)`, data: priceHistory, borderColor: '#00f2fe', backgroundColor: 'rgba(79, 172, 254, 0.1)', fill: true, tension: 0.4, pointRadius: 0 }]
   };
@@ -320,10 +292,10 @@ const handleLogin = async (e) => {
   };
 
  
-if (!isLoggedIn) {
+  if (!isLoggedIn) {
     return (
       <div style={{ 
-        backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url('https://i.ibb.co/XfXkY8C/rm373batch4-07.jpg')`, 
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://i.ibb.co/XfXkY8C/rm373batch4-07.jpg')`, 
         backgroundSize: 'cover', 
         backgroundPosition: 'center', 
         height: '100vh', 
@@ -333,73 +305,66 @@ if (!isLoggedIn) {
         fontFamily: "'Poppins', sans-serif" 
       }}>
         <div style={{ 
-          background: 'rgba(255, 255, 255, 0.03)', 
-          backdropFilter: 'blur(20px)', 
+          background: 'rgba(255, 255, 255, 0.1)', 
+          backdropFilter: 'blur(15px)', 
           padding: '50px', 
           borderRadius: '30px', 
-          width: '900px', 
+          width: '950px', 
           display: 'flex', 
           gap: '40px', 
           color: 'white', 
-          border: '1px solid rgba(255,255,255,0.1)',
-          boxShadow: '0 25px 50px rgba(0,0,0,0.5)'
+          border: '1px solid rgba(255,255,255,0.2)',
+          boxShadow: '0 25px 50px rgba(0,0,0,0.3)'
         }}>
           {/* Left Side: Branding */}
           <div style={{ flex: 1.2, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-             <h1 style={{ fontSize: '52px', fontWeight: '900', color: '#00f2fe', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '2px' }}>QuantShield</h1>
-             <p style={{ fontSize: '16px', opacity: 0.7, lineHeight: '1.6' }}>
-               Quantum-Driven Financial Portfolio Optimization and Risk Forecasting System. 
-               <br/><span style={{ color: '#10b981', fontWeight: 'bold' }}>🛡️ Secured Terminal Active</span>
+             <h1 style={{ fontSize: '56px', fontWeight: '900', color: '#00f2fe', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '2px' }}>QuantShield</h1>
+             <p style={{ fontSize: '18px', opacity: 0.8, lineHeight: '1.6' }}>
+               Advanced AI-Driven Portfolio Optimization and Risk Forecasting System. 
+               <br/><span style={{ color: '#10b981', fontWeight: 'bold' }}>🛡️ Ghost Hedge Technology Active</span>
              </p>
           </div>
 
           {/* Right Side: Auth Form */}
           <div style={{ flex: 0.8, background: 'rgba(0, 0, 0, 0.4)', padding: '40px', borderRadius: '25px', border: '1px solid rgba(255,255,255,0.1)' }}>
-            <h2 style={{ marginBottom: '25px', letterSpacing: '1px', fontSize: '20px' }}>{isRegisterMode ? "CREATE ACCOUNT" : "SYSTEM LOGIN"}</h2>
+            <h2 style={{ marginBottom: '25px', letterSpacing: '1px' }}>{isRegisterMode ? "REGISTER" : "LOGIN"}</h2>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              <input 
-                type="text" 
-                placeholder="USERNAME" 
-                // 🟢 State sync panni irukkaen, so blank-ah irukkaadhu
-                value={authData.username}
-                onChange={(e) => setAuthData({...authData, username: e.target.value})} 
-                style={{ width: '100%', padding: '14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', borderRadius: '12px', outline: 'none' }} 
-              />
-              <input 
-                type="password" 
-                placeholder="PASSWORD" 
-                value={authData.password}
-                onChange={(e) => setAuthData({...authData, password: e.target.value})} 
-                style={{ width: '100%', padding: '14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', borderRadius: '12px', outline: 'none' }} 
-              />
-              
-              <button 
-                onClick={async () => {
-                  const endpoint = isRegisterMode ? 'signup' : 'login';
-                  try {
-                    const res = await axios.post(`https://quantumshield-3b12.onrender.com/auth/${endpoint}`, authData);
-                    if (res.data) {
-                      // 🟢 Login user-oda name-ai fetch pannuvom
-                      const loginName = res.data.username || authData.username;
-                      setDisplayName(loginName);
-                      localStorage.setItem("userDisplayName", loginName);
-                      setIsLoggedIn(true);
-                      sendSilentAlert(`🔐 ACCESS: ${loginName} has accessed the terminal.`);
-                    }
-                  } catch (err) {
-                    alert(isRegisterMode ? "Username already exists!" : "Invalid Credentials!");
-                  }
-                }} 
-                style={{ width: '100%', padding: '16px', marginTop: '10px', background: 'linear-gradient(90deg, #00f2fe, #4facfe)', color: '#0f172a', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer' }}
-              >
-                {isRegisterMode ? "REGISTER" : "AUTHORIZE"}
-              </button>
-            </div>
+            <input 
+              type="text" 
+              placeholder="USERNAME" 
+              onChange={(e) => setAuthData({...authData, username: e.target.value})} 
+              style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', borderRadius: '12px', outline: 'none' }} 
+            />
+            <input 
+              type="password" 
+              placeholder="PASSWORD" 
+              onChange={(e) => setAuthData({...authData, password: e.target.value})} 
+              style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', borderRadius: '12px', outline: 'none' }} 
+            />
+            
+            <button 
+              onClick={async () => {
+                const endpoint = isRegisterMode ? 'signup' : 'login';
+                try {
+          // Localhost-ai thookittu Render Production URL-ai podunga
+          const res = await axios.post(`https://quantumshield-3b12.onrender.com/auth/${endpoint}`, authData);
+          
+          if (res.data) {
+            setIsLoggedIn(true);
+            sendSilentAlert(`🔐 ${isRegisterMode ? "NEW USER" : "LOGIN"}: ${authData.username} has accessed the terminal.`);
+          }
+                } catch (err) {
+                  alert(isRegisterMode ? "Registration Error! Username might exist." : "Invalid Credentials!");
+                }
+              }} 
+              style={{ width: '100%', padding: '16px', marginTop: '15px', background: 'linear-gradient(90deg, #00f2fe, #4facfe)', color: '#002f35', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', transition: '0.3s' }}
+            >
+              {isRegisterMode ? "CREATE ACCOUNT" : "SIGN IN"}
+            </button>
 
             {/* Toggle Link */}
-            <div style={{ marginTop: '25px', textAlign: 'center', fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>
-              {isRegisterMode ? "Already have access?" : "Request new terminal?"} 
+            <div style={{ marginTop: '25px', textAlign: 'center', fontSize: '14px', color: 'rgba(255,255,255,0.6)' }}>
+              {isRegisterMode ? "Already a Quant?" : "New to the system?"} 
               <span 
                 onClick={() => setIsRegisterMode(!isRegisterMode)} 
                 style={{ color: '#00f2fe', cursor: 'pointer', marginLeft: '8px', fontWeight: 'bold', textDecoration: 'underline' }}
@@ -412,216 +377,144 @@ if (!isLoggedIn) {
       </div>
     );
   }
-  if (loading && !data) {
-    return (
-      <div style={{ 
-        height: '100vh', 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        background: '#0f172a', 
-        color: '#00f2fe', 
-        flexDirection: 'column',
-        fontFamily: "'Poppins', sans-serif"
-      }}>
-        <h1 style={{ fontSize: '30px', fontWeight: 'bold', letterSpacing: '2px' }}>🛡️ QUANT SHIELD</h1>
-        <p style={{ color: '#94a3b8', marginTop: '10px' }}>Syncing Quantum Terminal...</p>
-        <div style={{ marginTop: '20px', width: '50px', height: '50px', border: '3px solid rgba(0,242,254,0.1)', borderTop: '3px solid #00f2fe', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
-      </div>
-    );
-  }
-  
-  // 🔵 MAIN DASHBOARD RENDER
-  return (
-    <div
-      style={{
-        display: window.innerWidth < 900 ? "block" : "flex",
-        backgroundColor: "#f4f7fe",
-        minHeight: "100vh",
-        width: "100%",
-        overflowX: "hidden",
-        fontFamily: "'Jakarta Sans', sans-serif"
-      }}
-    >
-      {/* 🟢 SIDEBAR */}
-      <div
-        style={{
-          width: window.innerWidth < 900 ? "100%" : "260px",
-          background: "#1e293b",
-          padding: window.innerWidth < 900 ? "10px" : "40px 20px",
-          position: window.innerWidth < 900 ? "relative" : "fixed",
-          height: window.innerWidth < 900 ? "auto" : "100vh",
-          zIndex: 10,
-          display: "flex",
-          flexDirection: window.innerWidth < 900 ? "row" : "column",
-          gap: "10px",
-          borderRight: "1px solid rgba(255,255,255,0.05)",
-          overflowX: window.innerWidth < 900 ? "auto" : "hidden"
-        }}
-      >
-        <h2 style={{ color: "#00f2fe", fontWeight: "900", marginBottom: "20px", fontSize: "22px", paddingLeft: "10px", whiteSpace: "nowrap" }}>
-          🛡️ QuantShield
-        </h2>
 
-        {["Dashboard", "Analytics", "Stocks", "Monte Carlo", "Settings"].map((tab) => (
-          <div
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            style={{
-              background: activeTab === tab ? "rgba(0,242,254,0.15)" : "transparent",
-              color: activeTab === tab ? "#00f2fe" : "#94a3b8",
-              padding: "12px 16px",
-              borderRadius: "12px",
-              fontWeight: "600",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              borderLeft: activeTab === tab ? "4px solid #00f2fe" : "4px solid transparent",
-              whiteSpace: "nowrap"
-            }}
-          >
-            {tab === "Dashboard" ? "📊" : tab === "Analytics" ? "📈" : tab === "Stocks" ? "💹" : tab === "Monte Carlo" ? "🎲" : "⚙️"} 
-            {window.innerWidth > 900 && tab}
+  return (
+    <div style={{ display: 'flex', backgroundColor: '#f4f7fe', minHeight: '100vh', fontFamily: "'Jakarta Sans', sans-serif" }}>
+      
+      {/* 🟢 SIDEBAR */}
+      <div style={{ 
+        width: '280px', background: '#1e293b', padding: '40px 20px', position: 'fixed', 
+        height: '100vh', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '10px', borderRight: '1px solid rgba(255,255,255,0.05)' 
+      }}>
+        <h2 style={{ color: '#00f2fe', fontWeight: '900', marginBottom: '40px', fontSize: '24px', paddingLeft: '15px' }}>🛡️ QuantShield</h2>
+        {["Dashboard", "Analytics", "Stocks", "Monte Carlo","Settings"].map(tab => (
+          <div key={tab} onClick={() => setActiveTab(tab)} style={{ 
+            background: activeTab === tab ? 'rgba(0, 242, 254, 0.15)' : 'transparent', 
+            color: activeTab === tab ? '#00f2fe' : '#94a3b8', padding: '16px 20px', borderRadius: '12px', 
+            fontWeight: '600', cursor: 'pointer', transition: '0.3s all ease', display: 'flex', alignItems: 'center', gap: '12px',
+            borderLeft: activeTab === tab ? '4px solid #00f2fe' : '4px solid transparent'
+          }}>
+             {tab === "Dashboard" ? "📊 " : tab === "Analytics" ? "📈 " : tab === "Stocks" ? "💹 " :tab === "Monte Carlo" ? "🎲 " : "⚙️ "}{tab}
           </div>
         ))}
-
-        <div
-          onClick={() => { localStorage.clear(); window.location.reload(); }}
-          style={{ marginTop: "auto", color: "#f85149", fontWeight: "bold", cursor: "pointer", padding: "12px", borderRadius: "10px", textAlign: "center", background: "rgba(248,81,73,0.05)" }}
-        >
-          🔒 Logout
-        </div>
+        <div style={{ 
+          position: 'absolute', bottom: '30px', left: '20px', right: '20px', color: '#f85149', fontWeight: 'bold', 
+          cursor: 'pointer', padding: '15px', borderRadius: '10px', textAlign: 'center', background: 'rgba(248, 81, 73, 0.05)' 
+        }} onClick={() => setIsLoggedIn(false)}>🔒 Logout</div>
       </div>
 
       {/* 🔵 MAIN CONTENT AREA */}
-      <div
-        style={{
-          marginLeft: window.innerWidth < 900 ? "0" : "260px",
-          width: window.innerWidth < 900 ? "100%" : "calc(100% - 260px)",
-          padding: window.innerWidth < 900 ? "15px" : "40px 50px",
-          boxSizing: "border-box",
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column"
-        }}
-      >
-        {/* HEADER SECTION */}
-        <div style={{ display: "flex", flexDirection: window.innerWidth < 900 ? "column" : "row", justifyContent: "space-between", alignItems: window.innerWidth < 900 ? "flex-start" : "center", gap: "15px", marginBottom: "30px" }}>
+      <div style={{ flex: 1, padding: '40px 50px', marginLeft: '280px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
           <div>
-            <h1 style={{ fontSize: window.innerWidth < 900 ? "22px" : "32px", fontWeight: "900", margin: 0, color: "#1e293b" }}>
-              {activeTab} Overview
-            </h1>
-            <p style={{ color: "#64748b", fontSize: "14px", marginTop: "5px" }}>Market Sync: Active (1s)</p>
+            <h1 style={{ fontSize: '32px', fontWeight: '900', margin: 0, paddingLeft: '20px' }}>{activeTab} Overview</h1>
+            <p style={{ paddingLeft: '20px', color: '#64748b', fontSize: '14px' }}>Market Sync: Active (1s)</p>
           </div>
-
-          <div style={{ display: "flex", flexDirection: window.innerWidth < 900 ? "column" : "row", gap: "10px", alignItems: "center", width: window.innerWidth < 900 ? "100%" : "auto" }}>
-            <div style={{ background: "#1e293b", padding: "12px 20px", borderRadius: "18px", border: "1px solid #28292a", width: window.innerWidth < 900 ? "100%" : "auto" }}>
-              <span style={{ fontSize: "13px", color: "white", fontWeight: "bold", display: "block" }}>ACCOUNT WALLET</span>
-              <b style={{ color: "#14df62", fontSize: "18px" }}>₹{wallet.toLocaleString()}</b>
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+            <div style={{ background: '#1e293b', padding: '12px 30px', borderRadius: '18px', border: '1px solid #28292a',  boxShadow: '0 4px 6px rgba(37, 211, 102, 0.05)' }}>
+              <span style={{ fontSize: '15px', color: 'white', fontWeight: 'bold', display: 'block' }}>ACCOUNT WALLET</span>
+              <b style={{ paddingLeft: '20px', color: '#14df62', fontSize: '18px' }}>₹{wallet.toLocaleString()}</b>
             </div>
+            {/* 📥 DOWNLOAD REPORT BUTTON FIXED */}
+            {activeTab === "Dashboard" && data && (
+              <button onClick={downloadReport} style={{ 
+                padding: '14px 28px', background: '#1e293b', color: 'white', borderRadius: '18px', 
+                border: 'none', fontWeight: 'bold', cursor: 'pointer' 
+              }}>📥 PDF Report</button>
+            )}
           </div>
         </div>
 
-        {/* Dynamic Tab Content Area */}
-        <div style={{ flex: 1 }}>
-           {activeTab === "Dashboard" && data && (
-             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px' }}>
-                <div style={{ background: 'white', padding: '20px', borderRadius: '15px', borderLeft: '6px solid #00f2fe' }}>
-                   <small style={{ color: '#64748b', fontWeight: 'bold' }}>QUANTUM SCORE</small>
-                   <h2 style={{ margin: '10px 0 0 0' }}>{data.bsi_score}%</h2>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', width: '100%' }}>
-  
-  {/* Card 1: Live Profit/Loss */}
-  <div style={{ background: 'white', padding: '20px', borderRadius: '15px', borderLeft: '6px solid #10b981', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-    <small style={{ color: '#64748b', fontWeight: 'bold', fontSize: '11px' }}>UNREALIZED P&L</small>
-    <h2 style={{ margin: '10px 0 0 0', color: calculatePnL() >= 0 ? "#10b981" : "#ef4444" }}>
-      ₹{calculatePnL().toFixed(2)}
-    </h2>
-  </div>
+       <div id="report-area">
+  {activeTab === "Dashboard" && data && (
+    <>
+     {/* 📋 ASSET SELECTOR BAR (Updated with Mute Toggle) */}
+<div style={{ 
+  background: '#1e293b', padding: '20px', borderRadius: '20px', marginBottom: '25px', 
+  display: 'flex', alignItems: 'center', gap: '15px', border: '1px solid rgba(0, 242, 254, 0.1)' 
+}}>
+  <label style={{ color: '#94a3b8', fontSize: '12px', fontWeight: 'bold' }}>CHOOSE STOCK:</label>
+  <select 
+    value={selectedStock} 
+    onChange={(e) => { setSelectedStock(e.target.value); fetchData(e.target.value); }}
+    style={{ background: '#0f172a', color: '#00f2fe', border: '1px solid #334155', padding: '10px', borderRadius: '10px', fontWeight: 'bold' }}
+  >
+    {stockList.map(s => <option key={s.symbol} value={s.symbol}>{s.name}</option>)}
+  </select>
 
-  {/* Card 2: Market Price */}
-  <div style={{ background: 'white', padding: '20px', borderRadius: '15px', borderLeft: '6px solid #3b82f6', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-    <small style={{ color: '#64748b', fontWeight: 'bold', fontSize: '11px' }}>MARKET PRICE</small>
-    <h2 style={{ margin: '10px 0 0 0', color: '#1e293b' }}>₹{livePrice.toFixed(2)}</h2>
-  </div>
-
-  {/* Card 3: Quantum Decision */}
-  <div style={{ background: 'white', padding: '20px', borderRadius: '15px', borderLeft: '6px solid #00f2fe', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-    <small style={{ color: '#64748b', fontWeight: 'bold', fontSize: '11px' }}>QUANTUM DECISION</small>
-    <h2 style={{ margin: '10px 0 0 0', color: data.decision === "BUY" ? "#10b981" : "#f59e0b" }}>
-      {data.decision}
-    </h2>
-  </div>
-
-  {/* Card 4: Ghost Hedge Status */}
-  <div style={{ background: 'white', padding: '20px', borderRadius: '15px', borderLeft: '6px solid #10b981', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-    <small style={{ color: '#64748b', fontWeight: 'bold', fontSize: '11px' }}>GHOST HEDGE</small>
-    <h2 style={{ margin: '10px 0 0 0', color: wallet < 95000 ? "#ef4444" : "#10b981" }}>
-      {wallet < 95000 ? "⚠️ FREEZE" : "🛡️ ACTIVE"}
-    </h2>
-  </div>
-
-</div>
-             </div>
-           )}
-        </div>
-      </div>
+  {/* 🔊 VOICE ASSISTANT & 🔇 MUTE TOGGLE */}
+  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '5px 12px', borderRadius: '15px' }}>
+    <button 
+      onClick={speakStatus} 
+      disabled={isVoiceMuted}
+      style={{ background: 'none', border: 'none', cursor: isVoiceMuted ? 'not-allowed' : 'pointer', fontSize: '18px', opacity: isVoiceMuted ? 0.3 : 1 }}
+    >
+      🔊
+    </button>
+    <div 
+      onClick={() => {
+        setIsVoiceMuted(!isVoiceMuted);
+        if(!isVoiceMuted) window.speechSynthesis.cancel(); // Mute pannuna udane satham nikanum
+      }}
+      style={{ 
+        width: '40px', height: '20px', background: isVoiceMuted ? '#ef4444' : '#10b981', 
+        borderRadius: '20px', position: 'relative', cursor: 'pointer', transition: '0.3s' 
+      }}
+    >
+      <div style={{ 
+        width: '16px', height: '16px', background: '#fff', borderRadius: '50%', 
+        position: 'absolute', top: '2px', left: isVoiceMuted ? '22px' : '2px', transition: '0.3s' 
+      }} />
     </div>
-  ); // 👈 Correct Closing
-} // 👈 End of App Function
+    <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 'bold' }}>{isVoiceMuted ? 'MUTED' : 'VOICE ON'}</span>
+  </div>
+
+  
 
 
-      {/* 🟢 REPORT AREA - ALIGNMENT FIXED */}
-      <div id="report-area" style={{ width: "100%" }}>
-        {activeTab === "Dashboard" && data && (
-          <div className="dashboard-content" style={{ display: "flex", flexDirection: "column", gap: "25px" }}>
-            
-            {/* 📋 ASSET SELECTOR BAR */}
-            <div style={{ background: '#1e293b', padding: '20px', borderRadius: '20px', display: 'flex', alignItems: 'center', flexWrap: "wrap", gap: '15px', border: '1px solid rgba(0, 242, 254, 0.1)' }}>
-              <label style={{ color: '#94a3b8', fontSize: '12px', fontWeight: 'bold' }}>CHOOSE STOCK:</label>
-              <select 
-                value={selectedStock} 
-                onChange={(e) => { setSelectedStock(e.target.value); fetchData(e.target.value); }}
-                style={{ background: '#0f172a', color: '#00f2fe', border: '1px solid #334155', padding: '10px', borderRadius: '10px', fontWeight: 'bold' }}
-              >
-                {stockList.map(s => <option key={s.symbol} value={s.symbol}>{s.name}</option>)}
-              </select>
-
-              {/* 🔊 VOICE ASSISTANT */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '5px 12px', borderRadius: '15px' }}>
-                <button onClick={speakStatus} disabled={isVoiceMuted} style={{ background: 'none', border: 'none', cursor: isVoiceMuted ? 'not-allowed' : 'pointer', fontSize: '18px', opacity: isVoiceMuted ? 0.3 : 1 }}>🔊</button>
-                <div 
-                  onClick={() => { setIsVoiceMuted(!isVoiceMuted); if(!isVoiceMuted) window.speechSynthesis.cancel(); }}
-                  style={{ width: '40px', height: '20px', background: isVoiceMuted ? '#ef4444' : '#10b981', borderRadius: '20px', position: 'relative', cursor: 'pointer', transition: '0.3s' }}
-                >
-                  <div style={{ width: '16px', height: '16px', background: '#fff', borderRadius: '50%', position: 'absolute', top: '2px', left: isVoiceMuted ? '22px' : '2px', transition: '0.3s' }} />
-                </div>
-                <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 'bold' }}>{isVoiceMuted ? 'MUTED' : 'VOICE ON'}</span>
-              </div>
-
-              <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ color: '#94a3b8', fontSize: '11px' }}>DECISION:</span>
-                <span style={{ color: data.decision === "BUY" ? "#10b981" : "#f59e0b", fontWeight: 'bold', fontSize: '11px', padding: '4px 10px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px' }}>
-                  {data.decision} RECOMMENDED
-                </span>
-              </div>
-            </div>
-
-            {/* 📊 MINI STAT CARDS - 4 COLUMNS FIXED */}
-            <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 900 ? '1fr 1fr' : 'repeat(4, 1fr)', gap: '15px' }}>
-              <MiniCard title="UNREALIZED P&L" value={`₹${calculatePnL().toFixed(2)}`} color={calculatePnL() >= 0 ? "#10b981" : "#ef4444"} />
-              <MiniCard title="MARKET PRICE" value={`₹${livePrice.toFixed(2)}`} color="#3b82f6" />
-              <MiniCard title="AI DECISION" value={data.decision} color={data.decision === "BUY" ? "#10b981" : "#f59e0b"} />
-              <MiniCard title="GHOST HEDGE" value={wallet < 95000 ? "⚠️ FREEZE" : "🛡️ ACTIVE"} color={wallet < 95000 ? "#ef4444" : "#10b981"} />
-            </div>
-
-          </div>
-        )}
+        {/* 🔊 AI VOICE ASSISTANT BUTTON (New Upgrade) */}
+        <button 
+          onClick={speakStatus} 
+          title="Listen to AI Analysis"
+          style={{ 
+            padding: '10px 15px', 
+            background: 'rgba(59, 130, 246, 0.2)', 
+            border: '1px solid #3b82f6', 
+            borderRadius: '12px', 
+            cursor: 'pointer', 
+            fontSize: '18px',
+            transition: '0.3s'
+          }}
+        >
+          🔊
+        </button>
+        
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ color: '#94a3b8', fontSize: '11px' }}>DECISION STATUS:</span>
+          <span style={{ 
+            color: data.decision === "BUY" ? "#10b981" : "#f59e0b", 
+            fontWeight: 'bold', 
+            fontSize: '11px',
+            padding: '4px 10px',
+            background: 'rgba(255,255,255,0.05)',
+            borderRadius: '6px'
+          }}>
+            {data.decision} RECOMMENDED
+          </span>
+        </div>
       </div>
-      
+
+      {/* 📊 MINI STAT CARDS (Now with 4 columns for Ghost Hedge) */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '40px' }}>
+        <MiniCard title="UNREALIZED P&L" value={`₹${calculatePnL().toFixed(2)}`} color={calculatePnL() >= 0 ? "#10b981" : "#ef4444"} />
+        <MiniCard title="MARKET PRICE" value={`₹${livePrice.toFixed(2)}`} color="#3b82f6" />
+        <MiniCard title="QUANTUM DECISION" value={data.decision} color={data.decision === "BUY" ? "#10b981" : "#f59e0b"} />
+        <MiniCard 
+          title="GHOST HEDGE STATUS" 
+          value={wallet < 95000 ? "⚠️ PROTECTIVE FREEZE" : "🛡️ ACTIVE"} 
+          color={wallet < 95000 ? "#ef4444" : "#10b981"} 
+        />
+      </div>
 
       {/* 🟢 COMPACT GAUGE & TRADE BOX */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '15px', marginBottom: '25px' }}>
@@ -723,7 +616,6 @@ if (!isLoggedIn) {
                       </button>
                     </td>
                   </tr>
-                
                 );
               })}
             </tbody>
@@ -732,7 +624,8 @@ if (!isLoggedIn) {
           <p style={{ textAlign: 'center', fontSize: '12px', color: '#64748b', margin: '20px 0' }}>No active trades in portfolio.</p>
         )}
       </div>
-    
+    </>
+  )}
         {activeTab === "Analytics" && (
     <div style={{ 
       animation: 'fadeIn 0.5s ease-in-out',
@@ -1089,14 +982,14 @@ if (!isLoggedIn) {
     </div>
   </div>
 )}
-    {activeTab === "Settings" && (<>
+    {activeTab === "Settings" && (
   <div style={{ animation: 'fadeIn 0.5s ease-in-out' }}>
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '20px' }}>
       
       {/* 👤 PROFILE & ACCOUNT CARD (Working Status) */}
       <div style={{ background: '#1e293b', padding: '25px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
         <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(45deg, #00f2fe, #4facfe)', margin: '0 auto 15px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '30px', fontWeight: 'bold', color: '#0a0e17', boxShadow: '0 0 20px rgba(0,242,254,0.3)' }}>S</div>
-        <h3 style={{ margin: '10px 0 5px 0', color: '#f8fafc' }}>{displayName || "User"}</h3>
+        <h3 style={{ margin: '10px 0 5px 0', color: '#f8fafc' }}>Suresh M</h3>
         <p style={{ color: '#94a3b8', fontSize: '12px' }}>System Administrator</p>
         <div style={{ marginTop: '20px', padding: '8px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', borderRadius: '10px', fontSize: '10px', fontWeight: 'bold', border: '1px solid rgba(16, 185, 129, 0.2)' }}>ACCOUNT VERIFIED ✅</div>
         
@@ -1202,12 +1095,12 @@ if (!isLoggedIn) {
       </div>
     </div>
   </div>
-  </>) }
-    
-  
-
-
-
+)}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function MiniCard({ title, value, color }) {
   return (
