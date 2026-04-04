@@ -316,29 +316,41 @@ const speakStatus = () => {
   setMcResult(null); // 👈 Idhu dhaan mukkkiyam! Reset panna dhaan thirumba run aagum.
   setSimulationData(null);
 };
- const handleLogin = async (e) => {
+const handleLogin = async (e) => {
     if (e) e.preventDefault();
+    
+    // 🟡 First time click pannumbodhu Alert kaatta venam, loading mattum theriyaum
     setLoading(true); 
 
     try {
       const endpoint = isRegisterMode ? 'signup' : 'login';
-      const res = await axios.post("https://quantumshield-3b12.onrender.com/auth/" + endpoint, authData);
+      
+      // 🚀 Connection-ai try panrom
+      const res = await axios.post(`https://quantumshield-3b12.onrender.com/auth/${endpoint}`, authData, {
+        timeout: 60000 // 🛡️ 60 seconds varai wait panna solrom (Render wake-up time)
+      });
       
       if (res.data && res.data.access_token) {
         const loginName = res.data.username || authData.username;
         setDisplayName(loginName);
         localStorage.setItem("userDisplayName", loginName);
         
-        // 🚀 WHATSAPP NOTIFICATION TRIGGER (Fixed)
-        sendSilentAlert(`🛡️ *QuantumShield Login Alert*%0AUser: ${loginName}%0AStatus: Terminal Access Granted.`);
-
         setIsLoggedIn(true);
+
+        // 🛡️ WHATSAPP ALERT
+        sendSilentAlert(`🔐 LOGIN SUCCESS: ${loginName} accessed the terminal.`);
       }
-      setLoading(false); // ✅ Loading-ai off panna marakkaadhiga
     } catch (err) {
+      console.error("Login Error:", err);
+      // Oru vela backend thoonghi kittu irundhaa user-ku puriyura maadhiri alert
+      if (err.code === 'ECONNABORTED') {
+        alert("Server is waking up... Please wait 10 seconds and try again!");
+      } else {
+        alert("Invalid Credentials or Server Error!");
+      }
+    } finally {
       setLoading(false);
-      alert("Terminal Access Denied!");
-    }  
+    }
   };
 
   const liveGraphData = {
