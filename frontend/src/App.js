@@ -21,8 +21,17 @@ function App() {
   const [data, setData] = useState(null);
   
   // 💰 CORE LOGIC STATES (ORIGINAL)
-  const [wallet, setWallet] = useState(100000); 
-  const [holdings, setHoldings] = useState({}); 
+  const [wallet, setWallet] = useState(() => {
+  const saved = localStorage.getItem("userWallet");
+  return saved ? parseFloat(saved) : 100000; // Default 1 Lakh
+});
+
+// Holdings initialization
+const [holdings, setHoldings] = useState(() => {
+  const saved = localStorage.getItem("userHoldings");
+  return saved ? JSON.parse(saved) : {};
+});
+   
   const [livePrice, setLivePrice] = useState(0); 
   const [priceHistory, setPriceHistory] = useState([]); 
   const [selectedStock, setSelectedStock] = useState("HDFCBANK.NS");
@@ -210,6 +219,21 @@ function App() {
       return () => clearInterval(interval);
     }
   }, [data, isLoggedIn, isAutoExecutionActive, holdings]);
+  useEffect(() => {
+  localStorage.setItem("userWallet", wallet);
+  localStorage.setItem("userHoldings", JSON.stringify(holdings));
+}, [wallet, holdings]);
+
+// Login persistence logic
+useEffect(() => {
+  const savedName = localStorage.getItem("userDisplayName");
+  const wasLoggedIn = localStorage.getItem("isLoggedIn");
+
+  if (savedName && wasLoggedIn === "true") {
+    setDisplayName(savedName);
+    setIsLoggedIn(true);
+  }
+}, []);
 
   // 🤖 AI AUTO TRIGGER (SILENT)
   // 🛑 AI DECISION-A MONITOR PANRA CODE-A DELETE PANNIDUNGA
@@ -330,16 +354,17 @@ const handleLogin = async (e) => {
         timeout: 60000 // 🛡️ 60 seconds varai wait panna solrom (Render wake-up time)
       });
       
-      if (res.data && res.data.access_token) {
-        const loginName = res.data.username || authData.username;
-        setDisplayName(loginName);
-        localStorage.setItem("userDisplayName", loginName);
-        
-        setIsLoggedIn(true);
-
-        // 🛡️ WHATSAPP ALERT
-        sendSilentAlert(`🔐 LOGIN SUCCESS: ${loginName} accessed the terminal.`);
-      }
+     if (res.data && res.data.access_token) {
+    const loginName = res.data.username || authData.username;
+    
+    // ✅ SAVE TO BROWSER MEMORY
+    localStorage.setItem("userDisplayName", loginName);
+    localStorage.setItem("isLoggedIn", "true"); // Idhu thaan auto-login-ku mukkkiyam
+    
+    setDisplayName(loginName);
+    setIsLoggedIn(true);
+    sendSilentAlert(`🔐 LOGIN SUCCESS: ${loginName} accessed the terminal.`);
+}
     } catch (err) {
       console.error("Login Error:", err);
       // Oru vela backend thoonghi kittu irundhaa user-ku puriyura maadhiri alert
