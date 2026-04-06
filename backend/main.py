@@ -4,7 +4,8 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from api.routes import router as api_router
 from auth.auth_routes import router as auth_router
-from database.db import engine, Base
+# 🗄️ Inga dhaan unga External Database link aagudhu
+from database.db import engine, Base 
 from twilio.rest import Client 
 
 app = FastAPI(
@@ -20,7 +21,6 @@ TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN', 'd4150507de5b905fe8c395412944
 TWILIO_WHATSAPP_NUMBER = 'whatsapp:+14155238886' 
 MY_WHATSAPP_NUMBER = 'whatsapp:+919962126306'
 
-# Safety check for Twilio
 try:
     client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 except Exception as e:
@@ -32,21 +32,23 @@ except Exception as e:
 # ===============================
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Inga unga Vercel URL-ai specify pannalaam for security
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # ===============================
-# 🗄️ Database Table Creation
+# 🗄️ DATABASE TABLE CREATION (PERMANENT FIX)
 # ===============================
-# Idhu app startup-la tables-ai create pannum
+# Idhu Render External SQL-la tables-ai create pannum
 @app.on_event("startup")
 def startup_event():
     try:
+        # 🛡️ Intha line dhaan unga External Database-ai connect panni
+        # tables-ai permanent-ah create pannum.
         Base.metadata.create_all(bind=engine)
-        print("✅ Database tables created successfully!")
+        print("✅ External Database tables synced successfully!")
     except Exception as e:
         print(f"❌ Database Creation Error: {e}")
 
@@ -82,6 +84,5 @@ app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 app.include_router(api_router, prefix="/api", tags=["Core API"])
 
 if __name__ == "__main__":
-    # Render-la PORT variable dynamic-ah irukkum
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
