@@ -40,6 +40,9 @@ const [holdings, setHoldings] = useState(() => {
   const [investment, setInvestment] = useState(10000);
   const [mcResult, setMcResult] = useState(null);
   const [simulationData, setSimulationData] = useState(null);
+  const [portfolioValue, setPortfolioValue] = useState(0);
+const [decision, setDecision] = useState("N/A");
+const [bsi, setBsi] = useState(0);
 
   // ⚙️ SETTINGS & NOTIFICATION STATES (FIXED: All variables defined correctly)
   const [isGhostHedgeActive, setIsGhostHedgeActive] = useState(true);
@@ -118,7 +121,7 @@ const [holdings, setHoldings] = useState(() => {
     setLoading(true);
 
     setTimeout(() => {
-      const bsiVal = parseFloat(data.bsi_score); 
+      const bsiVal = bsi; 
       const volVal = parseFloat(data.volatility);
       
       let verdict = "";
@@ -128,19 +131,19 @@ const [holdings, setHoldings] = useState(() => {
       // 🎯 FIXED RANGES LOGIC
       // 1. MUST BUY (Green) - BSI 40 mela irundhale 50% range
       if (bsiVal >= 40) {
-        finalProb = (43.5 + Math.random() * 7).toFixed(1); // 51% to 58%
+        finalProb = Number(43.5 + Math.random() * 7).toFixed(1); // 51% to 58%
         verdict = "STRONG BUY";
         color = "#10b981"; // Green
       } 
       // 2. HOLD (Yellow) - BSI 30 to 40 kulla irundha 40% range
       else if (bsiVal >= 30) {
-        finalProb = (33.2 + Math.random() * 6).toFixed(1); // 41% to 47%
+        finalProb = Number(33.2 + Math.random() * 6).toFixed(1); // 41% to 47%
         verdict = "NEUTRAL HOLD";
         color = "#fbbf24"; // Yellow/Orange
       } 
       // 3. AVOID (Red) - BSI 30 kukkulla pona 30% range
       else {
-        finalProb = (23.4 + Math.random() * 6).toFixed(1); // 31% to 37%
+        finalProb = Number(23.4 + Math.random() * 6).toFixed(1); // 31% to 37%
         verdict = "AVOID BUYING";
         color = "#ef4444"; // Red
       }
@@ -301,17 +304,31 @@ useEffect(() => {
   return { rank: "AVOID", color: "#ef4444", level: 0 };
 };
   const fetchData = (symbol) => {
-    setLoading(true);
-    // Localhost:8000-ai thookittu Render URL-ai podunga
-    axios.get(`https://quantumshield-3b12.onrender.com/api/analyze?tickers=${symbol}`)
-      .then(res => {
-        setData(Array.isArray(res.data) ? res.data[0] : res.data);
-        setLoading(false);
-      }).catch(() => {
-        console.error("Data fetch failed from Render.");
-        setLoading(false);
-      });
-  };
+  setLoading(true);
+
+  axios.get(`https://quantumshield-3b12.onrender.com/api/analyze?tickers=${symbol}`)
+    .then(res => {
+      const result = Array.isArray(res.data) ? res.data[0] : res.data;
+
+      console.log("API DATA:", result);
+
+      setData(result);
+
+      // ✅ MAIN FIX
+      setPortfolioValue(result.current_price || 0);
+      setDecision(result.decision || "N/A");
+      setBsi(parseFloat(result.bsi_score) || 0);
+
+      // sync live price
+      setLivePrice(result.current_price || 0);
+
+      setLoading(false);
+    })
+    .catch(() => {
+      console.error("Data fetch failed");
+      setLoading(false);
+    });
+};
   useEffect(() => { if (isLoggedIn) fetchData(selectedStock); }, [selectedStock, isLoggedIn]);
 
   const downloadReport = () => {
@@ -603,19 +620,19 @@ const handleLogin = async (e) => {
             background: 'rgba(255,255,255,0.05)',
             borderRadius: '6px'
           }}>
-            {data.decision} RECOMMENDED
-          </span>
+            {decision} RECOMMENDED
+          </span>value={`₹${Number(portfolioValue || 0).toFixed(2)}`}
         </div>
-      </div>
+      </div>value={decision}
 
       {/* 📊 MINI STAT CARDS (Now with 4 columns for Ghost Hedge) */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '40px' }}>
         <MiniCard title="UNREALIZED P&L" value={`₹${Number(calculatePnL() || 0).toFixed(2)}`} color={calculatePnL() >= 0 ? "#10b981" : "#ef4444"} />
-        <MiniCard title="MARKET PRICE" value={`₹${Number(livePrice || 0).toFixed(2)}`} color="#3b82f6" />
-        <MiniCard title="QUANTUM DECISION" value={data.decision} color={data.decision === "BUY" ? "#10b981" : "#f59e0b"} />
+        <MiniCard title="MARKET PRICE" value={`₹${Number(portfolioValue || 0).toFixed(2)}`} color="#3b82f6" />
+        <MiniCard title="QUANTUM DECISION" value={decision} color={data.decision === "BUY" ? "#10b981" : "#f59e0b"} />
         <MiniCard 
           title="GHOST HEDGE STATUS" 
-          value={wallet < 95000 ? "⚠️ PROTECTIVE FREEZE" : "🛡️ ACTIVE"} 
+          value={wallet < 95000 ? "⚠️ PROTECTIVE FREEZE" : "🛡️ ACTIVE"} bsi
           color={wallet < 95000 ? "#ef4444" : "#10b981"} 
         />
       </div>
@@ -625,7 +642,7 @@ const handleLogin = async (e) => {
          <div style={{ background: '#1e293b', padding: '15px', borderRadius: '20px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
             <small style={{ color: '#94a3b8', fontWeight: '800', fontSize: '10px' }}>QUANTUM SENTIMENT</small>
             <div style={{ height: '110px', marginTop: '10px', position: 'relative', display: 'flex', justifyContent: 'center' }}>
-               <Doughnut data={{ labels: ['B', 'N'], datasets: [{ data: [parseFloat(data.bsi_score), 100-parseFloat(data.bsi_score)], backgroundColor: ['#00f2fe', '#0f172a'], circumference: 180, rotation: 270, borderWidth: 0 }] }} options={{ cutout: '85%', plugins: { legend: { display: false } } }} />
+               <Doughnut data={{ labels: ['B', 'N'], datasets: [{ data: [bsi, 100-bsi], backgroundColor: ['#00f2fe', '#0f172a'], circumference: 180, rotation: 270, borderWidth: 0 }] }} options={{ cutout: '85%', plugins: { legend: { display: false } } }} />
                <div style={{ position: 'absolute', bottom: '10px', fontSize: '18px', fontWeight: '900', color: '#00f2fe' }}>{data.bsi_score}</div>
             </div>
          </div>
@@ -1123,7 +1140,7 @@ const handleLogin = async (e) => {
         parseFloat(data?.bsi_score) >= 40 ? '#fbbf24' : 
         '#ef4444' 
     }}>
-      {data?.bsi_score ? parseFloat(data.bsi_score).toFixed(1) + '%' : '0.0%'}
+      {data?.bsi_score ? bsi.toFixed(1) + '%' : '0.0%'}
     </h2>
 
     {/* 🛡️ Recommendation Badge */}
