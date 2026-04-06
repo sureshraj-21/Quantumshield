@@ -1,5 +1,5 @@
 from prediction.stock_predictor import predict_stock_return
-from config import ASSETS
+from backend.settings import ASSETS
 import yfinance as yf
 import numpy as np
 

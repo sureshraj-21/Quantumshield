@@ -1,4 +1,4 @@
-from config import BSI_THRESHOLD, CPS_THRESHOLD
+from backend.settings import BSI_THRESHOLD, CPS_THRESHOLD
 from hedging.safe_haven_allocator import allocate_safe_haven
 from database.models import HedgeEvent
 

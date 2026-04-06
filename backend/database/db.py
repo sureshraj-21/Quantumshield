@@ -1,7 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-from config import DATABASE_URL 
-engine = create_engine(DATABASE_URL)
+from settings import DATABASE_URL
+
+engine = create_engine(DATABASE_URL, echo=True)
+
 # 🛡️ Step 1: URL Prefix Fix
 # Render URLs often start with 'postgres://', SQLAlchemy needs 'postgresql://'
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):

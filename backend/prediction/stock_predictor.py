@@ -2,7 +2,7 @@ import yfinance as yf
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
-from config import LOOKBACK_PERIOD
+from backend.settings import LOOKBACK_PERIOD
 
 
 def predict_stock_return(symbol):
