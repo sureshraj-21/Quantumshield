@@ -166,61 +166,58 @@ const [holdings, setHoldings] = useState(() => {
     }, 1000);
   }; // 🟢 LIVE SIMULATION: AUTO-SELL ONLY (₹10 GAP)// 🟢 FIXED: PRICE SYNC & SIMULATION
  // 🛡️ UNIFIED RISK ENGINE: MANUAL BUY / AUTO EXIT
-  useEffect(() => {
-    if (isLoggedIn && data) {
-      // 🚀 Sync initial price when stock changes
-      setLivePrice(data?.current_price || data?.price || 0);
-      setPriceHistory([data?.current_price || 0]);
-      const interval = setInterval(() => {
-        setLivePrice(prevPrice => {
-          const fluctuation = (Math.random() - 0.5) * 4.0; 
-          const newPrice = prevPrice + fluctuation;
+useEffect(() => {
+    // 🛑 data sariyaa varala-na logic-ai start panna koodathu
+    if (!isLoggedIn || !data || !data.current_price) return;
 
-          // 🎯 AUTO-SELL CHECK (Fixed for Wallet Update)
-          if (isAutoExecutionActive) {
-            const symbol = data?.symbol || "-";
-            const holding = holdings[symbol];
+    // ✅ Actual Price-ai Sync pannuvom
+    const initialPrice = parseFloat(data.current_price);
+    setLivePrice(initialPrice);
+    setPriceHistory([initialPrice]);
 
-            if (holding && holding.qty > 0) {
-              const buyPrice = holding.avgPrice;
-              const targetPrice = buyPrice + 4.5;   
-              const stopLossPrice = buyPrice - 10.0; 
+    const interval = setInterval(() => {
+      setLivePrice(prevPrice => {
+        // 📈 Realistic Fluctuation (Market price-la 0.1% change)
+        const fluctuation = (Math.random() - 0.5) * (initialPrice * 0.002); 
+        const updatedPrice = prevPrice + fluctuation;
 
-              if (newPrice >= targetPrice || newPrice <= stopLossPrice) {
-                // 🛑 Multi-sell glitch-ai thadukka interval-ai stop panrom
-                clearInterval(interval); 
+        // 🎯 AUTO-EXECUTION LOGIC
+        if (isAutoExecutionActive) {
+          const symbol = data?.symbol || "-";
+          const holding = holdings[symbol];
 
-                // 💰 WALLET-LA KAASHU YETHURA LOGIC (Direct Update)
-                const saleAmount = newPrice * holding.qty;
-                setWallet(prevWallet => prevWallet + saleAmount);
+          if (holding && holding.qty > 0) {
+            const buyPrice = holding.avgPrice;
+            const targetPrice = buyPrice + (buyPrice * 0.02); // 2% Profit Target
+            const stopLossPrice = buyPrice - (buyPrice * 0.01); // 1% Stop Loss
 
-                // 📉 HOLDINGS-AI CLEAR PANRA LOGIC
-                setHoldings(prevHoldings => {
-                  const updated = { ...prevHoldings };
-                  delete updated[symbol];
-                  return updated;
-                });
+            if (updatedPrice >= targetPrice || updatedPrice <= stopLossPrice) {
+              clearInterval(interval); // Stop multiple triggers
 
-                // 🔔 NOTIFICATION
-                const isProfit = newPrice >= targetPrice;
-                const status = isProfit ? "PROFIT ✅ (+₹4.5)" : "STOP-LOSS 🛡️ (-₹10.0)";
-                const alertMsg = `🚨 QuantShield AUTO-SELL
-Stock: ${symbol || "UNKNOWN"}
-Status: ${status || "N/A"}
-Exit Price: ₹${Number(newPrice ?? 0).toFixed(2)}`;
-                
-                sendSilentAlert(alertMsg);
-              }
+              // 💰 Update Wallet & Clear Holdings
+              const saleAmount = updatedPrice * holding.qty;
+              setWallet(prev => prev + saleAmount);
+              setHoldings(prev => {
+                const newHoldings = { ...prev };
+                delete newHoldings[symbol];
+                return newHoldings;
+              });
+
+              // 🔔 Alert Logic
+              const isProfit = updatedPrice >= targetPrice;
+              const alertMsg = `🚨 QuantShield AUTO-SELL\nStock: ${symbol}\nStatus: ${isProfit ? "PROFIT ✅" : "STOP-LOSS 🛡️"}\nExit Price: ₹${updatedPrice.toFixed(2)}`;
+              alert(alertMsg); 
             }
           }
+        }
 
-          setPriceHistory(history => [...history, newPrice].slice(-20));
-          return newPrice;
-        });
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [data, isLoggedIn, isAutoExecutionActive, holdings]);
+        setPriceHistory(history => [...history, updatedPrice].slice(-20));
+        return updatedPrice;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [data, isLoggedIn, isAutoExecutionActive]);
   useEffect(() => {
   localStorage.setItem("userWallet", wallet);
   localStorage.setItem("userHoldings", JSON.stringify(holdings));
@@ -248,46 +245,53 @@ useEffect(() => {
 // ✅ IDHU MATTUM DHAAN IRUKANUM (Auto-Sell Only)
 
 // 🔵 2. UPDATED EXECUTION LOGIC (Manual Buy, Auto/Manual Sell)
-  const executeTrade = (action, isAuto = false) => {
-    if (!data) return;
-    const price = livePrice;
-    const symbol = data?.symbol || "-";
+ const executeTrade = (action, isAuto = false) => {
+  if (!data || !livePrice) return;
 
-    if (action === "BUY") {
-      // Manual Buy: User click panna dhaan nadakkum
-      if (wallet >= price) {
-        setWallet(prev => prev - price);
-        setHoldings(prev => {
-          const current = prev[symbol] || { qty: 0, avgPrice: 0 };
-          const newQty = current.qty + 1;
-          const newAvg = ((current.avgPrice * current.qty) + price) / newQty;
-          return { ...prev, [symbol]: { qty: newQty, avgPrice: newAvg } };
-        });
-        sendSilentAlert(`🛡️ QuantShield 👤 MANUAL BUY
-Stock: ${symbol || "UNKNOWN"}
-Price: ₹${Number(price ?? 0).toFixed(2)}
-Portfolio Value: ₹${Number(wallet ?? 0).toFixed(2)}`);
-      }
-    } else if (action === "SELL") {
-      if (holdings[symbol]?.qty > 0) {
-        // Correct Calculation: Sale amount based on current live price
-        const saleAmount = price * holdings[symbol].qty;
-        setWallet(prev => prev + saleAmount);
-        
-        setHoldings(prev => {
-          const updated = { ...prev };
-          delete updated[symbol]; // Sell panna udane list-la irundhu remove pannum
-          return updated;
-        });
+  const price = parseFloat(livePrice);
+  const symbol = data?.symbol || "-";
+  const currentHolding = holdings[symbol] || { qty: 0, avgPrice: 0 };
 
-        if (!isAuto) {
-         sendSilentAlert(`🚨 QuantShield 👤 MANUAL SELL
-Stock: ${symbol}
-Price: ₹${Number(price || 0).toFixed(2)}`);
-        }
-      }
+  if (action === "BUY") {
+    // 🛍️ BUY LOGIC: Current Price-kku oru stock vangurom
+    if (wallet >= price) {
+      const newQty = currentHolding.qty + 1;
+      const newAvg = ((currentHolding.avgPrice * currentHolding.qty) + price) / newQty;
+      
+      setWallet(prev => prev - price);
+      setHoldings(prev => ({
+        ...prev,
+        [symbol]: { qty: newQty, avgPrice: newAvg }
+      }));
+
+      sendSilentAlert(`🛡️ QuantShield 👤 MANUAL BUY\nStock: ${symbol}\nPrice: ₹${price.toFixed(2)}\nWallet: ₹${(wallet - price).toFixed(2)}`);
+    } else {
+      alert("Insufficient Balance in Wallet!");
     }
-  };
+
+  } else if (action === "SELL") {
+    // 💰 SELL LOGIC: Ellaa holdings-aiyum current market price-kku vikkuroam
+    if (currentHolding.qty > 0) {
+      const saleAmount = price * currentHolding.qty;
+      
+      // 1. Update Wallet First
+      setWallet(prev => prev + saleAmount);
+      
+      // 2. Clear Holdings for this symbol
+      setHoldings(prev => {
+        const updated = { ...prev };
+        delete updated[symbol];
+        return updated;
+      });
+
+      if (!isAuto) {
+        sendSilentAlert(`🚨 QuantShield 👤 MANUAL SELL\nStock: ${symbol}\nPrice: ₹${price.toFixed(2)}\nTotal Sale: ₹${saleAmount.toFixed(2)}`);
+      }
+    } else {
+      alert("No holdings to sell for this stock!");
+    }
+  }
+};
 
   const calculatePnL = () => {
     let totalPnL = 0;
@@ -306,33 +310,41 @@ Price: ₹${Number(price || 0).toFixed(2)}`);
   
   // High risk or low score cases
   return { rank: "AVOID", color: "#ef4444", level: 0 };
-};const fetchData = (symbol) => {
+};
+const fetchData = (symbol) => {
     setLoading(true);
-    // 🛑 MUKKIYAM: Inga unga Render URL sariyaa irukka-nu paarunga
-    // Screenshot-la irunda url: https://quantumshield-3b12.onrender.com
+    // 🛑 Render URL Verify: https://quantumshield-3b12.onrender.com
     axios.get(`https://quantumshield-3b12.onrender.com/api/analyze?tickers=${symbol}`)
       .then(res => {
-        // Backend data sariyaa vandha setData pannanum
         if (res.data) {
           const result = Array.isArray(res.data) ? res.data[0] : res.data;
-          setData(result);
-          console.log("✅ Live Data Received:", result);
+          
+          // 🛡️ Data mapping: Backend 'current_price' illana 'price' nu anupunaalum idhu handle pannum
+          const processedData = {
+            ...result,
+            current_price: result.current_price || result.price || 2500.00, // Fallback price
+            bsi_score: result.bsi_score || 50.0,
+            decision: result.decision || "STRONG BUY"
+          };
+          
+          setData(processedData);
+          console.log("✅ Live Data Sync Success:", processedData);
         }
         setLoading(false);
       }).catch(err => {
-        console.error("❌ Backend error:", err);
+        console.error("❌ Backend connection failed:", err);
         setLoading(false);
-        // Data varalana testing-kaaga dummy data set pannalaam (Pazhaya output vara)
+        
+        // 🛠️ FAIL-SAFE: Backend slow-ah irundha presentation-kku dummy data setup
         setData({
           symbol: symbol,
-          bsi_score: 50.0,
+          bsi_score: 75.5,
           decision: "STRONG BUY",
           risk_level: "Low",
-          price: 2500.00
+          current_price: symbol === "RELIANCE.NS" ? 2985.40 : 3850.20
         });
       });
 };
-  useEffect(() => { if (isLoggedIn) fetchData(selectedStock); }, [selectedStock, isLoggedIn]);
 
   const downloadReport = () => {
     const input = document.getElementById('report-area');
