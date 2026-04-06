@@ -610,8 +610,8 @@ const handleLogin = async (e) => {
 
       {/* 📊 MINI STAT CARDS (Now with 4 columns for Ghost Hedge) */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '40px' }}>
-        <MiniCard title="UNREALIZED P&L" value={`₹${(calculatePnL() || 0).toFixed(2)}`} color={calculatePnL() >= 0 ? "#10b981" : "#ef4444"} />
-        <MiniCard title="MARKET PRICE" value={`₹${(livePrice || 0).toFixed(2)}`} color="#3b82f6" />
+        <MiniCard title="UNREALIZED P&L" value={`₹${Number(calculatePnL() || 0).toFixed(2)}`} color={calculatePnL() >= 0 ? "#10b981" : "#ef4444"} />
+        <MiniCard title="MARKET PRICE" value={`₹${Number(livePrice || 0).toFixed(2)}`} color="#3b82f6" />
         <MiniCard title="QUANTUM DECISION" value={data.decision} color={data.decision === "BUY" ? "#10b981" : "#f59e0b"} />
         <MiniCard 
           title="GHOST HEDGE STATUS" 
@@ -770,7 +770,7 @@ const handleLogin = async (e) => {
                   <tr key={symbol} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
                     <td style={{ padding: '10px', color: '#00f2fe', fontWeight: 'bold' }}>{symbol}</td>
                     <td style={{ color: '#fff' }}>{h.qty}</td>
-                    <td>₹{h.avgPrice.toFixed(2)}</td>
+                   <td>₹{Number(h.avgPrice ?? 0).toFixed(2)}</td>
                     <td style={{ color: pnlAmount >= 0 ? '#10b981' : '#ef4444', fontWeight: 'bold' }}>
                       {pnlAmount >= 0 ? '+' : ''}₹{pnlAmount.toFixed(2)}
                     </td>
