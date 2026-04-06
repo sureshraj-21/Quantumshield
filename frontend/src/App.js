@@ -610,8 +610,8 @@ const handleLogin = async (e) => {
 
       {/* 📊 MINI STAT CARDS (Now with 4 columns for Ghost Hedge) */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '40px' }}>
-        <MiniCard title="UNREALIZED P&L" value={`₹${calculatePnL().toFixed(2)}`} color={calculatePnL() >= 0 ? "#10b981" : "#ef4444"} />
-        <MiniCard title="MARKET PRICE" value={`₹${livePrice.toFixed(2)}`} color="#3b82f6" />
+        <MiniCard title="UNREALIZED P&L" value={`₹${(calculatePnL() || 0).toFixed(2)}`} color={calculatePnL() >= 0 ? "#10b981" : "#ef4444"} />
+        <MiniCard title="MARKET PRICE" value={`₹${(livePrice || 0).toFixed(2)}`} color="#3b82f6" />
         <MiniCard title="QUANTUM DECISION" value={data.decision} color={data.decision === "BUY" ? "#10b981" : "#f59e0b"} />
         <MiniCard 
           title="GHOST HEDGE STATUS" 
