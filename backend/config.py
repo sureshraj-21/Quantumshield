@@ -39,17 +39,17 @@ CPS_THRESHOLD = 1.2
 # ✅ INGA UNGA SCREENSHOT-LA IRUNDHA EXTERNAL URL-AI PASTE PANNUNGA
 
 # 🔐 Added '?sslmode=require' at the end to fix SSL errors
-RENDER_DB_URL = "postgresql://quantshield_db_user:NLVqB2hddaC58S0g1oT45uXvJ3S4j9uC@dpg-cva791ogph6c73dg0sqg-a.singapore-postgres.render.com/quantshield_db?sslmode=require"
+# ✅ Internal URL (No SSL parameter needed for Internal)
+RENDER_DB_URL = "postgresql://quantshield_db_user:NLVqB2hddaC58S0g1oT1SJid3SSIECxW@dpg-d79mplffte5s739p8l8g-a/quantshield_db"
 
 # Database URL logic
 if os.environ.get('RENDER'):
-    DATABASE_URL = os.environ.get('DATABASE_URL', RENDER_DB_URL)
+    # Render-la irukkumbodhu internal network-aiye use pannum
+    DATABASE_URL = RENDER_DB_URL
 else:
-    DATABASE_URL = RENDER_DB_URL 
-
-# Double check prefix
-if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    # Local-la irukkumbodhu (Internal URL local-la work aagaathu)
+    # Local test-kku SQLite illana External URL use pannalaam
+    DATABASE_URL = RENDER_DB_URL
 
 # ==============================
 # Security
