@@ -6,16 +6,8 @@ load_dotenv()
 # ==============================
 # Core Assets
 # ==============================
-ASSETS = [
-    "RELIANCE.NS",
-    "TCS.NS",
-    "INFY.NS"
-]
-
-SAFE_HAVEN_ASSETS = [
-    "GOLDBEES.NS",
-    "LIQUIDBEES.NS"
-]
+ASSETS = ["RELIANCE.NS", "TCS.NS", "INFY.NS"]
+SAFE_HAVEN_ASSETS = ["GOLDBEES.NS", "LIQUIDBEES.NS"]
 
 # ==============================
 # Market Indicators
@@ -26,35 +18,33 @@ VIX_INDEX = "^INDIAVIX"
 # ==============================
 # Model Parameters
 # ==============================
-LOOKBACK_PERIOD = "6mo"   # Better for HMM & MC
-
+LOOKBACK_PERIOD = "6mo" 
 BSI_THRESHOLD = 2.5
 CPS_THRESHOLD = 1.2
 
 # ==============================
-# 🗄️ External Database (PERMANENT FIX)
+# 🗄️ Database Configuration (Hybrid Logic)
 # ==============================
 
-# 🛑 PAZHAYA SQLITE CODE-AI REMOVE PANNITTAEN (Adhu thaan delete aagura prachana)
-# ✅ INGA UNGA SCREENSHOT-LA IRUNDHA EXTERNAL URL-AI PASTE PANNUNGA
+# 🌍 1. External URL (Singapore - Use this for Local VS Code Testing)
+EXTERNAL_DB_URL = "postgresql://quantshield_db_user:NLVqB2hddaC58S0g1oT1SJid3SSIECxW@dpg-d79mplffte5s739p8l8g-a.singapore-postgres.render.com/quantshield_db?sslmode=require"
 
-# 🔐 Added '?sslmode=require' at the end to fix SSL errors
-# ✅ Internal URL (No SSL parameter needed for Internal)
-RENDER_DB_URL = "postgresql://quantshield_db_user:NLVqB2hddaC58S0g1oT1SJid3SSIECxW@dpg-d79mplffte5s739p8l8g-a/quantshield_db"
+# 🔑 2. Internal URL (Fast - Use this ONLY inside Render Cloud)
+INTERNAL_DB_URL = "postgresql://quantshield_db_user:NLVqB2hddaC58S0g1oT1SJid3SSIECxW@dpg-d79mplffte5s739p8l8g-a/quantshield_db"
 
-# Database URL logic
+# 🚀 Logic to switch automatically
 if os.environ.get('RENDER'):
-    # Render-la irukkumbodhu internal network-aiye use pannum
-    DATABASE_URL = RENDER_DB_URL
+    # Render-la irukkumbodhu Internal network use pannum (No SSL Error)
+    DATABASE_URL = INTERNAL_DB_URL
 else:
-    # Local-la irukkumbodhu (Internal URL local-la work aagaathu)
-    # Local test-kku SQLite illana External URL use pannalaam
-    DATABASE_URL = RENDER_DB_URL
+    # Local VS Code-la run pannumbodhu External URL use pannum
+    DATABASE_URL = EXTERNAL_DB_URL
+
+# Fix for SQLAlchemy prefix
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 # ==============================
 # Security
 # ==============================
-SECRET_KEY = os.getenv(
-    "SECRET_KEY",
-    "supersecretkey"
-)
+SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")
