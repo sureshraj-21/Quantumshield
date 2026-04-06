@@ -6,8 +6,16 @@ load_dotenv()
 # ==============================
 # Core Assets
 # ==============================
-ASSETS = ["RELIANCE.NS", "TCS.NS", "INFY.NS"]
-SAFE_HAVEN_ASSETS = ["GOLDBEES.NS", "LIQUIDBEES.NS"]
+ASSETS = [
+    "RELIANCE.NS",
+    "TCS.NS",
+    "INFY.NS"
+]
+
+SAFE_HAVEN_ASSETS = [
+    "GOLDBEES.NS",
+    "LIQUIDBEES.NS"
+]
 
 # ==============================
 # Market Indicators
@@ -18,30 +26,28 @@ VIX_INDEX = "^INDIAVIX"
 # ==============================
 # Model Parameters
 # ==============================
-LOOKBACK_PERIOD = "6mo"
+LOOKBACK_PERIOD = "6mo"   # Better for HMM & MC
+
 BSI_THRESHOLD = 2.5
 CPS_THRESHOLD = 1.2
 
 # ==============================
-# 🗄️ Database Configuration (FIXED FOR RENDER)
+# Database (Render Cloud Permission Fix)
 # ==============================
 
-# 🔥 Render automatically provides DATABASE_URL
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-# ⚠️ Safety check & Fallback (Important to prevent Blank Screen)
-if not DATABASE_URL:
-    print("⚠️ Warning: DATABASE_URL not found. Falling back to local SQLite for safety.")
-    DATABASE_URL = "sqlite:///./quantshield.db" # Database illanaalum app run aagum
+# Render-la root folder-la write panna permission prachana varum.
+# Adhanaala /tmp/ folder-ai use panrom, anga kandippa write access irukkum.
+if os.environ.get('RENDER'):
+    db_path = "/tmp/portfolio.db"
 else:
-    # Fix prefix (Render gives postgres://, but SQLAlchemy needs postgresql://)
-    if DATABASE_URL.startswith("postgres://"):
-        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    db_path = os.path.join(BASE_DIR, "portfolio.db")
 
-print("✅ Using DB Connection:", DATABASE_URL)
-
+DATABASE_URL = f"sqlite:///{db_path}"
 # ==============================
 # Security
 # ==============================
-SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey_quantshield_2026")
-ALGORITHM = "HS256"
+SECRET_KEY = os.getenv(
+    "SECRET_KEY",
+    "supersecretkey"
+)
