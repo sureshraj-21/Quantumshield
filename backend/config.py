@@ -27,17 +27,18 @@ CPS_THRESHOLD = 1.2
 # ==============================
 
 # 🌍 1. External URL (Singapore - Use this for Local VS Code Testing)
-EXTERNAL_DB_URL = "postgresql://quantshield_db_user:NLVqB2hddaC58S0g1oT1SJid3SSIECxW@dpg-d79mplffte5s739p8l8g-a.singapore-postgres.render.com/quantshield_db?sslmode=require"
+# 🌍 1. External URL (Singapore - Use this for Local VS Code Testing)
+EXTERNAL_DB_URL = "postgresql://quantshield_db_user:NLVqB2hddaC58S0g1oT1SJid3SSIECxW@dpg-d79mplffte5s739p8l8g-a.singapore-postgres.render.com/quantshield_db"
 
 # 🔑 2. Internal URL (Fast - Use this ONLY inside Render Cloud)
 INTERNAL_DB_URL = "postgresql://quantshield_db_user:NLVqB2hddaC58S0g1oT1SJid3SSIECxW@dpg-d79mplffte5s739p8l8g-a/quantshield_db"
 
 # 🚀 Logic to switch automatically
 if os.environ.get('RENDER'):
-    # Render-la irukkumbodhu Internal network use pannum (No SSL Error)
+    # Render cloud-la irundha Internal URL use pannum (Fast & No SSL error)
     DATABASE_URL = INTERNAL_DB_URL
 else:
-    # Local VS Code-la run pannumbodhu External URL use pannum
+    # Local VS Code-la run panna External URL use pannum
     DATABASE_URL = EXTERNAL_DB_URL
 
 # Fix for SQLAlchemy prefix
