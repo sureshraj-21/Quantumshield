@@ -337,7 +337,7 @@ const speakStatus = () => {
     window.speechSynthesis.cancel();
 
     const msg = new SpeechSynthesisUtterance();
-    msg.text = `QuantShield Intelligence Report for ${data?.symbol || "-"}. Current sentiment score is ${data.bsi_score} percent. The AI engine recommends a ${data?.decision || "N/A"} position. Ghost Hedge is active to protect your portfolio capital.`;
+    msg.text = `QuantShield Intelligence Report for ${data?.symbol || "-"}. Current sentiment score is ${data?.bsi_score ?? 0} percent. The AI engine recommends a ${data?.decision || "N/A"} position. Ghost Hedge is active to protect your portfolio capital.`;
     msg.pitch = 1;
     msg.rate = 0.9; 
     window.speechSynthesis.speak(msg);
@@ -636,7 +636,7 @@ const handleLogin = async (e) => {
   parseFloat(data?.bsi_score ?? 0),
   100 - parseFloat(data?.bsi_score ?? 0)
 ], backgroundColor: ['#00f2fe', '#0f172a'], circumference: 180, rotation: 270, borderWidth: 0 }] }} options={{ cutout: '85%', plugins: { legend: { display: false } } }} />
-               <div style={{ position: 'absolute', bottom: '10px', fontSize: '18px', fontWeight: '900', color: '#00f2fe' }}>{data.bsi_score}</div>
+               <div style={{ position: 'absolute', bottom: '10px', fontSize: '18px', fontWeight: '900', color: '#00f2fe' }}>{data?.bsi_score ?? 0}</div>
             </div>
          </div>
          <div style={{ background: '#1e293b', padding: '20px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
