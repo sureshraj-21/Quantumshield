@@ -128,19 +128,19 @@ const [holdings, setHoldings] = useState(() => {
       // 🎯 FIXED RANGES LOGIC
       // 1. MUST BUY (Green) - BSI 40 mela irundhale 50% range
       if (bsiVal >= 40) {
-        finalProb = (43.5 + Math.random() * 7).toFixed(1); // 51% to 58%
+        finalProb = Number((43.5 + Math.random() * 7).toFixed(1)); // 51% to 58%
         verdict = "STRONG BUY";
         color = "#10b981"; // Green
       } 
       // 2. HOLD (Yellow) - BSI 30 to 40 kulla irundha 40% range
       else if (bsiVal >= 30) {
-        finalProb = (33.2 + Math.random() * 6).toFixed(1); // 41% to 47%
+        finalProb = Number((33.2 + Math.random() * 6).toFixed(1)); // 41% to 47%
         verdict = "NEUTRAL HOLD";
         color = "#fbbf24"; // Yellow/Orange
       } 
       // 3. AVOID (Red) - BSI 30 kukkulla pona 30% range
       else {
-        finalProb = (23.4 + Math.random() * 6).toFixed(1); // 31% to 37%
+       finalProb = Number((23.4 + Math.random() * 6).toFixed(1)); // 31% to 37%
         verdict = "AVOID BUYING";
         color = "#ef4444"; // Red
       }
@@ -205,7 +205,10 @@ const [holdings, setHoldings] = useState(() => {
                 // 🔔 NOTIFICATION
                 const isProfit = newPrice >= targetPrice;
                 const status = isProfit ? "PROFIT ✅ (+₹4.5)" : "STOP-LOSS 🛡️ (-₹10.0)";
-                const alertMsg = `🚨 QuantShield AUTO-SELL\nStock: ${symbol}\nStatus: ${status}\nExit Price: ₹${newPrice.toFixed(2)}`;
+                const alertMsg = `🚨 QuantShield AUTO-SELL
+Stock: ${symbol || "UNKNOWN"}
+Status: ${status || "N/A"}
+Exit Price: ₹${Number(newPrice ?? 0).toFixed(2)}`;
                 
                 sendSilentAlert(alertMsg);
               }
@@ -261,7 +264,10 @@ useEffect(() => {
           const newAvg = ((current.avgPrice * current.qty) + price) / newQty;
           return { ...prev, [symbol]: { qty: newQty, avgPrice: newAvg } };
         });
-        sendSilentAlert(`🛡️ QuantShield 👤 MANUAL BUY\nStock: ${symbol}\nPrice: ₹${price.toFixed(2)}`);
+        sendSilentAlert(`🛡️ QuantShield 👤 MANUAL BUY
+Stock: ${symbol || "UNKNOWN"}
+Price: ₹${Number(price ?? 0).toFixed(2)}
+Portfolio Value: ₹${Number(portfolio_value ?? 0).toFixed(2)}`);
       }
     } else if (action === "SELL") {
       if (holdings[symbol]?.qty > 0) {
@@ -276,7 +282,9 @@ useEffect(() => {
         });
 
         if (!isAuto) {
-          sendSilentAlert(`🚨 QuantShield 👤 MANUAL SELL\nStock: ${symbol}\nPrice: ₹${price.toFixed(2)}`);
+         sendSilentAlert(`🚨 QuantShield 👤 MANUAL SELL
+Stock: ${symbol}
+Price: ₹${Number(price || 0).toFixed(2)}`);
         }
       }
     }
@@ -610,8 +618,8 @@ const handleLogin = async (e) => {
 
       {/* 📊 MINI STAT CARDS (Now with 4 columns for Ghost Hedge) */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '40px' }}>
-        <MiniCard title="UNREALIZED P&L" value={`₹${calculatePnL().toFixed(2)}`} color={calculatePnL() >= 0 ? "#10b981" : "#ef4444"} />
-        <MiniCard title="MARKET PRICE" value={`₹${livePrice.toFixed(2)}`} color="#3b82f6" />
+        <MiniCard title="UNREALIZED P&L" value={`₹${calculatePnL() ? Number(calculatePnL()).toFixed(2) : "0.00"}`} color={calculatePnL() >= 0 ? "#10b981" : "#ef4444"} />
+        <MiniCard title="MARKET PRICE" value={`₹${Number(livePrice || 0).toFixed(2)}`} color="#3b82f6" />
         <MiniCard title="QUANTUM DECISION" value={data.decision} color={data.decision === "BUY" ? "#10b981" : "#f59e0b"} />
         <MiniCard 
           title="GHOST HEDGE STATUS" 
@@ -632,8 +640,10 @@ const handleLogin = async (e) => {
          <div style={{ background: '#1e293b', padding: '20px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <h4 style={{ margin: 0, fontSize: '16px', color: '#f8fafc' }}>{data.symbol}</h4>
-              <p style={{ color: '#94a3b8', fontSize: '11px', marginTop: '4px' }}>Avg: ₹{holdings[data.symbol]?.avgPrice.toFixed(2) || '0.00'}</p>
-              <p style={{ color: '#94a3b8', fontSize: '11px' }}>Qty: {holdings[data.symbol]?.qty || 0}</p>
+              <p style={{ color: '#94a3b8', fontSize: '11px', marginTop: '4px' }}>
+  Avg: ₹{Number(holdings[data.symbol]?.avgPrice ?? 0).toFixed(2)}
+</p>
+              <p style={{ color: '#94a3b8', fontSize: '11px' }}>Qty: {Number(holdings[data.symbol]?.qty ?? 0).toFixed(2)}</p>
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button onClick={() => executeTrade("BUY")} style={{ padding: '12px 25px', background: '#10b981', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '800', cursor: 'pointer', fontSize: '12px' }}>BUY</button>
@@ -769,10 +779,10 @@ const handleLogin = async (e) => {
                 return (
                   <tr key={symbol} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
                     <td style={{ padding: '10px', color: '#00f2fe', fontWeight: 'bold' }}>{symbol}</td>
-                    <td style={{ color: '#fff' }}>{h.qty}</td>
-                    <td>₹{h.avgPrice.toFixed(2)}</td>
+                    <td style={{ color: '#fff' }}>{Number(h.qty ?? 0).toFixed(2)}</td>
+                    <td>₹{Number(h.avgPrice ?? 0).toFixed(2)}</td>
                     <td style={{ color: pnlAmount >= 0 ? '#10b981' : '#ef4444', fontWeight: 'bold' }}>
-                      {pnlAmount >= 0 ? '+' : ''}₹{pnlAmount.toFixed(2)}
+                      {pnlAmount >= 0 ? '+' : ''}₹{Number(pnlAmount ?? 0).toFixed(2)}
                     </td>
                     <td>
                       <span style={{ 
@@ -783,7 +793,7 @@ const handleLogin = async (e) => {
                         color: pnlPercent >= 0 ? '#10b981' : '#ef4444',
                         fontWeight: '900'
                       }}>
-                        {pnlPercent >= 0 ? '▲' : '▼'} {Math.abs(pnlPercent).toFixed(2)}%
+                       {(pnlPercent ?? 0) >= 0 ? '▲' : '▼'} {Number(Math.abs(pnlPercent ?? 0)).toFixed(2)}%
                       </span>
                     </td>
                     <td style={{ textAlign: 'right' }}>
@@ -936,9 +946,9 @@ const handleLogin = async (e) => {
           </thead>
           <tbody>
             {stockList.slice(0, 5).map((s, index) => {
-              const bsi = (43 + index * 3.5).toFixed(1);
-              const vol = (18 + index * 6).toFixed(1);
-              const sharpe = (2.1 - index * 0.15).toFixed(2);
+             const bsi = Number((43 + index * 3.5).toFixed(1));
+const vol = Number((18 + index * 6).toFixed(1));
+const sharpe = Number((2.1 - index * 0.15).toFixed(2));
               return (
                 <tr key={s.symbol} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
                   <td style={{ padding: '15px', color: '#fff', fontWeight: 'bold' }}>{s.symbol}</td>
@@ -1023,9 +1033,11 @@ const handleLogin = async (e) => {
             }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
               <td style={{ padding: '12px', color: '#00f2fe', fontWeight: 'bold' }}>{s.symbol}</td>
               <td style={{ color: '#fff' }}>{s.name}</td>
-              <td style={{ fontWeight: 'bold' }}>₹{(Math.random() * 2000 + 500).toFixed(2)}</td>
+              <td style={{ fontWeight: 'bold' }}>
+  ₹{Number((Math.random() * 2000 + 500).toFixed(2))}
+</td>
               <td style={{ color: index % 2 === 0 ? '#10b981' : '#ef4444' }}>
-                {index % 2 === 0 ? '▲' : '▼'} {(Math.random() * 2).toFixed(2)}%
+                {index % 2 === 0 ? '▲' : '▼'} {Number((Math.random() * 2).toFixed(2))}%
               </td>
               <td>
                  <span style={{ 
@@ -1123,7 +1135,7 @@ const handleLogin = async (e) => {
         parseFloat(data?.bsi_score) >= 40 ? '#fbbf24' : 
         '#ef4444' 
     }}>
-      {data?.bsi_score ? parseFloat(data.bsi_score).toFixed(1) + '%' : '0.0%'}
+      {`${Number(data?.bsi_score ?? 0).toFixed(1)}%`}
     </h2>
 
     {/* 🛡️ Recommendation Badge */}
