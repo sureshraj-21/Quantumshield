@@ -118,8 +118,8 @@ const [holdings, setHoldings] = useState(() => {
     setLoading(true);
 
     setTimeout(() => {
-      const bsiVal = parseFloat(data?.bsi_score ?? 0); 
-      const volVal = parseFloat(data?.volatility ?? 0);
+      const bsiVal = parseFloat(data.bsi_score); 
+      const volVal = parseFloat(data.volatility);
       
       let verdict = "";
       let color = "";
@@ -128,19 +128,19 @@ const [holdings, setHoldings] = useState(() => {
       // 🎯 FIXED RANGES LOGIC
       // 1. MUST BUY (Green) - BSI 40 mela irundhale 50% range
       if (bsiVal >= 40) {
-        finalProb = Number((43.5 + Math.random() * 7).toFixed(1)); // 51% to 58%
+        finalProb = (43.5 + Math.random() * 7).toFixed(1); // 51% to 58%
         verdict = "STRONG BUY";
         color = "#10b981"; // Green
       } 
       // 2. HOLD (Yellow) - BSI 30 to 40 kulla irundha 40% range
       else if (bsiVal >= 30) {
-        finalProb = Number((33.2 + Math.random() * 6).toFixed(1)); // 41% to 47%
+        finalProb = (33.2 + Math.random() * 6).toFixed(1); // 41% to 47%
         verdict = "NEUTRAL HOLD";
         color = "#fbbf24"; // Yellow/Orange
       } 
       // 3. AVOID (Red) - BSI 30 kukkulla pona 30% range
       else {
-       finalProb = Number((23.4 + Math.random() * 6).toFixed(1)); // 31% to 37%
+        finalProb = (23.4 + Math.random() * 6).toFixed(1); // 31% to 37%
         verdict = "AVOID BUYING";
         color = "#ef4444"; // Red
       }
@@ -166,58 +166,59 @@ const [holdings, setHoldings] = useState(() => {
     }, 1000);
   }; // 🟢 LIVE SIMULATION: AUTO-SELL ONLY (₹10 GAP)// 🟢 FIXED: PRICE SYNC & SIMULATION
  // 🛡️ UNIFIED RISK ENGINE: MANUAL BUY / AUTO EXIT
-useEffect(() => {
-    // 🛑 data sariyaa varala-na logic-ai start panna koodathu
-    if (!isLoggedIn || !data || !data.current_price) return;
+  useEffect(() => {
+    if (isLoggedIn && data) {
+      // 🚀 Sync initial price when stock changes
+      setLivePrice(data.current_price);
+      setPriceHistory([data.current_price]);
 
-    // ✅ Actual Price-ai Sync pannuvom
-    const initialPrice = parseFloat(data.current_price);
-    setLivePrice(initialPrice);
-    setPriceHistory([initialPrice]);
+      const interval = setInterval(() => {
+        setLivePrice(prevPrice => {
+          const fluctuation = (Math.random() - 0.5) * 4.0; 
+          const newPrice = prevPrice + fluctuation;
 
-    const interval = setInterval(() => {
-      setLivePrice(prevPrice => {
-        // 📈 Realistic Fluctuation (Market price-la 0.1% change)
-        const fluctuation = (Math.random() - 0.5) * (initialPrice * 0.002); 
-        const updatedPrice = prevPrice + fluctuation;
+          // 🎯 AUTO-SELL CHECK (Fixed for Wallet Update)
+          if (isAutoExecutionActive) {
+            const symbol = data.symbol;
+            const holding = holdings[symbol];
 
-        // 🎯 AUTO-EXECUTION LOGIC
-        if (isAutoExecutionActive) {
-          const symbol = data?.symbol || "-";
-          const holding = holdings[symbol];
+            if (holding && holding.qty > 0) {
+              const buyPrice = holding.avgPrice;
+              const targetPrice = buyPrice + 4.5;   
+              const stopLossPrice = buyPrice - 10.0; 
 
-          if (holding && holding.qty > 0) {
-            const buyPrice = holding.avgPrice;
-            const targetPrice = buyPrice + (buyPrice * 0.02); // 2% Profit Target
-            const stopLossPrice = buyPrice - (buyPrice * 0.01); // 1% Stop Loss
+              if (newPrice >= targetPrice || newPrice <= stopLossPrice) {
+                // 🛑 Multi-sell glitch-ai thadukka interval-ai stop panrom
+                clearInterval(interval); 
 
-            if (updatedPrice >= targetPrice || updatedPrice <= stopLossPrice) {
-              clearInterval(interval); // Stop multiple triggers
+                // 💰 WALLET-LA KAASHU YETHURA LOGIC (Direct Update)
+                const saleAmount = newPrice * holding.qty;
+                setWallet(prevWallet => prevWallet + saleAmount);
 
-              // 💰 Update Wallet & Clear Holdings
-              const saleAmount = updatedPrice * holding.qty;
-              setWallet(prev => prev + saleAmount);
-              setHoldings(prev => {
-                const newHoldings = { ...prev };
-                delete newHoldings[symbol];
-                return newHoldings;
-              });
+                // 📉 HOLDINGS-AI CLEAR PANRA LOGIC
+                setHoldings(prevHoldings => {
+                  const updated = { ...prevHoldings };
+                  delete updated[symbol];
+                  return updated;
+                });
 
-              // 🔔 Alert Logic
-              const isProfit = updatedPrice >= targetPrice;
-              const alertMsg = `🚨 QuantShield AUTO-SELL\nStock: ${symbol}\nStatus: ${isProfit ? "PROFIT ✅" : "STOP-LOSS 🛡️"}\nExit Price: ₹${updatedPrice.toFixed(2)}`;
-              alert(alertMsg); 
+                // 🔔 NOTIFICATION
+                const isProfit = newPrice >= targetPrice;
+                const status = isProfit ? "PROFIT ✅ (+₹4.5)" : "STOP-LOSS 🛡️ (-₹10.0)";
+                const alertMsg = `🚨 QuantShield AUTO-SELL\nStock: ${symbol}\nStatus: ${status}\nExit Price: ₹${newPrice.toFixed(2)}`;
+                
+                sendSilentAlert(alertMsg);
+              }
             }
           }
-        }
 
-        setPriceHistory(history => [...history, updatedPrice].slice(-20));
-        return updatedPrice;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [data, isLoggedIn, isAutoExecutionActive]);
+          setPriceHistory(history => [...history, newPrice].slice(-20));
+          return newPrice;
+        });
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [data, isLoggedIn, isAutoExecutionActive, holdings]);
   useEffect(() => {
   localStorage.setItem("userWallet", wallet);
   localStorage.setItem("userHoldings", JSON.stringify(holdings));
@@ -245,58 +246,46 @@ useEffect(() => {
 // ✅ IDHU MATTUM DHAAN IRUKANUM (Auto-Sell Only)
 
 // 🔵 2. UPDATED EXECUTION LOGIC (Manual Buy, Auto/Manual Sell)
- const executeTrade = (action, isAuto = false) => {
-  if (!data || !livePrice) return;
+  const executeTrade = (action, isAuto = false) => {
+    if (!data) return;
+    const price = livePrice;
+    const symbol = data.symbol;
 
-  const price = parseFloat(livePrice);
-  const symbol = data?.symbol || "-";
-  const currentHolding = holdings[symbol] || { qty: 0, avgPrice: 0 };
-
-  if (action === "BUY") {
-    // 🛍️ BUY LOGIC: Current Price-kku oru stock vangurom
-    if (wallet >= price) {
-      const newQty = currentHolding.qty + 1;
-      const newAvg = ((currentHolding.avgPrice * currentHolding.qty) + price) / newQty;
-      
-      setWallet(prev => prev - price);
-      setHoldings(prev => ({
-        ...prev,
-        [symbol]: { qty: newQty, avgPrice: newAvg }
-      }));
-
-      sendSilentAlert(`🛡️ QuantShield 👤 MANUAL BUY\nStock: ${symbol}\nPrice: ₹${price.toFixed(2)}\nWallet: ₹${(wallet - price).toFixed(2)}`);
-    } else {
-      alert("Insufficient Balance in Wallet!");
-    }
-
-  } else if (action === "SELL") {
-    // 💰 SELL LOGIC: Ellaa holdings-aiyum current market price-kku vikkuroam
-    if (currentHolding.qty > 0) {
-      const saleAmount = price * currentHolding.qty;
-      
-      // 1. Update Wallet First
-      setWallet(prev => prev + saleAmount);
-      
-      // 2. Clear Holdings for this symbol
-      setHoldings(prev => {
-        const updated = { ...prev };
-        delete updated[symbol];
-        return updated;
-      });
-
-      if (!isAuto) {
-        sendSilentAlert(`🚨 QuantShield 👤 MANUAL SELL\nStock: ${symbol}\nPrice: ₹${price.toFixed(2)}\nTotal Sale: ₹${saleAmount.toFixed(2)}`);
+    if (action === "BUY") {
+      // Manual Buy: User click panna dhaan nadakkum
+      if (wallet >= price) {
+        setWallet(prev => prev - price);
+        setHoldings(prev => {
+          const current = prev[symbol] || { qty: 0, avgPrice: 0 };
+          const newQty = current.qty + 1;
+          const newAvg = ((current.avgPrice * current.qty) + price) / newQty;
+          return { ...prev, [symbol]: { qty: newQty, avgPrice: newAvg } };
+        });
+        sendSilentAlert(`🛡️ QuantShield 👤 MANUAL BUY\nStock: ${symbol}\nPrice: ₹${price.toFixed(2)}`);
       }
-    } else {
-      alert("No holdings to sell for this stock!");
+    } else if (action === "SELL") {
+      if (holdings[symbol]?.qty > 0) {
+        // Correct Calculation: Sale amount based on current live price
+        const saleAmount = price * holdings[symbol].qty;
+        setWallet(prev => prev + saleAmount);
+        
+        setHoldings(prev => {
+          const updated = { ...prev };
+          delete updated[symbol]; // Sell panna udane list-la irundhu remove pannum
+          return updated;
+        });
+
+        if (!isAuto) {
+          sendSilentAlert(`🚨 QuantShield 👤 MANUAL SELL\nStock: ${symbol}\nPrice: ₹${price.toFixed(2)}`);
+        }
+      }
     }
-  }
-};
+  };
 
   const calculatePnL = () => {
     let totalPnL = 0;
     Object.keys(holdings).forEach(symbol => {
-      if (data && data?.symbol || "-" === symbol) totalPnL += (livePrice - holdings[symbol].avgPrice) * holdings[symbol].qty;
+      if (data && data.symbol === symbol) totalPnL += (livePrice - holdings[symbol].avgPrice) * holdings[symbol].qty;
     });
     return totalPnL;
   };
@@ -311,32 +300,19 @@ useEffect(() => {
   // High risk or low score cases
   return { rank: "AVOID", color: "#ef4444", level: 0 };
 };
-const fetchData = (symbol) => {
+  const fetchData = (symbol) => {
     setLoading(true);
-    // Ensure the Render URL is exactly as shown in your deployment
+    // Localhost:8000-ai thookittu Render URL-ai podunga
     axios.get(`https://quantumshield-3b12.onrender.com/api/analyze?tickers=${symbol}`)
       .then(res => {
-        if (res.data) {
-          // Handle both array and object responses from backend
-          const result = Array.isArray(res.data) ? res.data[0] : res.data;
-          
-          // Force mapping of keys to match your UI requirements
-          const processedData = {
-            ...result,
-            // Check for both 'current_price' or 'price' keys from backend
-            current_price: result.current_price || result.price || 0,
-            decision: result.decision || "N/A",
-            bsi_score: result.bsi_score || 0
-          };
-          
-          setData(processedData);
-        }
+        setData(Array.isArray(res.data) ? res.data[0] : res.data);
         setLoading(false);
-      }).catch((err) => {
-        console.error("Data fetch failed:", err);
+      }).catch(() => {
+        console.error("Data fetch failed from Render.");
         setLoading(false);
       });
-};
+  };
+  useEffect(() => { if (isLoggedIn) fetchData(selectedStock); }, [selectedStock, isLoggedIn]);
 
   const downloadReport = () => {
     const input = document.getElementById('report-area');
@@ -354,7 +330,7 @@ const speakStatus = () => {
     window.speechSynthesis.cancel();
 
     const msg = new SpeechSynthesisUtterance();
-    msg.text = `QuantShield Intelligence Report for ${data?.symbol || "-"}. Current sentiment score is ${data?.bsi_score ?? 0} percent. The AI engine recommends a ${data?.decision || "N/A"} position. Ghost Hedge is active to protect your portfolio capital.`;
+    msg.text = `QuantShield Intelligence Report for ${data.symbol}. Current sentiment score is ${data.bsi_score} percent. The AI engine recommends a ${data.decision} position. Ghost Hedge is active to protect your portfolio capital.`;
     msg.pitch = 1;
     msg.rate = 0.9; 
     window.speechSynthesis.speak(msg);
@@ -544,7 +520,7 @@ const handleLogin = async (e) => {
               <b style={{ paddingLeft: '20px', color: '#14df62', fontSize: '18px' }}>₹{wallet.toLocaleString()}</b>
             </div>
             {/* 📥 DOWNLOAD REPORT BUTTON FIXED */}
-            {activeTab === "Dashboard" && (
+            {activeTab === "Dashboard" && data && (
               <button onClick={downloadReport} style={{ 
                 padding: '14px 28px', background: '#1e293b', color: 'white', borderRadius: '18px', 
                 border: 'none', fontWeight: 'bold', cursor: 'pointer' 
@@ -554,7 +530,7 @@ const handleLogin = async (e) => {
         </div>
 
        <div id="report-area">
-  {activeTab === "Dashboard" && (
+  {activeTab === "Dashboard" && data && (
     <>
      {/* 📋 ASSET SELECTOR BAR (Updated with Mute Toggle) */}
 <div style={{ 
@@ -620,23 +596,23 @@ const handleLogin = async (e) => {
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{ color: '#94a3b8', fontSize: '11px' }}>DECISION STATUS:</span>
           <span style={{ 
-            color: (data?.decision || "N/A") === "BUY" ? "#10b981" : "#f59e0b", 
+            color: data.decision === "BUY" ? "#10b981" : "#f59e0b", 
             fontWeight: 'bold', 
             fontSize: '11px',
             padding: '4px 10px',
             background: 'rgba(255,255,255,0.05)',
             borderRadius: '6px'
           }}>
-            {(data?.decision || "N/A")} RECOMMENDED
+            {data.decision} RECOMMENDED
           </span>
         </div>
       </div>
 
       {/* 📊 MINI STAT CARDS (Now with 4 columns for Ghost Hedge) */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '40px' }}>
-        <MiniCard title="UNREALIZED P&L" value={`₹${calculatePnL() ? Number(calculatePnL()).toFixed(2) : "0.00"}`} color={calculatePnL() >= 0 ? "#10b981" : "#ef4444"} />
-        <MiniCard title="MARKET PRICE" value={`₹${Number(livePrice || data?.price || 0).toFixed(2)}`} color="#3b82f6" />
-        <MiniCard title="QUANTUM DECISION" value={data?.decision || "N/A"} color={(data?.decision || "N/A") === "BUY" ? "#10b981" : "#f59e0b"} />
+        <MiniCard title="UNREALIZED P&L" value={`₹${calculatePnL().toFixed(2)}`} color={calculatePnL() >= 0 ? "#10b981" : "#ef4444"} />
+        <MiniCard title="MARKET PRICE" value={`₹${livePrice.toFixed(2)}`} color="#3b82f6" />
+        <MiniCard title="QUANTUM DECISION" value={data.decision} color={data.decision === "BUY" ? "#10b981" : "#f59e0b"} />
         <MiniCard 
           title="GHOST HEDGE STATUS" 
           value={wallet < 95000 ? "⚠️ PROTECTIVE FREEZE" : "🛡️ ACTIVE"} 
@@ -649,20 +625,15 @@ const handleLogin = async (e) => {
          <div style={{ background: '#1e293b', padding: '15px', borderRadius: '20px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
             <small style={{ color: '#94a3b8', fontWeight: '800', fontSize: '10px' }}>QUANTUM SENTIMENT</small>
             <div style={{ height: '110px', marginTop: '10px', position: 'relative', display: 'flex', justifyContent: 'center' }}>
-               <Doughnut data={{ labels: ['B', 'N'], datasets: [{ data: [
-  parseFloat(data?.bsi_score ?? 0),
-  100 - parseFloat(data?.bsi_score ?? 0)
-], backgroundColor: ['#00f2fe', '#0f172a'], circumference: 180, rotation: 270, borderWidth: 0 }] }} options={{ cutout: '85%', plugins: { legend: { display: false } } }} />
-               <div style={{ position: 'absolute', bottom: '10px', fontSize: '18px', fontWeight: '900', color: '#00f2fe' }}>{data?.bsi_score ?? 0}</div>
+               <Doughnut data={{ labels: ['B', 'N'], datasets: [{ data: [parseFloat(data.bsi_score), 100-parseFloat(data.bsi_score)], backgroundColor: ['#00f2fe', '#0f172a'], circumference: 180, rotation: 270, borderWidth: 0 }] }} options={{ cutout: '85%', plugins: { legend: { display: false } } }} />
+               <div style={{ position: 'absolute', bottom: '10px', fontSize: '18px', fontWeight: '900', color: '#00f2fe' }}>{data.bsi_score}</div>
             </div>
          </div>
          <div style={{ background: '#1e293b', padding: '20px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <h4 style={{ margin: 0, fontSize: '16px', color: '#f8fafc' }}>{data?.symbol || "-"}</h4>
-              <p style={{ color: '#94a3b8', fontSize: '11px', marginTop: '4px' }}>
-  Avg: ₹{Number(holdings[data?.symbol || "-"]?.avgPrice ?? 0).toFixed(2)}
-</p>
-              <p style={{ color: '#94a3b8', fontSize: '11px' }}>Qty: {Number(holdings[data?.symbol || "-"]?.qty ?? 0).toFixed(2)}</p>
+              <h4 style={{ margin: 0, fontSize: '16px', color: '#f8fafc' }}>{data.symbol}</h4>
+              <p style={{ color: '#94a3b8', fontSize: '11px', marginTop: '4px' }}>Avg: ₹{holdings[data.symbol]?.avgPrice.toFixed(2) || '0.00'}</p>
+              <p style={{ color: '#94a3b8', fontSize: '11px' }}>Qty: {holdings[data.symbol]?.qty || 0}</p>
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button onClick={() => executeTrade("BUY")} style={{ padding: '12px 25px', background: '#10b981', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '800', cursor: 'pointer', fontSize: '12px' }}>BUY</button>
@@ -798,10 +769,10 @@ const handleLogin = async (e) => {
                 return (
                   <tr key={symbol} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
                     <td style={{ padding: '10px', color: '#00f2fe', fontWeight: 'bold' }}>{symbol}</td>
-                    <td style={{ color: '#fff' }}>{Number(h.qty ?? 0).toFixed(2)}</td>
-                    <td>₹{Number(h.avgPrice ?? 0).toFixed(2)}</td>
+                    <td style={{ color: '#fff' }}>{h.qty}</td>
+                    <td>₹{h.avgPrice.toFixed(2)}</td>
                     <td style={{ color: pnlAmount >= 0 ? '#10b981' : '#ef4444', fontWeight: 'bold' }}>
-                      {pnlAmount >= 0 ? '+' : ''}₹{Number(pnlAmount ?? 0).toFixed(2)}
+                      {pnlAmount >= 0 ? '+' : ''}₹{pnlAmount.toFixed(2)}
                     </td>
                     <td>
                       <span style={{ 
@@ -812,7 +783,7 @@ const handleLogin = async (e) => {
                         color: pnlPercent >= 0 ? '#10b981' : '#ef4444',
                         fontWeight: '900'
                       }}>
-                       {(pnlPercent ?? 0) >= 0 ? '▲' : '▼'} {Number(Math.abs(pnlPercent ?? 0)).toFixed(2)}%
+                        {pnlPercent >= 0 ? '▲' : '▼'} {Math.abs(pnlPercent).toFixed(2)}%
                       </span>
                     </td>
                     <td style={{ textAlign: 'right' }}>
@@ -965,9 +936,9 @@ const handleLogin = async (e) => {
           </thead>
           <tbody>
             {stockList.slice(0, 5).map((s, index) => {
-             const bsi = Number((43 + index * 3.5).toFixed(1));
-const vol = Number((18 + index * 6).toFixed(1));
-const sharpe = Number((2.1 - index * 0.15).toFixed(2));
+              const bsi = (43 + index * 3.5).toFixed(1);
+              const vol = (18 + index * 6).toFixed(1);
+              const sharpe = (2.1 - index * 0.15).toFixed(2);
               return (
                 <tr key={s.symbol} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
                   <td style={{ padding: '15px', color: '#fff', fontWeight: 'bold' }}>{s.symbol}</td>
@@ -1052,11 +1023,9 @@ const sharpe = Number((2.1 - index * 0.15).toFixed(2));
             }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
               <td style={{ padding: '12px', color: '#00f2fe', fontWeight: 'bold' }}>{s.symbol}</td>
               <td style={{ color: '#fff' }}>{s.name}</td>
-              <td style={{ fontWeight: 'bold' }}>
-  ₹{Number((Math.random() * 2000 + 500).toFixed(2))}
-</td>
+              <td style={{ fontWeight: 'bold' }}>₹{(Math.random() * 2000 + 500).toFixed(2)}</td>
               <td style={{ color: index % 2 === 0 ? '#10b981' : '#ef4444' }}>
-                {index % 2 === 0 ? '▲' : '▼'} {Number((Math.random() * 2).toFixed(2))}%
+                {index % 2 === 0 ? '▲' : '▼'} {(Math.random() * 2).toFixed(2)}%
               </td>
               <td>
                  <span style={{ 
@@ -1154,7 +1123,7 @@ const sharpe = Number((2.1 - index * 0.15).toFixed(2));
         parseFloat(data?.bsi_score) >= 40 ? '#fbbf24' : 
         '#ef4444' 
     }}>
-      {`${Number(data?.bsi_score ?? 0).toFixed(1)}%`}
+      {data?.bsi_score ? parseFloat(data.bsi_score).toFixed(1) + '%' : '0.0%'}
     </h2>
 
     {/* 🛡️ Recommendation Badge */}
