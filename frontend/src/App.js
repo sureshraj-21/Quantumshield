@@ -313,36 +313,28 @@ useEffect(() => {
 };
 const fetchData = (symbol) => {
     setLoading(true);
-    // 🛑 Render URL Verify: https://quantumshield-3b12.onrender.com
+    // Ensure the Render URL is exactly as shown in your deployment
     axios.get(`https://quantumshield-3b12.onrender.com/api/analyze?tickers=${symbol}`)
       .then(res => {
         if (res.data) {
+          // Handle both array and object responses from backend
           const result = Array.isArray(res.data) ? res.data[0] : res.data;
           
-          // 🛡️ Data mapping: Backend 'current_price' illana 'price' nu anupunaalum idhu handle pannum
+          // Force mapping of keys to match your UI requirements
           const processedData = {
             ...result,
-            current_price: result.current_price || result.price || 2500.00, // Fallback price
-            bsi_score: result.bsi_score || 50.0,
-            decision: result.decision || "STRONG BUY"
+            // Check for both 'current_price' or 'price' keys from backend
+            current_price: result.current_price || result.price || 0,
+            decision: result.decision || "N/A",
+            bsi_score: result.bsi_score || 0
           };
           
           setData(processedData);
-          console.log("✅ Live Data Sync Success:", processedData);
         }
         setLoading(false);
-      }).catch(err => {
-        console.error("❌ Backend connection failed:", err);
+      }).catch((err) => {
+        console.error("Data fetch failed:", err);
         setLoading(false);
-        
-        // 🛠️ FAIL-SAFE: Backend slow-ah irundha presentation-kku dummy data setup
-        setData({
-          symbol: symbol,
-          bsi_score: 75.5,
-          decision: "STRONG BUY",
-          risk_level: "Low",
-          current_price: symbol === "RELIANCE.NS" ? 2985.40 : 3850.20
-        });
       });
 };
 
