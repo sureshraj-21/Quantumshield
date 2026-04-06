@@ -43,6 +43,13 @@ if DATABASE_URL.startswith("postgres://"):
 
 # Debug (optional)
 print("Using DB:", DATABASE_URL)
+# ==============================
+# ⬇️ USE DATABASE AFTER THIS ONLY
+# ==============================
+
+from sqlalchemy import create_engine
+
+engine = create_engine(DATABASE_URL)
 
 # ==============================
 # Security
