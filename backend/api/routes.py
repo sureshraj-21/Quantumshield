@@ -17,11 +17,11 @@ async def analyze_portfolio(tickers: str = "HDFCBANK.NS"):
             stock = yf.Ticker(symbol)
 
             # ===============================
-            # 🟢 Step 1: Accurate Price Fetch
+            # 🟢 Step 1: Price Fetch
             # ===============================
             hist = stock.history(period="1d")
 
-            if not hist.empty:
+            if hist is not None and not hist.empty:
                 current_price = hist['Close'].iloc[-1]
             else:
                 current_price = stock.info.get('currentPrice') or stock.fast_info.last_price
@@ -33,6 +33,7 @@ async def analyze_portfolio(tickers: str = "HDFCBANK.NS"):
             # 🟢 Step 2: Download Data
             # ===============================
             df = yf.download(symbol, period="1mo", interval="1d", progress=False)
+
             if df is None or df.empty:
                 continue
 
@@ -42,14 +43,32 @@ async def analyze_portfolio(tickers: str = "HDFCBANK.NS"):
             else:
                 close_prices = df['Close']
 
-            y_values = close_prices.to_numpy()
+            # ===============================
+            # 🔥 IMPORTANT FIX (NaN Remove)
+            # ===============================
+            close_prices = close_prices.dropna()
+
+            if close_prices is None or close_prices.empty:
+                continue
+
+            if len(close_prices) < 10:
+                continue
+
+            y_values = close_prices.values
+
+            if np.isnan(y_values).any():
+                continue
+
             returns = close_prices.pct_change().dropna()
+
+            if len(returns) == 0:
+                continue
 
             # ===============================
             # 🟢 Step 3: AI Prediction
             # ===============================
             y = y_values.reshape(-1, 1)
-            X = np.array(range(len(y))).reshape(-1, 1)
+            X = np.arange(len(y)).reshape(-1, 1)
 
             model = LinearRegression().fit(X, y)
 
@@ -77,13 +96,12 @@ async def analyze_portfolio(tickers: str = "HDFCBANK.NS"):
                 decision = "HOLD"
                 status_text = "NEUTRAL"
 
-            # Extreme Risk
             if volatility > 0.50:
                 decision = "AVOID"
                 status_text = "EXTREME VOLATILITY"
 
             # ===============================
-            # 🟢 FINAL RESPONSE (🔥 FIXED)
+            # 🟢 Final Response
             # ===============================
             all_results.append({
                 "symbol": symbol,
@@ -92,14 +110,14 @@ async def analyze_portfolio(tickers: str = "HDFCBANK.NS"):
                 "prediction": {
                     "next_day": round(prediction, 2),
                     "trend": "UP" if expected_change > 0 else "DOWN",
-                    "pct": round(expected_change, 2)  # ✅ number
+                    "pct": round(expected_change, 2)
                 },
 
                 "decision": decision,
                 "regime": "STRESS" if volatility > 0.25 else "CALM",
 
-                "volatility": round(volatility * 100, 2),  # ✅ number
-                "bsi_score": round(bsi, 1),               # ✅ number
+                "volatility": round(volatility * 100, 2),
+                "bsi_score": round(bsi, 1),
 
                 "status": status_text
             })
