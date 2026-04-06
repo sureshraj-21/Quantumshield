@@ -118,8 +118,8 @@ const [holdings, setHoldings] = useState(() => {
     setLoading(true);
 
     setTimeout(() => {
-      const bsiVal = parseFloat(data.bsi_score); 
-      const volVal = parseFloat(data.volatility);
+      const bsiVal = parseFloat(data?.bsi_score ?? 0); 
+      const volVal = parseFloat(data?.volatility ?? 0);
       
       let verdict = "";
       let color = "";
@@ -170,8 +170,7 @@ const [holdings, setHoldings] = useState(() => {
     if (isLoggedIn && data) {
       // 🚀 Sync initial price when stock changes
       setLivePrice(data?.current_price || data?.price || 0);
-      setPriceHistory([data.current_price]);
-
+      setPriceHistory([data?.current_price || 0]);
       const interval = setInterval(() => {
         setLivePrice(prevPrice => {
           const fluctuation = (Math.random() - 0.5) * 4.0; 
@@ -179,7 +178,7 @@ const [holdings, setHoldings] = useState(() => {
 
           // 🎯 AUTO-SELL CHECK (Fixed for Wallet Update)
           if (isAutoExecutionActive) {
-            const symbol = data.symbol;
+            const symbol = data?.symbol || "-";
             const holding = holdings[symbol];
 
             if (holding && holding.qty > 0) {
@@ -252,7 +251,7 @@ useEffect(() => {
   const executeTrade = (action, isAuto = false) => {
     if (!data) return;
     const price = livePrice;
-    const symbol = data.symbol;
+    const symbol = data?.symbol || "-";
 
     if (action === "BUY") {
       // Manual Buy: User click panna dhaan nadakkum
@@ -293,7 +292,7 @@ Price: ₹${Number(price || 0).toFixed(2)}`);
   const calculatePnL = () => {
     let totalPnL = 0;
     Object.keys(holdings).forEach(symbol => {
-      if (data && data.symbol === symbol) totalPnL += (livePrice - holdings[symbol].avgPrice) * holdings[symbol].qty;
+      if (data && data?.symbol || "-" === symbol) totalPnL += (livePrice - holdings[symbol].avgPrice) * holdings[symbol].qty;
     });
     return totalPnL;
   };
@@ -338,7 +337,7 @@ const speakStatus = () => {
     window.speechSynthesis.cancel();
 
     const msg = new SpeechSynthesisUtterance();
-    msg.text = `QuantShield Intelligence Report for ${data.symbol}. Current sentiment score is ${data.bsi_score} percent. The AI engine recommends a ${data.decision} position. Ghost Hedge is active to protect your portfolio capital.`;
+    msg.text = `QuantShield Intelligence Report for ${data?.symbol || "-"}. Current sentiment score is ${data.bsi_score} percent. The AI engine recommends a ${data?.decision || "N/A"} position. Ghost Hedge is active to protect your portfolio capital.`;
     msg.pitch = 1;
     msg.rate = 0.9; 
     window.speechSynthesis.speak(msg);
@@ -604,14 +603,14 @@ const handleLogin = async (e) => {
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{ color: '#94a3b8', fontSize: '11px' }}>DECISION STATUS:</span>
           <span style={{ 
-            color: data.decision === "BUY" ? "#10b981" : "#f59e0b", 
+            color: (data?.decision || "N/A") === "BUY" ? "#10b981" : "#f59e0b", 
             fontWeight: 'bold', 
             fontSize: '11px',
             padding: '4px 10px',
             background: 'rgba(255,255,255,0.05)',
             borderRadius: '6px'
           }}>
-            {data.decision} RECOMMENDED
+            {(data?.decision || "N/A")} RECOMMENDED
           </span>
         </div>
       </div>
@@ -620,7 +619,7 @@ const handleLogin = async (e) => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '40px' }}>
         <MiniCard title="UNREALIZED P&L" value={`₹${calculatePnL() ? Number(calculatePnL()).toFixed(2) : "0.00"}`} color={calculatePnL() >= 0 ? "#10b981" : "#ef4444"} />
         <MiniCard title="MARKET PRICE" value={`₹${Number(livePrice || 0).toFixed(2)}`} color="#3b82f6" />
-        <MiniCard title="QUANTUM DECISION" value={data.decision} color={data.decision === "BUY" ? "#10b981" : "#f59e0b"} />
+        <MiniCard title="QUANTUM DECISION" value={data?.decision || "N/A"} color={(data?.decision || "N/A") === "BUY" ? "#10b981" : "#f59e0b"} />
         <MiniCard 
           title="GHOST HEDGE STATUS" 
           value={wallet < 95000 ? "⚠️ PROTECTIVE FREEZE" : "🛡️ ACTIVE"} 
@@ -633,17 +632,20 @@ const handleLogin = async (e) => {
          <div style={{ background: '#1e293b', padding: '15px', borderRadius: '20px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
             <small style={{ color: '#94a3b8', fontWeight: '800', fontSize: '10px' }}>QUANTUM SENTIMENT</small>
             <div style={{ height: '110px', marginTop: '10px', position: 'relative', display: 'flex', justifyContent: 'center' }}>
-               <Doughnut data={{ labels: ['B', 'N'], datasets: [{ data: [parseFloat(data.bsi_score), 100-parseFloat(data.bsi_score)], backgroundColor: ['#00f2fe', '#0f172a'], circumference: 180, rotation: 270, borderWidth: 0 }] }} options={{ cutout: '85%', plugins: { legend: { display: false } } }} />
+               <Doughnut data={{ labels: ['B', 'N'], datasets: [{ data: [
+  parseFloat(data?.bsi_score ?? 0),
+  100 - parseFloat(data?.bsi_score ?? 0)
+], backgroundColor: ['#00f2fe', '#0f172a'], circumference: 180, rotation: 270, borderWidth: 0 }] }} options={{ cutout: '85%', plugins: { legend: { display: false } } }} />
                <div style={{ position: 'absolute', bottom: '10px', fontSize: '18px', fontWeight: '900', color: '#00f2fe' }}>{data.bsi_score}</div>
             </div>
          </div>
          <div style={{ background: '#1e293b', padding: '20px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <h4 style={{ margin: 0, fontSize: '16px', color: '#f8fafc' }}>{data.symbol}</h4>
+              <h4 style={{ margin: 0, fontSize: '16px', color: '#f8fafc' }}>{data?.symbol || "-"}</h4>
               <p style={{ color: '#94a3b8', fontSize: '11px', marginTop: '4px' }}>
-  Avg: ₹{Number(holdings[data.symbol]?.avgPrice ?? 0).toFixed(2)}
+  Avg: ₹{Number(holdings[data?.symbol || "-"]?.avgPrice ?? 0).toFixed(2)}
 </p>
-              <p style={{ color: '#94a3b8', fontSize: '11px' }}>Qty: {Number(holdings[data.symbol]?.qty ?? 0).toFixed(2)}</p>
+              <p style={{ color: '#94a3b8', fontSize: '11px' }}>Qty: {Number(holdings[data?.symbol || "-"]?.qty ?? 0).toFixed(2)}</p>
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button onClick={() => executeTrade("BUY")} style={{ padding: '12px 25px', background: '#10b981', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '800', cursor: 'pointer', fontSize: '12px' }}>BUY</button>
