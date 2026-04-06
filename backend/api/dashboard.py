@@ -1,9 +1,11 @@
 import yfinance as yf
 import numpy as np
 import pandas as pd
-from config import ASSETS, LOOKBACK_PERIOD
+from typing import cast
+
+from settings import ASSETS, LOOKBACK_PERIOD
 from risk_engine.bsi import calculate_bsi
-from risk_engine.cps import calculate_cps
+from risk_engine.cps import calculate_cps_v2
 from risk_engine.monte_carlo import monte_carlo_simulation
 from risk_engine.hmm_regime import detect_hmm_regime
 from optimizer.markowitz import optimize_portfolio
@@ -12,29 +14,30 @@ from database.db import SessionLocal
 from database.portfolio_repo import save_portfolio_snapshot
 
 
-# =====================================================
-# DASHBOARD DATA ENGINE (ADVANCED VERSION)
-# =====================================================
-
 def get_dashboard_data(user_id: int):
 
     db = SessionLocal()
 
     try:
-
-        # =================================================
-        # DOWNLOAD MARKET DATA
-        # =================================================
+        # ===============================
+        # DOWNLOAD DATA
+        # ===============================
         prices = yf.download(
             ASSETS,
             period=LOOKBACK_PERIOD,
             progress=False
         )
 
-        if prices.empty:
+        # ✅ FIX 1: None + empty safe
+        if prices is None:
             return {"error": "Market data unavailable"}
 
-        # Handle MultiIndex safely
+        if hasattr(prices, "empty") and prices.empty:
+            return {"error": "Market data unavailable"}
+
+        # ===============================
+        # HANDLE MULTI INDEX
+        # ===============================
         if isinstance(prices.columns, pd.MultiIndex):
             prices = prices["Close"]
         else:
@@ -45,16 +48,23 @@ def get_dashboard_data(user_id: int):
         if prices.empty:
             return {"error": "No closing price data"}
 
-        # =================================================
-        # PORTFOLIO SERIES
-        # =================================================
-        portfolio_series = prices.sum(axis=1)
+        # ===============================
+        # TYPE FIX (Pylance)
+        # ===============================
+        prices = cast(pd.DataFrame, prices)
+
+        # ===============================
+        # PORTFOLIO SERIES (🔥 FIXED axis)
+        # ===============================
+        portfolio_series = prices.sum(axis="columns")
+
         portfolio_value = float(portfolio_series.iloc[-1])
+
         returns = portfolio_series.pct_change().dropna()
 
-        # =================================================
+        # ===============================
         # RISK METRICS
-        # =================================================
+        # ===============================
         if not returns.empty:
 
             sharpe_ratio = (
@@ -78,28 +88,28 @@ def get_dashboard_data(user_id: int):
         drawdown = (portfolio_series - cumulative) / cumulative
         max_drawdown = float(drawdown.min())
 
-        # =================================================
+        # ===============================
         # MARKET REGIME
-        # =================================================
+        # ===============================
         hmm_regime, stress_probability = detect_hmm_regime(returns)
 
-        # =================================================
-        # BEHAVIORAL RISK
-        # =================================================
-        bsi = calculate_bsi(prices)
-        cps = calculate_cps(prices)
+        # ===============================
+        # BSI + CPS
+        # ===============================
+        bsi = float(calculate_bsi(prices))
+        cps = float(calculate_cps_v2(prices))
 
-        # =================================================
-        # PORTFOLIO OPTIMIZATION
-        # =================================================
+        # ===============================
+        # OPTIMIZATION
+        # ===============================
         allocation = optimize_portfolio(prices)
         allocation, hedge_status = apply_ghost_hedge(
             allocation, bsi, cps
         )
 
-        # =================================================
-        # RISK CONTRIBUTION (REAL CALCULATION)
-        # =================================================
+        # ===============================
+        # RISK CONTRIBUTION
+        # ===============================
         risk_contribution = {}
 
         if not prices.empty and allocation:
@@ -124,17 +134,17 @@ def get_dashboard_data(user_id: int):
                 for i, asset in enumerate(prices.columns):
                     risk_contribution[asset] = float(contrib[i])
 
-        # =================================================
-        # PERFORMANCE HISTORY
-        # =================================================
+        # ===============================
+        # PERFORMANCE
+        # ===============================
         performance = [
-            {"date": str(d.date()), "value": float(v)}
-            for d, v in portfolio_series.items()
-        ]
+           {"date": str(d), "value": float(v)}
+    for d, v in portfolio_series.items()
+]
 
-        # =================================================
-        # MONTE CARLO SIMULATION
-        # =================================================
+        # ===============================
+        # MONTE CARLO
+        # ===============================
         if not returns.empty:
             mc_paths = monte_carlo_simulation(returns)
             mc_final = mc_paths[:, -1]
@@ -144,9 +154,9 @@ def get_dashboard_data(user_id: int):
             mc_var_5 = 0.0
             mc_expected = 0.0
 
-        # =================================================
-        # ADVANCED AI STOCK RANKING
-        # =================================================
+        # ===============================
+        # AI STOCK RANKING
+        # ===============================
         recommendations = []
 
         asset_returns = prices.pct_change().dropna()
@@ -163,14 +173,12 @@ def get_dashboard_data(user_id: int):
 
             sharpe = momentum / (volatility + 1e-6)
 
-            # Weighted AI Score
             score = float(
                 (momentum * 0.5) +
                 (sharpe * 0.3) -
                 (volatility * 0.2)
             )
 
-            # Signal classification
             if score > 0.05:
                 signal = "BUY"
             elif score > 0:
@@ -196,9 +204,9 @@ def get_dashboard_data(user_id: int):
             reverse=True
         )
 
-        # =================================================
+        # ===============================
         # SAVE SNAPSHOT
-        # =================================================
+        # ===============================
         if performance:
             save_portfolio_snapshot(
                 db=db,
@@ -213,9 +221,9 @@ def get_dashboard_data(user_id: int):
                 allocation=allocation
             )
 
-        # =================================================
-        # RETURN FULL DASHBOARD DATA
-        # =================================================
+        # ===============================
+        # FINAL RESPONSE
+        # ===============================
         return {
             "portfolio_value": portfolio_value,
             "bsi": bsi,
