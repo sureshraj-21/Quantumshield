@@ -169,7 +169,7 @@ const [holdings, setHoldings] = useState(() => {
   useEffect(() => {
     if (isLoggedIn && data) {
       // 🚀 Sync initial price when stock changes
-      setLivePrice(data.current_price);
+      setLivePrice(data?.current_price || data?.price || 0);
       setPriceHistory([data.current_price]);
 
       const interval = setInterval(() => {
@@ -267,7 +267,7 @@ useEffect(() => {
         sendSilentAlert(`🛡️ QuantShield 👤 MANUAL BUY
 Stock: ${symbol || "UNKNOWN"}
 Price: ₹${Number(price ?? 0).toFixed(2)}
-Portfolio Value: ₹${Number(portfolio_value ?? 0).toFixed(2)}`);
+Portfolio Value: ₹${Number(wallet ?? 0).toFixed(2)}`);
       }
     } else if (action === "SELL") {
       if (holdings[symbol]?.qty > 0) {
@@ -528,7 +528,7 @@ const handleLogin = async (e) => {
               <b style={{ paddingLeft: '20px', color: '#14df62', fontSize: '18px' }}>₹{wallet.toLocaleString()}</b>
             </div>
             {/* 📥 DOWNLOAD REPORT BUTTON FIXED */}
-            {activeTab === "Dashboard" && data && (
+            {activeTab === "Dashboard" && (
               <button onClick={downloadReport} style={{ 
                 padding: '14px 28px', background: '#1e293b', color: 'white', borderRadius: '18px', 
                 border: 'none', fontWeight: 'bold', cursor: 'pointer' 
@@ -538,7 +538,7 @@ const handleLogin = async (e) => {
         </div>
 
        <div id="report-area">
-  {activeTab === "Dashboard" && data && (
+  {activeTab === "Dashboard" && (
     <>
      {/* 📋 ASSET SELECTOR BAR (Updated with Mute Toggle) */}
 <div style={{ 
