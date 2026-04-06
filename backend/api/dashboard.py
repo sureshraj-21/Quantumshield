@@ -1,7 +1,7 @@
 import yfinance as yf
 import numpy as np
 import pandas as pd
-from backend.settings import ASSETS, LOOKBACK_PERIOD
+from config import ASSETS, LOOKBACK_PERIOD
 from risk_engine.bsi import calculate_bsi
 from risk_engine.cps import calculate_cps
 from risk_engine.monte_carlo import monte_carlo_simulation
