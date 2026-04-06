@@ -2,32 +2,30 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from settings import DATABASE_URL
 
-engine = create_engine(DATABASE_URL, echo=True)
-
-# 🛡️ Step 1: URL Prefix Fix
-# Render URLs often start with 'postgres://', SQLAlchemy needs 'postgresql://'
-if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+# 🛡️ Fix prefix (Render sometimes gives postgres://)
+if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-# 🚀 Step 2: Internal Connection Engine
-# Internal network-ku SSL thevai illai, so 'connect_args' remove pannittaen.
+# 🚀 Create Engine (Production Ready)
 engine = create_engine(
     DATABASE_URL,
-    pool_pre_ping=True,            # 📡 Connection alive-ah irukkanu check pannum.
-    pool_recycle=300,              # 🔄 Connection-ai refresh pannum (Prevent timeouts).
-    pool_size=10,                  # Number of connections to keep open.
-    max_overflow=20                # Extra connections during high traffic.
+    pool_pre_ping=True,   # Connection alive check
+    pool_recycle=300,     # Prevent timeout
+    pool_size=10,
+    max_overflow=20
 )
 
+# 📦 Session Factory
 SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
     bind=engine
 )
 
+# 🧱 Base Class
 Base = declarative_base()
 
-# Dependency to get DB session
+# 🔌 Dependency (FastAPI use)
 def get_db():
     db = SessionLocal()
     try:

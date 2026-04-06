@@ -23,20 +23,17 @@ BSI_THRESHOLD = 2.5
 CPS_THRESHOLD = 1.2
 
 # ==============================
-# Database Configuration
+# 🗄️ Database Configuration (FINAL FIX)
 # ==============================
 
-EXTERNAL_DB_URL = "postgresql://quantshield_db_user:NLVqB2hddaC58S0g1oT1SJid3SSIECxW@dpg-d79mplffte5s739p8l8g-a.singapore-postgres.render.com/quantshield_db?sslmode=require"
+# 🔥 Render automatically provides DATABASE_URL
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-INTERNAL_DB_URL = "postgresql://quantshield_db_user:NLVqB2hddaC58S0g1oT1SJid3SSIECxW@dpg-d79mplffte5s739p8l8g-a/quantshield_db"
+# ⚠️ Safety check (important)
+if not DATABASE_URL:
+    raise ValueError("❌ DATABASE_URL not found. Please check Render environment variables.")
 
-# 🔥 FIXED DETECTION (SAFE)
-if os.getenv("RENDER_EXTERNAL_HOSTNAME"):
-    DATABASE_URL = INTERNAL_DB_URL
-else:
-    DATABASE_URL = EXTERNAL_DB_URL
-
-# Fix prefix
+# Fix prefix (Render sometimes gives postgres://)
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
