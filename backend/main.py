@@ -4,7 +4,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from api.routes import router as api_router
 from auth.auth_routes import router as auth_router
-# 🗄️ Inga dhaan unga External Database link aagudhu
+# 🗄️ Database engine and Base
 from database.db import engine, Base 
 from twilio.rest import Client 
 
@@ -28,7 +28,7 @@ except Exception as e:
     client = None
 
 # ===============================
-# CORS (Updated for Vercel & Render)
+# CORS
 # ===============================
 app.add_middleware(
     CORSMiddleware,
@@ -39,14 +39,15 @@ app.add_middleware(
 )
 
 # ===============================
-# 🗄️ DATABASE TABLE CREATION (PERMANENT FIX)
+# 🗄️ DATABASE REFRESH LOGIC (FIX FOR STATUS 500)
 # ===============================
-# Idhu Render External SQL-la tables-ai create pannum
 @app.on_event("startup")
 def startup_event():
     try:
-        # 🛡️ Intha line dhaan unga External Database-ai connect panni
-        # tables-ai permanent-ah create pannum.
+        # 🛡️ Step 1: Drop old tables if they are corrupted (Optional, but safe for first time)
+        # Base.metadata.drop_all(bind=engine) 
+        
+        # 🛡️ Step 2: Create all tables in External Render SQL
         Base.metadata.create_all(bind=engine)
         print("✅ External Database tables synced successfully!")
     except Exception as e:
@@ -77,12 +78,11 @@ async def send_notification(request: Request):
 def root():
     return {"status": "API Running", "accuracy_mode": "Real-time NSE Sync"}
 
-# ===============================
 # Register Routers
-# ===============================
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 app.include_router(api_router, prefix="/api", tags=["Core API"])
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
+    # Render uses 'PORT' environment variable
+    port = int(os.environ.get("PORT", 10000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
