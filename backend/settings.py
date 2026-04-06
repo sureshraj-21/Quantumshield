@@ -23,23 +23,25 @@ BSI_THRESHOLD = 2.5
 CPS_THRESHOLD = 1.2
 
 # ==============================
-# 🗄️ Database Configuration (FINAL FIX)
+# 🗄️ Database Configuration (FIXED FOR RENDER)
 # ==============================
 
 # 🔥 Render automatically provides DATABASE_URL
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# ⚠️ Safety check (important)
+# ⚠️ Safety check & Fallback (Important to prevent Blank Screen)
 if not DATABASE_URL:
-    raise ValueError("❌ DATABASE_URL not found. Please check Render environment variables.")
+    print("⚠️ Warning: DATABASE_URL not found. Falling back to local SQLite for safety.")
+    DATABASE_URL = "sqlite:///./quantshield.db" # Database illanaalum app run aagum
+else:
+    # Fix prefix (Render gives postgres://, but SQLAlchemy needs postgresql://)
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-# Fix prefix (Render sometimes gives postgres://)
-if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-
-print("✅ Using DB:", DATABASE_URL)
+print("✅ Using DB Connection:", DATABASE_URL)
 
 # ==============================
 # Security
 # ==============================
-SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")
+SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey_quantshield_2026")
+ALGORITHM = "HS256"

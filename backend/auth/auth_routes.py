@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-# 🛑 IMPORT-AI database/db.py-LA IRUNDHU EDUKKANUM (Athu dhaan settings-ai use pannum)
+# 🛑 DB connection settings.py vazhiyaa varum
 from database.db import get_db 
 from auth.models import User
 from auth.auth_utils import create_access_token, hash_password, verify_password
@@ -9,20 +9,21 @@ from typing import Optional
 
 router = APIRouter()
 
+# Schema for Input Validation
 class AuthSchema(BaseModel):
     username: str
     password: str
     email: Optional[str] = None 
 
-# 🛑 Indha LOCAL get_db THEVAI ILLA, database/db.py-la irundhu varanum
-# Neenga inga SessionLocal() direct-ah use panna, athu settings.py-ai detect pannaadhu.
-
 @router.post("/signup")
 def register(user_data: AuthSchema, db: Session = Depends(get_db)):
-    # 🔍 Check if user exists
+    # 🔍 Check if username or email already exists
     existing_user = db.query(User).filter(User.username == user_data.username).first()
     if existing_user:
-        raise HTTPException(status_code=400, detail="Username already exists")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="Username already exists"
+        )
     
     try:
         hashed_pw = hash_password(user_data.password)
@@ -34,23 +35,40 @@ def register(user_data: AuthSchema, db: Session = Depends(get_db)):
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
-        return {"message": "User registered successfully"}
+        
+        return {
+            "status": "success",
+            "message": "User registered successfully",
+            "user_id": new_user.id
+        }
     except Exception as e:
         db.rollback()
-        # ⚠️ SQL Error details-ai inga thaan pakkalam
-        raise HTTPException(status_code=500, detail=str(e))
+        # Internal server error detailed message for debugging
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail=f"Database Error: {str(e)}"
+        )
 
 @router.post("/login")
 def login(user_data: AuthSchema, db: Session = Depends(get_db)):
+    # 🔎 Search user in DB
     user = db.query(User).filter(User.username == user_data.username).first()
     
+    # 🛡️ Verify User & Password
     if not user or not verify_password(user_data.password, user.password):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="Invalid credentials"
+        )
 
+    # 🔑 Create JWT Token
     token = create_access_token({"sub": user.username})
     
+    # 🟢 RESPONSE: Added email and status for better Frontend sync
     return {
         "access_token": token, 
         "token_type": "bearer",
-        "username": user.username 
+        "username": user.username,
+        "email": user.email,
+        "status": "logged_in"
     }
