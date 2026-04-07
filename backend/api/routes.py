@@ -1,4 +1,7 @@
-from fastapi import APIRouter
+import os
+
+from fastapi import APIRouter, Request
+from twilio.rest import Client
 import yfinance as yf
 import pandas as pd
 import numpy as np
@@ -6,6 +9,27 @@ from sklearn.linear_model import LinearRegression
 from typing import cast
 
 router = APIRouter()
+
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+TWILIO_WHATSAPP_NUMBER = 'whatsapp:+14155238886'
+MY_WHATSAPP_NUMBER = 'whatsapp:+919962126306'
+
+client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+
+@router.post("/send-notification")
+async def send_notification(request: Request):
+    data = await request.json()
+    msg = data.get("msg", "Test message")
+
+    message = client.messages.create(
+        from_=TWILIO_WHATSAPP_NUMBER,
+        body=msg,
+        to=MY_WHATSAPP_NUMBER
+    )
+
+    return {"status": "sent", "sid": message.sid}
+
 
 @router.get("/analyze")
 async def analyze_portfolio(tickers: str = "HDFCBANK.NS"):
