@@ -17,7 +17,7 @@ MY_WHATSAPP_NUMBER = 'whatsapp:+919962126306'
 
 client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
-@router.post("/send-notification")
+@router.post("api/send-notification")
 async def send_notification(request: Request):
     data = await request.json()
     msg = data.get("msg", "Test message")
