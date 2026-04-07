@@ -67,6 +67,14 @@ async def analyze_portfolio(tickers: str = "HDFCBANK.NS"):
             # ===============================
             # 🟢 Step 3: AI Prediction
             # ===============================
+            y_values = close_prices.to_numpy()
+
+            if len(y_values) == 0:
+             continue
+
+            if np.isnan(y_values).any():
+             continue
+
             y = y_values.reshape(-1, 1)
             X = np.arange(len(y)).reshape(-1, 1)
 
