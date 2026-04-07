@@ -53,7 +53,7 @@ def startup_event():
 # ===============================
 # 🟢 WHATSAPP NOTIFICATION
 # ===============================
-@app.post("/api/send-notification")
+@app.post("/send-notification")
 async def send_notification(request: Request):
     if not client:
         return {"status": "error", "message": "Twilio not configured"}
