@@ -7,40 +7,36 @@ import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from typing import cast
+from twilio.rest import Client
 
 router = APIRouter()
 
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID', 'AC5a3cdd61a29ed82e3a5f2e54977fb072')
 TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN', '6ce8a0afe31272c81464ab9a5002c140')
-TWILIO_WHATSAPP_NUMBER = 'whatsapp:+14155238886' 
-MY_WHATSAPP_NUMBER = 'whatsapp:+919962126306'
 
 client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
-@router.post("/api/send-notification") # 👈 Fix 1: Added '/' at the start
+@router.post("/send-notification") 
 async def send_notification(request: Request):
     try:
         data = await request.json()
         msg_content = data.get("msg", "QuantShield Alert Triggered")
         
-        # 🛠️ Fix 2: Explicit-ah 'whatsapp:' prefix add panrom safety-ku
-        target_phone = "+919962126306"
-        formatted_to = f"whatsapp:{target_phone}"
-        
-        # Twilio WhatsApp Number (Kandippa 'whatsapp:' prefix irukanum)
-        from_number = "whatsapp:+14155238886" 
+        # Numbers with correct whatsapp: prefix
+        from_number = 'whatsapp:+14155238886'
+        to_number = 'whatsapp:+919962126306'
 
         message = client.messages.create(
             from_=from_number,
             body=msg_content,
-            to=formatted_to
+            to=to_number
         )
         
         print(f"✅ Success! SID: {message.sid}")
         return {"status": "sent", "sid": message.sid}
         
     except Exception as e:
-        print(f"❌ Route Error: {e}")
+        print(f"❌ Twilio Error: {e}")
         return {"status": "error", "message": str(e)}
 
 
