@@ -13,15 +13,13 @@ app = FastAPI(
 )
 
 # ===============================
-# 🔑 TWILIO CONFIGURATION (Dynamic Fix)
+# 🔑 TWILIO CONFIGURATION (Final Fix)
 # ===============================
-# Hardcoded values-ai vida Render Environment Variables-ku priority kudukanum
+# Note: Render Environment Variables-la indha names-aiye use pannunga
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID', 'AC5a3cdd61a29ed82e3a5f2e54977fb072')
 TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN', '6ce8a0afe31272c81464ab9a5002c140')
-TWILIO_WHATSAPP_NUMBER = 'whatsapp:+14155238886' 
-MY_WHATSAPP_NUMBER = 'whatsapp:+919962126306'
+TWILIO_WHATSAPP_NUMBER = os.getenv('TWILIO_WHATSAPP_NUMBER', 'whatsapp:+14155238886')
 
-# Twilio Client Initialization
 client = None
 if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
     try:
@@ -56,33 +54,31 @@ def startup_event():
 # ===============================
 # 🟢 WHATSAPP NOTIFICATION (Path Fix)
 # ===============================
-# Inga "/api/send-notification" nu slash mukkkiyam
 @app.post("/api/send-notification")
 async def send_notification(request: Request):
     if not client:
+        # Twilio initialise aagalana logic inga break aagum
         return {"status": "error", "message": "Twilio not initialized"}
     
     try:
         data = await request.json()
-        # Frontend-la irundhu vara message
         msg_content = data.get("msg", "QuantShield Alert Triggered")
         
-        # 🛠️ Fix 1: Hardcoded number-la 'whatsapp:' prefix irukanum
-        # 🛠️ Fix 2: Frontend-la irundhu dynamic-ah number vandha adhaiyum handle pannalam
+        # ✅ FIX: Explicit 'whatsapp:' prefix with your number
         target_number = 'whatsapp:+919962126306' 
 
         message = client.messages.create(
-            from_=TWILIO_WHATSAPP_NUMBER, # 'whatsapp:+14155238886'
+            from_=TWILIO_WHATSAPP_NUMBER, 
             body=msg_content,
             to=target_number
         )
         
-        print(f"✅ Message Sent! SID: {message.sid}")
+        print(f"✅ Message Sent Successfully! SID: {message.sid}")
         return {"status": "success", "sid": message.sid}
         
     except Exception as e:
-        # 🛠️ Check Render Logs for this error message
-        print(f"❌ Twilio Send Error: {e}")
+        # Check Render logs for this error
+        print(f"❌ Twilio Send Error: {str(e)}")
         return {"status": "error", "message": str(e)}
 
 @app.get("/")

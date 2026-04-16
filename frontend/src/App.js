@@ -51,25 +51,33 @@ const [bsi, setBsi] = useState(0);
   const [sensitivity, setSensitivity] = useState(85);
   
 
-  // 🚀 NOTIFICATION CONFIG (TELEGRAM SILENT)
-  const TELEGRAM_TOKEN = "8260561931:AAFNSYProGiOFw0wPYcam4vS_h-IGh5yL0U";
-  const CHAT_ID = "1687190893"; 
+  // 🚀 NOTIFICATION CONFIG
+const MY_PHONE = "919962126306";
 
-  const MY_PHONE = "919962126306";
-  const sendSilentAlert = async (message) => {
+const sendSilentAlert = async (message) => {
+    // 1. Settings check (Naming correct-ah irukanum)
     if (!isAlertEnabled || !isWhatsappEnabled) {
       console.log("WhatsApp Alerts are disabled in settings.");
       return;
     }
 
     try {
-        await axios.post('https://quantumshield-3b12.onrender.com/api/send-notification', {
+        // 2. API Call to Render Backend
+        const response = await axios.post('https://quantumshield-3b12.onrender.com/api/send-notification', {
             msg: message,
-            to_number: `whatsapp:${MY_PHONE}` // 👈 Key-ai 'to_number' nu mathi, 'whatsapp:' prefix add pannunga
+            // 🛠️ FIX: Backend-la namma 'to_number' nu dhaan edukkurom
+            to_number: `whatsapp:+${MY_PHONE}` 
         });
-        console.log("✅ WhatsApp Notification Sent!");
+
+        if (response.data.status === "success") {
+            console.log("✅ WhatsApp Notification Sent successfully!", response.data.sid);
+        } else {
+            console.error("❌ Backend Error:", response.data.message);
+        }
+
     } catch (error) {
-        console.error("❌ WhatsApp delivery failed:", error.message);
+        // 🛠️ Detail-ah error check panna idhu help pannum
+        console.error("❌ WhatsApp delivery failed:", error.response?.data?.message || error.message);
     }
 };
 
