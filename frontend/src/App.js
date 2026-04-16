@@ -54,6 +54,8 @@ const [bsi, setBsi] = useState(0);
   // 🚀 NOTIFICATION CONFIG (TELEGRAM SILENT)
   const TELEGRAM_TOKEN = "8260561931:AAFNSYProGiOFw0wPYcam4vS_h-IGh5yL0U";
   const CHAT_ID = "1687190893"; 
+
+  const MY_PHONE = "919962126306";
   const sendSilentAlert = async (message) => {
     if (!isAlertEnabled || !isWhatsappEnabled) {
       console.log("WhatsApp Alerts are disabled in settings.");
