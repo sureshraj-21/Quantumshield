@@ -17,18 +17,31 @@ MY_WHATSAPP_NUMBER = 'whatsapp:+919962126306'
 
 client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
-@router.post("api/send-notification")
+@router.post("/api/send-notification") # 👈 Fix 1: Added '/' at the start
 async def send_notification(request: Request):
-    data = await request.json()
-    msg = data.get("msg", "Test message")
+    try:
+        data = await request.json()
+        msg_content = data.get("msg", "QuantShield Alert Triggered")
+        
+        # 🛠️ Fix 2: Explicit-ah 'whatsapp:' prefix add panrom safety-ku
+        target_phone = "+919962126306"
+        formatted_to = f"whatsapp:{target_phone}"
+        
+        # Twilio WhatsApp Number (Kandippa 'whatsapp:' prefix irukanum)
+        from_number = "whatsapp:+14155238886" 
 
-    message = client.messages.create(
-        from_=TWILIO_WHATSAPP_NUMBER,
-        body=msg,
-        to=MY_WHATSAPP_NUMBER
-    )
-
-    return {"status": "sent", "sid": message.sid}
+        message = client.messages.create(
+            from_=from_number,
+            body=msg_content,
+            to=formatted_to
+        )
+        
+        print(f"✅ Success! SID: {message.sid}")
+        return {"status": "sent", "sid": message.sid}
+        
+    except Exception as e:
+        print(f"❌ Route Error: {e}")
+        return {"status": "error", "message": str(e)}
 
 
 @router.get("/analyze")

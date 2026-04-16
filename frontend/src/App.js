@@ -54,12 +54,7 @@ const [bsi, setBsi] = useState(0);
   // 🚀 NOTIFICATION CONFIG (TELEGRAM SILENT)
   const TELEGRAM_TOKEN = "8260561931:AAFNSYProGiOFw0wPYcam4vS_h-IGh5yL0U";
   const CHAT_ID = "1687190893"; 
-  const MY_PHONE = "+919962126306";
-
-  // ✅ Fixed the sendSilentAlert function
-  // 🚀 PRIMARY NOTIFICATION: WHATSAPP ONLY (+919962126306)
   const sendSilentAlert = async (message) => {
-    // 🛡️ WhatsApp enabled-ah nu check pannum
     if (!isAlertEnabled || !isWhatsappEnabled) {
       console.log("WhatsApp Alerts are disabled in settings.");
       return;
@@ -68,13 +63,13 @@ const [bsi, setBsi] = useState(0);
     try {
         await axios.post('https://quantumshield-3b12.onrender.com/api/send-notification', {
             msg: message,
-            phone: "+919962126306" // API-ku 'phone' key-ah anupunga (Backend logic-padi)
+            to_number: `whatsapp:${MY_PHONE}` // 👈 Key-ai 'to_number' nu mathi, 'whatsapp:' prefix add pannunga
         });
         console.log("✅ WhatsApp Notification Sent!");
     } catch (error) {
         console.error("❌ WhatsApp delivery failed:", error.message);
     }
-  };
+};
 
   const stockList = [
   // 🏦 BANKING & FINANCE

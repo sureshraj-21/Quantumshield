@@ -64,16 +64,25 @@ async def send_notification(request: Request):
     
     try:
         data = await request.json()
+        # Frontend-la irundhu vara message
         msg_content = data.get("msg", "QuantShield Alert Triggered")
         
+        # 🛠️ Fix 1: Hardcoded number-la 'whatsapp:' prefix irukanum
+        # 🛠️ Fix 2: Frontend-la irundhu dynamic-ah number vandha adhaiyum handle pannalam
+        target_number = 'whatsapp:+919962126306' 
+
         message = client.messages.create(
-            from_=TWILIO_WHATSAPP_NUMBER,
+            from_=TWILIO_WHATSAPP_NUMBER, # 'whatsapp:+14155238886'
             body=msg_content,
-            to=MY_WHATSAPP_NUMBER
+            to=target_number
         )
+        
+        print(f"✅ Message Sent! SID: {message.sid}")
         return {"status": "success", "sid": message.sid}
+        
     except Exception as e:
-        print(f"Twilio Send Error: {e}")
+        # 🛠️ Check Render Logs for this error message
+        print(f"❌ Twilio Send Error: {e}")
         return {"status": "error", "message": str(e)}
 
 @app.get("/")
