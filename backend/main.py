@@ -17,7 +17,7 @@ app = FastAPI(
 # ===============================
 # Hardcoded values-ai vida Render Environment Variables-ku priority kudukanum
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID', 'AC5a3cdd61a29ed82e3a5f2e54977fb072')
-TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN', 'd4150507de5b905fe8c39541294495de')
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN', '6ce8a0afe31272c81464ab9a5002c140')
 TWILIO_WHATSAPP_NUMBER = 'whatsapp:+14155238886' 
 MY_WHATSAPP_NUMBER = 'whatsapp:+919962126306'
 
