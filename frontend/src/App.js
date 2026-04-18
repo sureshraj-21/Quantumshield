@@ -54,31 +54,15 @@ const [bsi, setBsi] = useState(0);
   // 🚀 NOTIFICATION CONFIG
 const MY_PHONE = "919962126306";
 
-const sendSilentAlert = async (message) => {
-    // 1. Settings check (Naming correct-ah irukanum)
-    if (!isAlertEnabled || !isWhatsappEnabled) {
-      console.log("WhatsApp Alerts are disabled in settings.");
-      return;
-    }
-
-    try {
-        // 2. API Call to Render Backend
-        const response = await axios.post('https://quantumshield-3b12.onrender.com/api/send-notification', {
-            msg: message,
-            // 🛠️ FIX: Backend-la namma 'to_number' nu dhaan edukkurom
-            to_number: `whatsapp:+${MY_PHONE}` 
-        });
-
-        if (response.data.status === "success") {
-            console.log("✅ WhatsApp Notification Sent successfully!", response.data.sid);
-        } else {
-            console.error("❌ Backend Error:", response.data.message);
-        }
-
-    } catch (error) {
-        // 🛠️ Detail-ah error check panna idhu help pannum
-        console.error("❌ WhatsApp delivery failed:", error.response?.data?.message || error.message);
-    }
+const sendNotification = async (message) => {
+  try {
+    const response = await axios.post('https://quantumshield-3b12.onrender.com/api/send-notification', {
+        msg: message // 👈 Inga 'msg' nu dhaan irukanum
+    });
+    console.log("✅ Alert Sent:", response.data);
+  } catch (error) {
+    console.error("❌ Notification Failed:", error.message);
+  }
 };
 
   const stockList = [
