@@ -349,6 +349,7 @@ const speakStatus = () => {
 const handleLogin = async (e) => {
     if (e) e.preventDefault();
     setLoading(true); 
+    let loginStatus = false; // 👈 FIX: Intha flag mattum add pannunga
 
     try {
       console.log("🚀 Starting login request...");
@@ -358,7 +359,7 @@ const handleLogin = async (e) => {
         timeout: 60000 
       });
       
-      console.log("✅ Response received:", res.data); // Indha line console-la varutha nu paarunga
+      console.log("✅ Response received:", res.data);
 
       if (res.data && res.data.access_token) {
         const loginName = res.data.username || authData.username;
@@ -367,9 +368,14 @@ const handleLogin = async (e) => {
         
         setDisplayName(loginName);
         setIsLoggedIn(true);
+        loginStatus = true; // 👈 FIX: Login success nu mark panrom
+        
         console.log("✅ Session saved, attempting silent alert...");
 
         try {
+            // Ippo await pottalum kavalai illa, oru vela fail aanaalum 
+            // catch(alertErr) block-la dhaan idhu pogum. 
+            // Main 'catch' block-ku pogadhu.
             await sendSilentAlert(`🔐 LOGIN SUCCESS: ${loginName} accessed the terminal.`);
         } catch (alertErr) {
             console.warn("Silent alert failed, continuing login...");
@@ -379,20 +385,14 @@ const handleLogin = async (e) => {
       }
       
     } catch (err) {
-      // 🛠️ FIX: Indha console.error-ai pathu, error enna nu solunga
       console.error("❌ Login Error Object:", err); 
       
-      // Axios response err-a verify panna check
-      if (err.response) {
-          console.error("❌ Response Status:", err.response.status);
-      }
-
+      // 🛠️ FIX: Login status true nu irundha, alert kaattaathunga
       if (err.code === 'ECONNABORTED') {
         alert("Server is waking up... Please wait 10 seconds and try again!");
-      } else {
-         // Idhu dhaan ungalukku varra alert. 
-         // Login success aagum pothum idhu vantha, Global Interceptor issue!
-         alert("Invalid Credentials or Server Error!"); 
+      } else if (!loginStatus) { 
+          // Idhu Login fail aana mattum dhaan alert varum
+          alert("Invalid Credentials or Server Error!"); 
       }
     } finally {
       setLoading(false);
