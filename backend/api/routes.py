@@ -27,9 +27,9 @@ async def send_notification(request: Request):
         to_number = 'whatsapp:+919962126306'
 
         message = client.messages.create(
-            from_='whatsapp:+14155238886', # Twilio number
+            from_=from_number, # Twilio number
             body=msg_content,
-            to='whatsapp:+919962126306'     # Phone number-ku munnadi 'whatsapp:' prefix add pannunga
+            to=to_number     # Phone number-ku munnadi 'whatsapp:' prefix add pannunga
         )
         
         print(f"✅ Success! SID: {message.sid}")
