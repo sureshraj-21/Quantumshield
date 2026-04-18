@@ -77,10 +77,13 @@ async def send_notification(request: Request):
         return {"status": "success", "sid": message.sid}
         
     except Exception as e:
-        # Check Render logs for this error
-        print(f"❌ Twilio Send Error: {str(e)}")
-        return {"status": "error", "message": str(e)}
-
+        error_msg = str(e)
+        print(f"❌ Twilio Send Error: {error_msg}")
+        if "authenticate" in error_msg.lower() or "auth" in error_msg.lower():
+            print("⚠️  Auth Token may be expired or revoked. Regenerate at console.twilio.com")
+        if "not opted in" in error_msg.lower() or "21608" in error_msg:
+            print("⚠️  Recipient has not joined the WhatsApp sandbox.")
+        return {"status": "error", "message": error_msg}
 @app.get("/")
 def root():
     return {"status": "API Running", "accuracy_mode": "Real-time NSE Sync"}

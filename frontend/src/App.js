@@ -54,6 +54,14 @@ const [bsi, setBsi] = useState(0);
   // 🚀 NOTIFICATION CONFIG
 const MY_PHONE = "919962126306";
 
+const sendSilentAlert = async (msg) => {
+  if (!isWhatsappEnabled) return;
+  try {
+    await sendNotification(msg);
+  } catch (err) {
+    console.warn("WhatsApp alert failed:", err.message);
+  }
+};
 const sendNotification = async (message) => {
   try {
     const response = await axios.post('https://quantumshield-3b12.onrender.com/api/send-notification', {
