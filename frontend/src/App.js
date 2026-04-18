@@ -465,9 +465,29 @@ const handleLogin = async (e) => {
             />
             
             <button 
-  onClick={handleLogin}
-  > </button>
-          
+              onClick={handleLogin => {
+                const endpoint = isRegisterMode ? 'signup' : 'login';
+                try {
+                  const res = await axios.post(`https://quantumshield-3b12.onrender.com/auth/${endpoint}`, authData);
+                  
+                  if (res.data) {
+                    // 🚀 USERNAME SYNC FIX: Login panna name-ai global state-kku ethurom
+                    const typedUsername = authData.username.trim();
+                    setDisplayName(typedUsername);
+                    localStorage.setItem("userDisplayName", typedUsername);
+
+                    setIsLoggedIn(true);
+                    sendSilentAlert(`🔐 ${isRegisterMode ? "NEW USER" : "LOGIN"}: ${typedUsername} has accessed the terminal.`);
+                  }
+                } catch (err) {
+                  alert(isRegisterMode ? "Registration Error! Username might exist." : "Invalid Credentials!");
+                }
+              }} 
+              style={{ width: '100%', padding: '16px', marginTop: '15px', background: 'linear-gradient(90deg, #00f2fe, #4facfe)', color: '#002f35', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', transition: '0.3s' }}
+            >
+              {isRegisterMode ? "CREATE ACCOUNT" : "SIGN IN"}
+            </button>
+
             {/* Toggle Link */}
             <div style={{ marginTop: '25px', textAlign: 'center', fontSize: '14px', color: 'rgba(255,255,255,0.6)' }}>
               {isRegisterMode ? "Already a Quant?" : "New to the system?"} 
