@@ -12,7 +12,7 @@ from twilio.rest import Client
 router = APIRouter()
 
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID', 'AC5a3cdd61a29ed82e3a5f2e54977fb072')
-TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN', '6ce8a0afe31272c81464ab9a5002c140')
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN', 'a4bde39f35a4757c3c9602e258766bec')
 
 client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
