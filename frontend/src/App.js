@@ -348,48 +348,57 @@ const speakStatus = () => {
 };
 const handleLogin = async (e) => {
     if (e) e.preventDefault();
-    
-    // 🟡 First time click pannumbodhu Alert kaatta venam, loading mattum theriyaum
     setLoading(true); 
 
     try {
+      console.log("🚀 Starting login request...");
       const endpoint = isRegisterMode ? 'signup' : 'login';
       
-      // 🚀 Connection-ai try panrom
       const res = await axios.post(`https://quantumshield-3b12.onrender.com/auth/${endpoint}`, authData, {
-        timeout: 60000 // 🛡️ 60 seconds varai wait panna solrom (Render wake-up time)
+        timeout: 60000 
       });
       
+      console.log("✅ Response received:", res.data); // Indha line console-la varutha nu paarunga
+
       if (res.data && res.data.access_token) {
         const loginName = res.data.username || authData.username;
-        
-        // ✅ SAVE TO BROWSER MEMORY
         localStorage.setItem("userDisplayName", loginName);
-        localStorage.setItem("isLoggedIn", "true"); // Idhu thaan auto-login-ku mukkkiyam
+        localStorage.setItem("isLoggedIn", "true");
         
         setDisplayName(loginName);
         setIsLoggedIn(true);
+        console.log("✅ Session saved, attempting silent alert...");
 
-        // 🛠️ FIX: Notification-ai mattum separate-ah kulla pottutom.
-        // Ithu fail aanaalum main login catch-ku pogathu!
         try {
             await sendSilentAlert(`🔐 LOGIN SUCCESS: ${loginName} accessed the terminal.`);
         } catch (alertErr) {
-            console.warn("Silent alert failed, but login is successful!");
+            console.warn("Silent alert failed, continuing login...");
         }
+      } else {
+        console.log("⚠️ Access token missing, but status 200?");
       }
+      
     } catch (err) {
-      console.error("Login Error:", err);
-      // Oru vela backend thoonghi kittu irundhaa user-ku puriyura maadhiri alert
+      // 🛠️ FIX: Indha console.error-ai pathu, error enna nu solunga
+      console.error("❌ Login Error Object:", err); 
+      
+      // Axios response err-a verify panna check
+      if (err.response) {
+          console.error("❌ Response Status:", err.response.status);
+      }
+
       if (err.code === 'ECONNABORTED') {
         alert("Server is waking up... Please wait 10 seconds and try again!");
       } else {
-        alert("Invalid Credentials or Server Error!");
+         // Idhu dhaan ungalukku varra alert. 
+         // Login success aagum pothum idhu vantha, Global Interceptor issue!
+         alert("Invalid Credentials or Server Error!"); 
       }
     } finally {
       setLoading(false);
+      console.log("🏁 Login process finished.");
     }
-};
+  };
 
   const liveGraphData = {
     labels: priceHistory.map((_, i) => `${i}s`),
