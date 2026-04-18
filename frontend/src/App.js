@@ -360,17 +360,24 @@ const handleLogin = async (e) => {
         timeout: 60000 // 🛡️ 60 seconds varai wait panna solrom (Render wake-up time)
       });
       
-     if (res.data && res.data.access_token) {
-    const loginName = res.data.username || authData.username;
-    
-    // ✅ SAVE TO BROWSER MEMORY
-    localStorage.setItem("userDisplayName", loginName);
-    localStorage.setItem("isLoggedIn", "true"); // Idhu thaan auto-login-ku mukkkiyam
-    
-    setDisplayName(loginName);
-    setIsLoggedIn(true);
-    sendSilentAlert(`🔐 LOGIN SUCCESS: ${loginName} accessed the terminal.`);
-}
+      if (res.data && res.data.access_token) {
+        const loginName = res.data.username || authData.username;
+        
+        // ✅ SAVE TO BROWSER MEMORY
+        localStorage.setItem("userDisplayName", loginName);
+        localStorage.setItem("isLoggedIn", "true"); // Idhu thaan auto-login-ku mukkkiyam
+        
+        setDisplayName(loginName);
+        setIsLoggedIn(true);
+
+        // 🛠️ FIX: Notification-ai mattum separate-ah kulla pottutom.
+        // Ithu fail aanaalum main login catch-ku pogathu!
+        try {
+            await sendSilentAlert(`🔐 LOGIN SUCCESS: ${loginName} accessed the terminal.`);
+        } catch (alertErr) {
+            console.warn("Silent alert failed, but login is successful!");
+        }
+      }
     } catch (err) {
       console.error("Login Error:", err);
       // Oru vela backend thoonghi kittu irundhaa user-ku puriyura maadhiri alert
@@ -382,7 +389,7 @@ const handleLogin = async (e) => {
     } finally {
       setLoading(false);
     }
-  };
+};
 
   const liveGraphData = {
     labels: priceHistory.map((_, i) => `${i}s`),
