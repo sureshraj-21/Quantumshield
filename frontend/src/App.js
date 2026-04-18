@@ -464,45 +464,12 @@ const handleLogin = async (e) => {
               style={{ width: '100%', padding: '14px', margin: '12px 0', background: 'rgba(255,255,255,0.05)', color: 'white', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)' }} 
             />
             
-            <button 
-              onClick={handleLogin => {
-                const endpoint = isRegisterMode ? 'signup' : 'login';
-                try {
-                  const res = await axios.post(`https://quantumshield-3b12.onrender.com/auth/${endpoint}`, authData);
-                  
-                  if (res.data) {
-                    // 🚀 USERNAME SYNC FIX: Login panna name-ai global state-kku ethurom
-                    const typedUsername = authData.username.trim();
-                    setDisplayName(typedUsername);
-                    localStorage.setItem("userDisplayName", typedUsername);
-
-                    setIsLoggedIn(true);
-                    sendSilentAlert(`🔐 ${isRegisterMode ? "NEW USER" : "LOGIN"}: ${typedUsername} has accessed the terminal.`);
-                  }
-                } catch (err) {
-                  alert(isRegisterMode ? "Registration Error! Username might exist." : "Invalid Credentials!");
-                }
-              }} 
-              style={{ width: '100%', padding: '16px', marginTop: '15px', background: 'linear-gradient(90deg, #00f2fe, #4facfe)', color: '#002f35', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', transition: '0.3s' }}
-            >
-              {isRegisterMode ? "CREATE ACCOUNT" : "SIGN IN"}
-            </button>
-
-            {/* Toggle Link */}
-            <div style={{ marginTop: '25px', textAlign: 'center', fontSize: '14px', color: 'rgba(255,255,255,0.6)' }}>
-              {isRegisterMode ? "Already a Quant?" : "New to the system?"} 
-              <span 
-                onClick={() => setIsRegisterMode(!isRegisterMode)} 
-                style={{ color: '#00f2fe', cursor: 'pointer', marginLeft: '8px', fontWeight: 'bold', textDecoration: 'underline' }}
-              >
-                {isRegisterMode ? "Login here" : "Register now"}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+           <button 
+  onClick={handleLogin}
+  style={{ width: '100%', padding: '16px', marginTop: '15px', background: 'linear-gradient(90deg, #00f2fe, #4facfe)', color: '#002f35', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', transition: '0.3s' }}
+>
+  {isRegisterMode ? "CREATE ACCOUNT" : "SIGN IN"}
+</button>
 
   return (
     <div style={{ display: 'flex', backgroundColor: '#f4f7fe', minHeight: '100vh', fontFamily: "'Jakarta Sans', sans-serif" }}>
