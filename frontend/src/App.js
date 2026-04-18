@@ -370,10 +370,10 @@ const handleLogin = async (e) => {
         console.log("✅ Session saved, attempting silent alert...");
 
         try {
-            await sendSilentAlert(`🔐 LOGIN SUCCESS: ${loginName} accessed the terminal.`);
-        } catch (alertErr) {
-            console.warn("Silent alert failed, continuing login...");
-        }
+    sendSilentAlert(`🔐 LOGIN SUCCESS: ${loginName} accessed the terminal.`);
+} catch (e) {
+    console.warn("WhatsApp notification skipped...");
+}
       } else {
         console.log("⚠️ Access token missing, but status 200?");
       }
